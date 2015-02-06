@@ -13,5 +13,9 @@
     "src/lib",
     "test",
     "tests"
-  ]
+  ],
+  "dependencies": {
+    "rxjs": "~2.3.25",
+    "d3": "~3.5.3"
+  }
 }
