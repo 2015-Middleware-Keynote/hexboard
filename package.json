@@ -1,0 +1,11 @@
+{
+  "name": "d3rx-demo",
+  "version": "0.0.1",
+  "description": "A D3/Rx.JS example",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Brian Leathem",
+  "license": "ASLv2"
+}
