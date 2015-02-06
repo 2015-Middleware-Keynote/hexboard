@@ -1,4 +1,7 @@
 var gulp = require('gulp');
 
-gulp.task('default', function(){
-});
+var opts = {};
+
+require('./tasks/connect.js')(gulp, opts);
+
+gulp.task('default', ['connect', 'watch']);
