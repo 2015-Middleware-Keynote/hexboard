@@ -4,17 +4,13 @@
     stroke-width: 2px;
 }
 
-.node.red {
-    fill: #cc0000;
-}
-
-.node.blue {
-    fill: #0000cc;
-}
-
 .link {
     stroke: #777;
     stroke-width: 2px;
+}
+
+.link.red {
+    stroke: #FF0000;
 }
 
 button {

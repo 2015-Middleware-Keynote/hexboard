@@ -24,15 +24,15 @@
 
     // define the data
     var dataNodes = [
-        { x: 4*width/9, y:   height/3, className: 'red' },
-        { x: 5*width/9, y:   height/3, className: 'red' },
-        { x: 4*width/9, y: 2*height/3 },
-        { x: 5*width/9, y: 2*height/3 }
+        { x:   width/3, y:   height/3 },
+        { x: 2*width/3, y:   height/3 },
+        { x:   width/2, y: 2*height/3 }
     ];
 
     var dataLinks = [
-        { source: 0, target: 2},
-        { source: 1, target: 3}
+        { source: 0, target: 1, className: 'red'},
+        { source: 1, target: 2},
+        { source: 2, target: 0}
     ];
 
     //create a force layout object and define its properties
@@ -41,12 +41,11 @@
         .nodes(dataNodes)
         .links(dataLinks);
 
-    force.gravity(0.2);
-    force.linkDistance(height/4);
+    force.linkDistance(height/2);
 
-    force.charge(function(node) {
-        if (node.className === 'red')  return -3000;
-        return -30;
+    force.linkStrength(function(link) {
+        if (link.className === 'red')  return 0.1;
+        return 1;
     });
 
     // add the nodes and links to the visualization
@@ -67,7 +66,7 @@
         .attr('cx', function(d) { return d.x; })
         .attr('cy', function(d) { return d.y; });
 
-      nodes.each(function(d){
+      links.each(function(d){
         if (d.className) {
             d3.select(this).classed(d.className, true)
         }
