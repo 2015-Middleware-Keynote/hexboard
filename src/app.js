@@ -3,14 +3,15 @@
 (function(d3, rx) {
 
   // init
-  var width = 640
-    , height = 480;
+  var width = 960
+    , height = 500;
 
   var animationStep = 400;
 
   var force = null
     , nodes = null
-    , links = null;
+    , dataNodes = null
+    , foci = null;
 
   var svg = d3.select('body').append('svg')
     .attr('width', width)
@@ -22,90 +23,58 @@
     // makes it possible to restart the layout without refreshing the page
     svg.selectAll('*').remove();
 
-    // define the data
-    var dataNodes = [
-        { x:   width/3, y:   height/3 },
-        { x: 2*width/3, y:   height/3 },
-        { x:   width/2, y: 2*height/3 }
-    ];
+    foci = [
+        { x:   width/3, y:   height/3, id: 0},
+        { x: 2*width/3, y:   height/3, id: 1},
+        { x:   width/2, y: 2*height/3, id: 2}
+    ]
 
-    var dataLinks = [
-        { source: 0, target: 1, className: 'red'},
-        { source: 1, target: 2},
-        { source: 2, target: 0}
+    // define the data
+    dataNodes = [
+        { x:   width/4, y:   height/4, id: 1},
+        { x: 3*width/4, y:   height/4, id: 2},
+        { x:   width/2, y: 3*height/4, id: 0}
     ];
 
     //create a force layout object and define its properties
     force = d3.layout.force()
         .size([width, height])
         .nodes(dataNodes)
-        .links(dataLinks);
-
-    force.linkDistance(height/2);
-
-    force.linkStrength(function(link) {
-        if (link.className === 'red')  return 0.1;
-        return 1;
-    });
-
-    // add the nodes and links to the visualization
-    links = svg.selectAll('.link')
-        .data(dataLinks)
-        .enter().append('line')
-        .attr('class', 'link')
-        .attr('x1', function(d) { return dataNodes[d.source].x; })
-        .attr('y1', function(d) { return dataNodes[d.source].y; })
-        .attr('x2', function(d) { return dataNodes[d.target].x; })
-        .attr('y2', function(d) { return dataNodes[d.target].y; });
+        .links([])
+        .gravity(0);
 
     nodes = svg.selectAll('.node')
         .data(dataNodes)
         .enter().append('circle')
-        .attr('class', 'node')
+        .attr('class', function(d) { return 'node node' + d.id; })
         .attr('r', width/25)
         .attr('cx', function(d) { return d.x; })
         .attr('cy', function(d) { return d.y; });
 
-      links.each(function(d){
-        if (d.className) {
-            d3.select(this).classed(d.className, true)
-        }
-      });
+    force.on('tick', stepForce);
+  };
 
-     force.on('tick', stepForce);
-   };
+  var stepForce = function(event) {
+    var stepSize = force.fullSpeed ? .1 : 0.01;
+    var k = stepSize * event.alpha;
+     // Push nodes toward their designated focus.
+    dataNodes.forEach(function(o, i) {
+      o.y += (foci[o.id].y - o.y) * k;
+      o.x += (foci[o.id].x - o.x) * k;
+    });
 
-   var stepForce = function() {
-     if (force.fullSpeed) {
-        nodes.attr('cx', function(d) { return d.x; })
-             .attr('cy', function(d) { return d.y; });
-     } else {
-       nodes.transition().ease('linear').duration(animationStep)
-            .attr('cx', function(d) { return d.x; })
-            .attr('cy', function(d) { return d.y; });
-     }
+    nodes.attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
 
-     if (force.fullSpeed) {
-        links.attr('x1', function(d) { return d.source.x; })
-            .attr('y1', function(d) { return d.source.y; })
-            .attr('x2', function(d) { return d.target.x; })
-            .attr('y2', function(d) { return d.target.y; });
-      } else {
-        links.transition().ease('linear').duration(animationStep)
-            .attr('x1', function(d) { return d.source.x; })
-            .attr('y1', function(d) { return d.source.y; })
-            .attr('x2', function(d) { return d.target.x; })
-            .attr('y2', function(d) { return d.target.y; });
-      }
-      if (!force.fullSpeed) {
-        force.stop();
-      }
-      if (force.slowMotion) {
-        setTimeout(
-            function() { force.start(); },
-            animationStep
-        );
-      }
+    if (!force.fullSpeed) {
+      force.stop();
+    }
+    if (force.slowMotion) {
+      setTimeout(
+          function() { force.start(); },
+          animationStep
+      );
+    }
    };
 
   // the controls
