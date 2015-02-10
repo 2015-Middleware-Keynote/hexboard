@@ -84,7 +84,7 @@
 
   var moveNode = function(index, id) {
     var dataNode = dataNodes[index];
-    dataNode.id = ~~(Math.random() * foci.length);
+    dataNode.id = id;
   };
 
   var renderNodes = function(nodes) {
@@ -129,12 +129,23 @@
   force.fullSpeed  = true;
   force.start();
 
-  var interval = setInterval(function() {
-    var fociIndex = ~~(Math.random() * foci.length);
-    addNode(fociIndex);
-    var randomNodeIndex = ~~(Math.random() * dataNodes.length);
-    moveNode(randomNodeIndex, fociIndex);
+  var initialInterval = setInterval(function() {
+    addNode(~~(Math.random() * foci.length));
+    force.start();
+    nodes = nodes.data(dataNodes);
+    renderNodes(nodes);
+    if (dataNodes.length > 50) {
+      clearInterval(initialInterval);
+    }
+  }, 1)
 
+  var interval = setInterval(function() {
+    addNode(~~(Math.random() * foci.length));
+    var max = ~~(Math.random() * Math.min(5, dataNodes.length - 20));
+    for (var i=0; i <= max; i++) {
+      var randomNodeIndex = ~~(Math.random() * dataNodes.length);
+      moveNode(randomNodeIndex, ~~(Math.random() * foci.length));
+    }
     force.start();
     nodes = nodes.data(dataNodes);
     renderNodes(nodes);
