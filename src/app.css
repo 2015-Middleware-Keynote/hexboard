@@ -1,7 +1,13 @@
+.content {
+  background-image: url('devnation_map_bw.png');
+  background-size: contain; /* 2442x1448 */
+  background-repeat: no-repeat;
+}
+
 .node {
     fill: #ccc;
     stroke: #fff;
-    stroke-width: 2px;
+    stroke-width: 0.5px;
 }
 
 .node0 {
@@ -14,6 +20,18 @@
 
 .node2 {
     fill: blue;
+}
+
+.node3 {
+    fill: orange;
+}
+
+.node4 {
+    fill: magenta;
+}
+
+.node5 {
+    fill: yellow;
 }
 
 .link {

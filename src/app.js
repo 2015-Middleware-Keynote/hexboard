@@ -4,7 +4,7 @@
 
   // init
   var width = 960
-    , height = 500;
+    , height = 570;
 
   var animationStep = 400;
 
@@ -23,10 +23,12 @@
     // makes it possible to restart the layout without refreshing the page
     svg.selectAll('*').remove();
 
-    foci = [
-        { x:   width/3, y:   height/3, id: 0},
-        { x: 2*width/3, y:   height/3, id: 1},
-        { x:   width/2, y: 2*height/3, id: 2}
+    foci = [ { x: 360, y: 245, id: 0}  // Red Hat Booth 1
+           , { x: 640, y: 245, id: 1} // Red Hat Booth 2
+           , { x: 100, y: 350, id: 2} // The Cube
+           , { x: 340, y: 405, id: 3} // Room 207 SUMMIT Track
+           , { x: 455, y: 405, id: 4} // Room 208 SUMMIT Track
+           , { x: 560, y: 405, id: 5} // Room 209 SUMMIT Track
     ]
 
     // define the data
@@ -41,7 +43,8 @@
         .size([width, height])
         .nodes(dataNodes)
         .links([])
-        .gravity(0);
+        .gravity(0)
+        .charge(-5);
 
     // render any nodes initially present
     nodes = svg.selectAll('.node')
@@ -76,7 +79,12 @@
   };
 
   var addNode = function(id) {
-    dataNodes.push({x:50, y:height / 2, id: id});
+    dataNodes.push({x:150, y:height, id: id});
+  };
+
+  var moveNode = function(index, id) {
+    var dataNode = dataNodes[index];
+    dataNode.id = ~~(Math.random() * foci.length);
   };
 
   var renderNodes = function(nodes) {
@@ -84,7 +92,7 @@
       .attr("class", function(d) { return 'node node'+d.id} )
       .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; })
-      .attr('r', width/75)
+      .attr('r', 8)
       .call(force.drag);
   }
 
@@ -116,5 +124,23 @@
   });
 
   initForce();
+
+  force.slowMotion = false;
+  force.fullSpeed  = true;
+  force.start();
+
+  var interval = setInterval(function() {
+    var fociIndex = ~~(Math.random() * foci.length);
+    addNode(fociIndex);
+    var randomNodeIndex = ~~(Math.random() * dataNodes.length);
+    moveNode(randomNodeIndex, fociIndex);
+
+    force.start();
+    nodes = nodes.data(dataNodes);
+    renderNodes(nodes);
+    if (dataNodes.length > 500) {
+      clearInterval(interval);
+    }
+  }, 500)
 
 })(d3, Rx);
