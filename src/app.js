@@ -64,7 +64,7 @@
         .nodes(dataNodes2)
         .links(dataLinks2);
 
-    force2.gravity(0);
+    force2.friction(0.1);
 
     force1.linkDistance(height/2);
     force2.linkDistance(height/2);
