@@ -1,16 +1,23 @@
-.node {
-    fill: #ccc;
+.node1 {
+    fill: #0000cc;
     stroke: #fff;
     stroke-width: 2px;
 }
 
-.link {
-    stroke: #777;
+.node2 {
+    fill: #cc0000;
+    stroke: #fff;
     stroke-width: 2px;
 }
 
-.link.red {
-    stroke: #FF0000;
+.link1 {
+    stroke: #0000aa;
+    stroke-width: 1px;
+}
+
+.link2 {
+    stroke: #aa0000;
+    stroke-width: 1px;
 }
 
 button {
