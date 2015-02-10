@@ -23,8 +23,14 @@ module.exports = function(gulp, opts) {
       .pipe(connect.reload());
   });
 
+  gulp.task('css', function () {
+    gulp.src('./src/**/*.css')
+      .pipe(connect.reload());
+  });
+
   gulp.task('watch', function () {
     gulp.watch(['./src/**/*.html'], ['html']);
     gulp.watch(['./src/**/*.js'], ['js']);
+    gulp.watch(['./src/**/*.css'], ['css']);
   });
 };
