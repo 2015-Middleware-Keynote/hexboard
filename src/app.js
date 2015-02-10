@@ -24,15 +24,15 @@
 
     // define the data
     var dataNodes = [
-        { x:   width/3, y:   height/3, graph: 0 },
-        { x:   width/3, y: 2*height/3, graph: 0 },
-        { x: 2*width/3, y:   height/3, graph: 1 },
-        { x: 2*width/3, y: 2*height/3, graph: 1 }
+        { x: 4*width/9, y:   height/3, className: 'red' },
+        { x: 5*width/9, y:   height/3, className: 'red' },
+        { x: 4*width/9, y: 2*height/3 },
+        { x: 5*width/9, y: 2*height/3 }
     ];
 
     var dataLinks = [
-        { source: 0, target: 1},
-        { source: 2, target: 3}
+        { source: 0, target: 2},
+        { source: 1, target: 3}
     ];
 
     //create a force layout object and define its properties
@@ -41,12 +41,12 @@
         .nodes(dataNodes)
         .links(dataLinks);
 
-    force.gravity(0);
-    force.linkDistance(height/6);
-    force.linkStrength(0.1);
+    force.gravity(0.2);
+    force.linkDistance(height/4);
 
     force.charge(function(node) {
-       return node.graph === 0 ? -30 : -300;
+        if (node.className === 'red')  return -3000;
+        return -30;
     });
 
     // add the nodes and links to the visualization
@@ -66,6 +66,12 @@
         .attr('r', width/25)
         .attr('cx', function(d) { return d.x; })
         .attr('cy', function(d) { return d.y; });
+
+      nodes.each(function(d){
+        if (d.className) {
+            d3.select(this).classed(d.className, true)
+        }
+      });
 
      force.on('tick', stepForce);
    };
