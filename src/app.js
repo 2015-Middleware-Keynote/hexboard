@@ -4,10 +4,6 @@
   var width = 640
     , height = 480;
 
-  var svg = d3.select('.content').append('svg')
-    .attr('width', width)
-    .attr('height', height);
-
   var graph = {
     "nodes": [  { "x": 208.992345, "y": 273.053211 },
                 { "x": 595.98896,  "y":  56.377057 },
@@ -76,6 +72,10 @@
             ]
   };
 
+  var svg = d3.select('.content').append('svg')
+    .attr('width', width)
+    .attr('height', height);
+
   var nodes = graph.nodes,
     links = graph.links;
 
@@ -84,28 +84,56 @@
     .nodes(nodes)
     .links(links);
 
-  force.linkDistance(width/3.05);
+  force.linkDistance(width/3.5);
 
   var link = svg.selectAll('.link')
     .data(links)
     .enter().append('line')
-    .attr('class', 'link');
+    .attr('class', 'link')
+    .attr('x1', function(d) { return nodes[d.source].x; })
+    .attr('y1', function(d) { return nodes[d.source].y; })
+    .attr('x2', function(d) { return nodes[d.target].x; })
+    .attr('y2', function(d) { return nodes[d.target].y; });
 
   var node = svg.selectAll('.node')
     .data(nodes)
     .enter().append('circle')
-    .attr('class', 'node');
+    .attr('class', 'node')
+    .attr('r', width/100)
+    .attr('cx', function(d) { return d.x; })
+    .attr('cy', function(d) { return d.y; });
 
-  force.on('end', function() {
-    node.attr('r', width/100)
+  var animating = false;
+
+  var animationStep = 400;
+
+  force.on('tick', function() {
+    node.transition().ease('linear').duration(animationStep)
         .attr('cx', function(d) { return d.x; })
         .attr('cy', function(d) { return d.y; });
 
-    link.attr('x1', function(d) { return d.source.x; })
+    link.transition().ease('linear').duration(animationStep)
+        .attr('x1', function(d) { return d.source.x; })
         .attr('y1', function(d) { return d.source.y; })
         .attr('x2', function(d) { return d.target.x; })
         .attr('y2', function(d) { return d.target.y; });
+
+    force.stop();
+
+    if (animating) {
+      setTimeout(function() {
+          force.start();
+        }, animationStep);
+    }
   });
 
-  force.start();
+  // the controls
+  d3.select('#advance').on('click', force.start);
+
+  d3.select('#slow').on('click', function() {
+    d3.selectAll('button').attr('disabled','disabled');
+    animating = true;
+    force.start();
+  });
+
 })(d3, Rx);
