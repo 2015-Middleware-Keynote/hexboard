@@ -13,7 +13,7 @@
     , dataNodes = null
     , foci = null;
 
-  var svg = d3.select('body').append('svg')
+  var svg = d3.select('.content').append('svg')
     .attr('width', width)
     .attr('height', height);
 
@@ -30,11 +30,11 @@
     ]
 
     // define the data
-    dataNodes = [
-        { x:   width/4, y:   height/4, id: 1},
-        { x: 3*width/4, y:   height/4, id: 2},
-        { x:   width/2, y: 3*height/4, id: 0}
-    ];
+    dataNodes = [];
+
+    addNode(0);
+    addNode(1);
+    addNode(2);
 
     //create a force layout object and define its properties
     force = d3.layout.force()
@@ -43,13 +43,11 @@
         .links([])
         .gravity(0);
 
+    // render any nodes initially present
     nodes = svg.selectAll('.node')
-        .data(dataNodes)
-        .enter().append('circle')
-        .attr('class', function(d) { return 'node node' + d.id; })
-        .attr('r', width/25)
-        .attr('cx', function(d) { return d.x; })
-        .attr('cy', function(d) { return d.y; });
+        .data(dataNodes);
+
+    renderNodes(nodes);
 
     force.on('tick', stepForce);
   };
@@ -75,13 +73,22 @@
           animationStep
       );
     }
-   };
+  };
+
+  var addNode = function(id) {
+    dataNodes.push({x:50, y:height / 2, id: id});
+  };
+
+  var renderNodes = function(nodes) {
+    nodes.enter().append("circle")
+      .attr("class", function(d) { return 'node node'+d.id} )
+      .attr("cx", function(d) { return d.x; })
+      .attr("cy", function(d) { return d.y; })
+      .attr('r', width/75)
+      .call(force.drag);
+  }
 
   // the controls
-  d3.select('#advance').on('click', function() {
-    force.start();
-  });
-
   d3.select('#slow').on('click', function() {
     force.slowMotion = true;
     force.fullSpeed  = false;
@@ -92,6 +99,13 @@
     force.slowMotion = false;
     force.fullSpeed  = true;
     force.start();
+  });
+
+  d3.select('#add').on('click', function() {
+    addNode(~~(Math.random() * foci.length));
+    force.start();
+    nodes = nodes.data(dataNodes);
+    renderNodes(nodes);
   });
 
   d3.select('#reset').on('click', function() {
