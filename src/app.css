@@ -1,7 +1,7 @@
 .node {
     fill: #ccc;
     stroke: #fff;
-    stroke-width: 1px;
+    stroke-width: 2px;
 }
 
 .link {
@@ -14,5 +14,11 @@ button {
     width: 30px;
 }
 button#slow {
-    margin-left: 40px;
+    margin-top: 28px;
+}
+button#play {
+    margin-top: 54px;
+}
+button#reset {
+    margin-top: 80px;
 }
