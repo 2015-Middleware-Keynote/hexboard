@@ -24,15 +24,15 @@
 
     // define the data
     var dataNodes = [
-        { x:   width/3, y:   height/3 },
-        { x:   width/3, y: 2*height/3 },
-        { x: 2*width/3, y:   height/3 },
-        { x: 2*width/3, y: 2*height/3 }
+        { x:   width/3, y:   height/3, graph: 0 },
+        { x:   width/3, y: 2*height/3, graph: 0 },
+        { x: 2*width/3, y:   height/3, graph: 1 },
+        { x: 2*width/3, y: 2*height/3, graph: 1 }
     ];
 
     var dataLinks = [
-        { source: 0, target: 1, graph: 0 },
-        { source: 2, target: 3, graph: 1 }
+        { source: 0, target: 1},
+        { source: 2, target: 3}
     ];
 
     //create a force layout object and define its properties
@@ -42,9 +42,11 @@
         .links(dataLinks);
 
     force.gravity(0);
+    force.linkDistance(height/6);
+    force.linkStrength(0.1);
 
-    force.linkDistance(function(link) {
-       return link.graph === 0 ? height/2 : height/4;
+    force.charge(function(node) {
+       return node.graph === 0 ? -30 : -300;
     });
 
     // add the nodes and links to the visualization
