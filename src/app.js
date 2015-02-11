@@ -129,17 +129,22 @@
   force.fullSpeed  = true;
   force.start();
 
-  var initialInterval = setInterval(function() {
+  var source = Rx.Observable
+    .interval(1)
+    .take(50);
+
+  source.subscribe(function() {
     addNode(~~(Math.random() * foci.length));
     force.start();
     nodes = nodes.data(dataNodes);
     renderNodes(nodes);
-    if (dataNodes.length > 50) {
-      clearInterval(initialInterval);
-    }
-  }, 1)
+  });
 
-  var interval = setInterval(function() {
+  var source = Rx.Observable
+    .interval(500)
+    .take(500);
+
+  source.subscribe(function() {
     addNode(~~(Math.random() * foci.length));
     var max = ~~(Math.random() * Math.min(5, dataNodes.length - 20));
     for (var i=0; i <= max; i++) {
@@ -149,9 +154,6 @@
     force.start();
     nodes = nodes.data(dataNodes);
     renderNodes(nodes);
-    if (dataNodes.length > 500) {
-      clearInterval(interval);
-    }
-  }, 500)
+  });
 
 })(d3, Rx);
