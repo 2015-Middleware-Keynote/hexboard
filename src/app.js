@@ -23,7 +23,8 @@
     // makes it possible to restart the layout without refreshing the page
     svg.selectAll('*').remove();
 
-    foci = [ { x: 360, y: 245, id: 0}  // Red Hat Booth 1
+    foci = [ { x: 150, y: height - 50}  // Entrance
+           , { x: 360, y: 245, id: 0}  // Red Hat Booth 1
            , { x: 640, y: 245, id: 1} // Red Hat Booth 2
            , { x: 100, y: 350, id: 2} // The Cube
            , { x: 340, y: 405, id: 3} // Room 207 SUMMIT Track
@@ -34,10 +35,6 @@
     // define the data
     dataNodes = [];
 
-    addNode(0);
-    addNode(1);
-    addNode(2);
-
     //create a force layout object and define its properties
     force = d3.layout.force()
         .size([width, height])
@@ -46,11 +43,10 @@
         .gravity(0)
         .charge(-5);
 
-    // render any nodes initially present
     nodes = svg.selectAll('.node')
-        .data(dataNodes);
-
-    renderNodes(nodes);
+        .data(dataNodes, function(datum, index) {
+          datum.id;
+        });
 
     force.on('tick', stepForce);
   };
@@ -59,40 +55,48 @@
     var stepSize = .1;
     var k = stepSize * event.alpha;
      // Push nodes toward their designated focus.
-    dataNodes.forEach(function(o, i) {
-      o.y += (foci[o.id].y - o.y) * k;
-      o.x += (foci[o.id].x - o.x) * k;
+    dataNodes.forEach(function(datum, i) {
+      datum.y += (foci[datum.focus].y - datum.y) * k;
+      datum.x += (foci[datum.focus].x - datum.x) * k;
     });
 
     nodes.attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
   };
 
-  var addNode = function(id) {
-    dataNodes.push({x:150, y:height, id: id});
+
+  var uniqueId = 0;
+  var addNode = function(focus) {
+    dataNodes.push({
+        x:150
+      , y:height
+      , focus: focus
+      , id: uniqueId++});
   };
 
   var moveNode = function(index, id) {
     var dataNode = dataNodes[index];
-    dataNode.id = id;
+    dataNode.focus = id;
   };
 
-  var renderNodes = function(nodes) {
+  var removeNode = function(index) {
+    dataNodes.splice(index, 1);
+  };
+
+  var renderNodes = function() {
+    nodes = nodes.data(dataNodes, function(datum, index) {
+      return datum.id;
+    });
     nodes.enter().append("circle")
-      .attr("class", function(d) { return 'node node'+d.id} )
+      .attr("class", function(d) { return 'node node' + d.focus} )
       .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; })
-      .attr('r', 8)
-      .call(force.drag);
+      .attr('r', 8);
+    nodes.exit().remove();
   }
 
-  var getRandomIndex = function (length) {
-    return getRandomInt(0, length -1);
-  }
-
-  // Returns a random integer between min and max (included)
+  // Returns a random integer between min included) and max (excluded)
   var getRandomInt = function (min, max) {
-    max = max + 1;
     return Math.floor(Math.random() * (max - min)) + min;
   }
 
@@ -108,10 +112,9 @@
   });
 
   add.subscribe(function() {
-    addNode(getRandomIndex(foci.length));
+    addNode(getRandomInt(1, foci.length));
     force.start();
-    nodes = nodes.data(dataNodes);
-    renderNodes(nodes);
+    renderNodes();
   });
 
   reset.subscribe(function() {
@@ -129,14 +132,13 @@
       .take(50)
       .takeUntil(stop)
       .map(function() {
-        return getRandomIndex(foci.length);
+        return getRandomInt(1, foci.length);
       });
 
     source.subscribe(function(focus) {
       addNode(focus);
       force.start();
-      nodes = nodes.data(dataNodes);
-      renderNodes(nodes);
+      renderNodes();
     });
   }
 
@@ -146,21 +148,21 @@
       .take(500)
       .takeUntil(stop);
 
-    var arrivals = source.filter(function(){
+    var arrivals = source.filter(function() {
         return (dataNodes.length < 200);
       }).flatMap(function() {
-        var max = getRandomInt(1,3);
+        var max = getRandomInt(1,4);
         return Rx.Observable.range(0, max).map(function() {
-          return getRandomIndex(foci.length);
+          return getRandomInt(1, foci.length);
+        });
       });
-    });
 
     var movements = source.flatMap(function() {
       var max = dataNodes.length < 20 ? 1 : 5;
-      var num = getRandomInt(1, max);
+      var num = getRandomInt(1, max + 1);
       return Rx.Observable.range(0, num).map(function() {
-        var randomNodeIndex = getRandomIndex(dataNodes.length);
-        var focus = getRandomIndex(foci.length);
+        var randomNodeIndex = getRandomInt(0, dataNodes.length);
+        var focus = getRandomInt(1, foci.length);
         return {
           index: randomNodeIndex,
           focus: focus
@@ -168,15 +170,30 @@
       });
     });
 
+    var departures = source.filter(function() {
+        return (dataNodes.length > 30);
+      }).flatMap(function() {
+        var max = getRandomInt(1,3);
+        return Rx.Observable.range(0, max).map(function() {
+          var randomNodeIndex = getRandomInt(0, dataNodes.length);
+          return randomNodeIndex;
+        });
+      });
+
     arrivals.subscribe(function(focus) {
       addNode(focus);
       force.start();
-      nodes = nodes.data(dataNodes);
-      renderNodes(nodes);
+      renderNodes();
     });
 
     movements.subscribe(function(movement) {
       moveNode(movement.index, movement.focus);
+      force.start();
+    });
+
+    departures.subscribe(function(index) {
+      removeNode(index);
+      renderNodes();
       force.start();
     });
 
