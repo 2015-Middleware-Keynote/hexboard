@@ -61,7 +61,8 @@
     });
 
     nodes.attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
+         .attr("cy", function(d) { return d.y; })
+         .attr('r', function(d) { return d.present ? 8 : 3});
   };
 
 
@@ -71,17 +72,20 @@
         x:150
       , y:height
       , focus: focus
+      , present: true
       , id: uniqueId++});
   };
 
   var moveNode = function(index, id) {
     var dataNode = dataNodes[index];
+    dataNode.present = true;
     dataNode.focus = id;
   };
 
   var removeNode = function(index) {
     var dataNode = dataNodes[index];
     dataNode.focus = 0;
+    dataNode.present = true;
     setTimeout(function() {
       var currentIndex;
       for (var i = 0; i < dataNodes.length; i++) {
@@ -96,6 +100,11 @@
     }, 1000);
   };
 
+  var checkoutNode = function(index) {
+    var dataNode = dataNodes[index];
+    dataNode.present = false;
+  };
+
   var renderNodes = function() {
     nodes = nodes.data(dataNodes, function(datum, index) {
       return datum.id;
@@ -104,7 +113,7 @@
       .attr("class", function(d) { return 'node node' + d.focus} )
       .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; })
-      .attr('r', 8);
+      .attr('r', function(d) { return d.present ? 8 : 2});
     nodes.exit().remove();
   }
 
@@ -158,8 +167,14 @@
   var run = function() {
     var source = Rx.Observable
       .interval(500)
-      .take(500)
+      .take(5000)
       .takeUntil(stop);
+
+    var count = 0;
+    source.subscribe(function(x) {
+      document.getElementById('interval').innerHTML = count++;
+      document.getElementById('nodeCount').innerHTML = dataNodes.length;
+    })
 
     var arrivals = source.filter(function() {
         return (dataNodes.length < 200);
@@ -183,6 +198,15 @@
         });
       });
 
+    var checkouts = source.flatMap(function() {
+        var max = dataNodes.length < 20 ? 1 : 5;
+        var num = getRandomInt(1, max + 1);
+        return Rx.Observable.range(0, num).map(function() {
+          var randomNodeIndex = getRandomInt(0, dataNodes.length);
+          return randomNodeIndex;
+        });
+      });
+
     var departures = source.filter(function() {
         return (dataNodes.length > 30);
       }).flatMap(function() {
@@ -201,6 +225,14 @@
 
     movements.subscribe(function(movement) {
       moveNode(movement.index, movement.focus);
+      force.start();
+      renderNodes();
+    });
+
+    checkouts.subscribe(function(index) {
+      checkoutNode(index);
+      force.start();
+      renderNodes();
     });
 
     departures.subscribe(function(index) {
