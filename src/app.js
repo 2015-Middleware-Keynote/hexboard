@@ -86,6 +86,16 @@
       .call(force.drag);
   }
 
+  var getRandomIndex = function (length) {
+    return getRandomInt(0, length -1);
+  }
+
+  // Returns a random integer between min and max (included)
+  var getRandomInt = function (min, max) {
+    max = max + 1;
+    return Math.floor(Math.random() * (max - min)) + min;
+  }
+
   var reset = Rx.Observable.fromEvent(d3.select('#reset').node(), 'click')
     , pause = Rx.Observable.fromEvent(d3.select('#pause').node(), 'click')
     , play = Rx.Observable.fromEvent(d3.select('#play').node(), 'click')
@@ -98,7 +108,7 @@
   });
 
   add.subscribe(function() {
-    addNode(~~(Math.random() * foci.length));
+    addNode(getRandomIndex(foci.length));
     force.start();
     nodes = nodes.data(dataNodes);
     renderNodes(nodes);
@@ -117,10 +127,13 @@
     var source = Rx.Observable
       .interval(1)
       .take(50)
-      .takeUntil(stop);
+      .takeUntil(stop)
+      .map(function() {
+        return getRandomIndex(foci.length);
+      });
 
-    source.subscribe(function() {
-      addNode(~~(Math.random() * foci.length));
+    source.subscribe(function(focus) {
+      addNode(focus);
       force.start();
       nodes = nodes.data(dataNodes);
       renderNodes(nodes);
@@ -133,17 +146,37 @@
       .take(500)
       .takeUntil(stop);
 
-    source.subscribe(function() {
-      addNode(~~(Math.random() * foci.length));
-      var max = ~~(Math.random() * Math.min(5, dataNodes.length - 20));
-      for (var i=0; i <= max; i++) {
-        var randomNodeIndex = ~~(Math.random() * dataNodes.length);
-        moveNode(randomNodeIndex, ~~(Math.random() * foci.length));
-      }
+    var arrivals = source.flatMap(function() {
+      var max = getRandomInt(1,3);
+      return Rx.Observable.range(0, max).map(function() {
+        return getRandomIndex(foci.length);
+      });
+    });
+
+    var movements = source.flatMap(function() {
+      var max = getRandomIndex(Math.min(5, dataNodes.length - 20));
+      return Rx.Observable.range(0, max).map(function() {
+        var randomNodeIndex = getRandomIndex(dataNodes.length);
+        var focus = getRandomIndex(foci.length);
+        return {
+          index: randomNodeIndex,
+          focus: focus
+        };
+      });
+    });
+
+    arrivals.subscribe(function(focus) {
+      addNode(focus);
       force.start();
       nodes = nodes.data(dataNodes);
       renderNodes(nodes);
     });
+
+    movements.subscribe(function(movement) {
+      moveNode(movement.index, movement.focus);
+      force.start();
+    });
+
     force.start();
   };
 
