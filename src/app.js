@@ -1,6 +1,6 @@
 'use strict';
 
-(function(d3, rx) {
+(function d3andRxDemo(d3, rx) {
 
   // init
   var width = 960
@@ -56,7 +56,7 @@
   };
 
   var stepForce = function(event) {
-    var stepSize = force.fullSpeed ? .1 : 0.01;
+    var stepSize = .1;
     var k = stepSize * event.alpha;
      // Push nodes toward their designated focus.
     dataNodes.forEach(function(o, i) {
@@ -66,16 +66,6 @@
 
     nodes.attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
-
-    if (!force.fullSpeed) {
-      force.stop();
-    }
-    if (force.slowMotion) {
-      setTimeout(
-          function() { force.start(); },
-          animationStep
-      );
-    }
   };
 
   var addNode = function(id) {
@@ -96,64 +86,68 @@
       .call(force.drag);
   }
 
-  // the controls
-  d3.select('#slow').on('click', function() {
-    force.slowMotion = true;
-    force.fullSpeed  = false;
-    force.start();
+  var reset = Rx.Observable.fromEvent(d3.select('#reset').node(), 'click')
+    , pause = Rx.Observable.fromEvent(d3.select('#pause').node(), 'click')
+    , play = Rx.Observable.fromEvent(d3.select('#play').node(), 'click')
+    , add = Rx.Observable.fromEvent(d3.select('#add').node(), 'click');
+
+  var stop = Rx.Observable.merge(reset, pause);
+
+  play.subscribe(function() {
+    run();
   });
 
-  d3.select('#play').on('click', function() {
-    force.slowMotion = false;
-    force.fullSpeed  = true;
-    force.start();
-  });
-
-  d3.select('#add').on('click', function() {
+  add.subscribe(function() {
     addNode(~~(Math.random() * foci.length));
     force.start();
     nodes = nodes.data(dataNodes);
     renderNodes(nodes);
   });
 
-  d3.select('#reset').on('click', function() {
+  reset.subscribe(function() {
     if (force) {
         force.stop();
     }
     initForce();
+    runSetup();
+    run();
   });
+
+  var runSetup = function() {
+    var source = Rx.Observable
+      .interval(1)
+      .take(50)
+      .takeUntil(stop);
+
+    source.subscribe(function() {
+      addNode(~~(Math.random() * foci.length));
+      force.start();
+      nodes = nodes.data(dataNodes);
+      renderNodes(nodes);
+    });
+  }
+
+  var run = function() {
+    var source = Rx.Observable
+      .interval(500)
+      .take(500)
+      .takeUntil(stop);
+
+    source.subscribe(function() {
+      addNode(~~(Math.random() * foci.length));
+      var max = ~~(Math.random() * Math.min(5, dataNodes.length - 20));
+      for (var i=0; i <= max; i++) {
+        var randomNodeIndex = ~~(Math.random() * dataNodes.length);
+        moveNode(randomNodeIndex, ~~(Math.random() * foci.length));
+      }
+      force.start();
+      nodes = nodes.data(dataNodes);
+      renderNodes(nodes);
+    });
+    force.start();
+  };
 
   initForce();
-
-  force.slowMotion = false;
-  force.fullSpeed  = true;
-  force.start();
-
-  var source = Rx.Observable
-    .interval(1)
-    .take(50);
-
-  source.subscribe(function() {
-    addNode(~~(Math.random() * foci.length));
-    force.start();
-    nodes = nodes.data(dataNodes);
-    renderNodes(nodes);
-  });
-
-  var source = Rx.Observable
-    .interval(500)
-    .take(500);
-
-  source.subscribe(function() {
-    addNode(~~(Math.random() * foci.length));
-    var max = ~~(Math.random() * Math.min(5, dataNodes.length - 20));
-    for (var i=0; i <= max; i++) {
-      var randomNodeIndex = ~~(Math.random() * dataNodes.length);
-      moveNode(randomNodeIndex, ~~(Math.random() * foci.length));
-    }
-    force.start();
-    nodes = nodes.data(dataNodes);
-    renderNodes(nodes);
-  });
-
+  runSetup();
+  run();
 })(d3, Rx);
