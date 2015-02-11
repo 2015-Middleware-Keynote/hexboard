@@ -23,7 +23,7 @@
     // makes it possible to restart the layout without refreshing the page
     svg.selectAll('*').remove();
 
-    foci = [ { x: 150, y: height - 50}  // Entrance
+    foci = [ { x: 150, y: height}  // Entrance
            , { x: 360, y: 245, id: 0}  // Red Hat Booth 1
            , { x: 640, y: 245, id: 1} // Red Hat Booth 2
            , { x: 100, y: 350, id: 2} // The Cube
@@ -80,7 +80,20 @@
   };
 
   var removeNode = function(index) {
-    dataNodes.splice(index, 1);
+    var dataNode = dataNodes[index];
+    dataNode.focus = 0;
+    setTimeout(function() {
+      var currentIndex;
+      for (var i = 0; i < dataNodes.length; i++) {
+        if (dataNode.id === dataNodes[i].id) {
+          currentIndex = i;
+          break;
+        }
+      }
+      dataNodes.splice(currentIndex, 1);
+      force.start();
+      renderNodes();
+    }, 1000);
   };
 
   var renderNodes = function() {
@@ -158,17 +171,17 @@
       });
 
     var movements = source.flatMap(function() {
-      var max = dataNodes.length < 20 ? 1 : 5;
-      var num = getRandomInt(1, max + 1);
-      return Rx.Observable.range(0, num).map(function() {
-        var randomNodeIndex = getRandomInt(0, dataNodes.length);
-        var focus = getRandomInt(1, foci.length);
-        return {
-          index: randomNodeIndex,
-          focus: focus
-        };
+        var max = dataNodes.length < 20 ? 1 : 5;
+        var num = getRandomInt(1, max + 1);
+        return Rx.Observable.range(0, num).map(function() {
+          var randomNodeIndex = getRandomInt(0, dataNodes.length);
+          var focus = getRandomInt(1, foci.length);
+          return {
+            index: randomNodeIndex,
+            focus: focus
+          };
+        });
       });
-    });
 
     var departures = source.filter(function() {
         return (dataNodes.length > 30);
@@ -188,13 +201,10 @@
 
     movements.subscribe(function(movement) {
       moveNode(movement.index, movement.focus);
-      force.start();
     });
 
     departures.subscribe(function(index) {
       removeNode(index);
-      renderNodes();
-      force.start();
     });
 
     force.start();
