@@ -146,16 +146,19 @@
       .take(500)
       .takeUntil(stop);
 
-    var arrivals = source.flatMap(function() {
-      var max = getRandomInt(1,3);
-      return Rx.Observable.range(0, max).map(function() {
-        return getRandomIndex(foci.length);
+    var arrivals = source.filter(function(){
+        return (dataNodes.length < 200);
+      }).flatMap(function() {
+        var max = getRandomInt(1,3);
+        return Rx.Observable.range(0, max).map(function() {
+          return getRandomIndex(foci.length);
       });
     });
 
     var movements = source.flatMap(function() {
-      var max = getRandomIndex(Math.min(5, dataNodes.length - 20));
-      return Rx.Observable.range(0, max).map(function() {
+      var max = dataNodes.length < 20 ? 1 : 5;
+      var num = getRandomInt(1, max);
+      return Rx.Observable.range(0, num).map(function() {
         var randomNodeIndex = getRandomIndex(dataNodes.length);
         var focus = getRandomIndex(foci.length);
         return {
