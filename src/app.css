@@ -53,7 +53,8 @@
 }
 
 .selected {
-  fill: magenta;
+  stroke: magenta !important;
+  stroke-width: 2px;
 }
 
 .userinfo {
@@ -66,6 +67,7 @@
 }
 
 .userinfo th {
+  white-space: nowrap;
   font-weight: normal;
   text-align: right;
 }

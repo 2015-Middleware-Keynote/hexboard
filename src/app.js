@@ -57,8 +57,6 @@ var d3demo = d3demo || {};
       datum.x += (foci[datum.focus].x - datum.x) * k;
     });
 
-    var color = getColor('0');
-    console.log(color);
     var now = new Date().getTime();
 
     nodes.attr("cx", function(d) { return d.x; })
@@ -78,7 +76,6 @@ var d3demo = d3demo || {};
     var hue = 270/(temp/2000 + 1);
     // var hue = 30 + 240 * ((100 - temp)/100); // 60;  30 - 270
     var color = 'hsl(' + [Math.floor(hue), '70%', '50%'] + ')'
-    console.log(temp, color);
     return color;
   };
 
@@ -111,6 +108,7 @@ var d3demo = d3demo || {};
       dataNode.present = true;
       dataNode.focus = movement.focus;
       dataNode.checkInTime = new Date().getTime();
+      dataNode.checkOutTime = null;
     } else {
       console.log('Unable to move node: ' + movement.user.id);
     };
@@ -281,15 +279,31 @@ var d3demo = d3demo || {};
     var node = d3.select(event.target);
     node.classed({selected: true});
     var data = node.data()[0];
-    updateUserInfoPanel(data.user);
+    updateUserInfoPanel(data);
   });
 
-  var updateUserInfoPanel = function(user) {
+  var updateUserInfoPanel = function(data) {
     var div = d3.select('.userinfo');
     div.style({'display': 'table-cell'});
-    console.log(user);
-    div.select('.id_v').text(user.id);
-    div.select('.name_v').text(user.name);
+    console.log(data);
+    div.select('.id_v').text(data.user.id);
+    div.select('.name_v').text(data.user.name);
+    div.select('.checkin_v').text(formatTime(data.checkInTime));
+    div.select('.checkout_v').text(formatTime(data.checkOutTime));
+  }
+
+  var formatTime = function(time) {
+    if (!time) {
+      return "";
+    }
+    var date = new Date(time);
+    var hours = date.getHours();
+    var minutes = "0" + date.getMinutes();
+    var seconds = "0" + date.getSeconds();
+
+    // will display time in 10:30:23 format
+    var formattedTime = hours + ':' + minutes.substr(minutes.length-2) + ':' + seconds.substr(seconds.length-2);
+    return formattedTime;
   }
 
   initForce();
