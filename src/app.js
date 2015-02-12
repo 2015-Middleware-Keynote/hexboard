@@ -77,8 +77,7 @@
       , id: uniqueId++});
   };
 
-  var moveNode = function(index, id) {
-    var dataNode = dataNodes[index];
+  var moveNode = function(dataNode, id) {
     dataNode.present = true;
     dataNode.focus = id;
   };
@@ -173,12 +172,20 @@
         var max = Math.min(dataNodes.length - 1, 5);
         var num = getRandomInt(1, max + 1);
         return Rx.Observable.range(0, num).map(function() {
-          var randomNodeIndex = getRandomInt(0, dataNodes.length);
+          var checkedOut = dataNodes.filter(function(node) {
+            return ! node.present;
+          });
+          if (! checkedOut.length) {
+            return null;
+          }
+          var randomNodeIndex = getRandomInt(0, checkedOut.length);
           var focus = getRandomInt(1, foci.length);
           return {
-            index: randomNodeIndex,
+            dataNode: checkedOut[randomNodeIndex],
             focus: focus
           };
+        }).filter(function(entry) {
+          return entry != null;
         });
       });
 
@@ -208,7 +215,7 @@
     });
 
     movements.subscribe(function(movement) {
-      moveNode(movement.index, movement.focus);
+      moveNode(movement.dataNode, movement.focus);
       force.start();
       renderNodes();
     });
