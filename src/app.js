@@ -14,7 +14,7 @@ var d3demo = d3demo || {};
     , dataNodes = null
     , foci = null;
 
-  var svg = d3.select('.content').append('svg')
+  var svg = d3.select('.map').append('svg')
     .attr('width', width)
     .attr('height', height);
 
@@ -79,22 +79,23 @@ var d3demo = d3demo || {};
       , y:height
       , focus: arrival.focus
       , present: true
-      , id: arrival.id});
+      , user: arrival.user
+      , id: arrival.user.id});
   };
 
   var moveNode = function(movement) {
-    var index = findNodeById(dataNodes, movement.id);
+    var index = findNodeById(dataNodes, movement.user.id);
     if (index >= 0) {
       var dataNode = dataNodes[index];
       dataNode.present = true;
       dataNode.focus = movement.focus;
     } else {
-      console.log('Unable to move node: ' + movement.id);
+      console.log('Unable to move node: ' + movement.user.id);
     };
   };
 
   var removeNode = function(departure) {
-    var index = findNodeById(dataNodes, departure.id);
+    var index = findNodeById(dataNodes, departure.user.id);
     if (index >= 0) {
       var dataNode = dataNodes[index];
       dataNode.focus = 0;
@@ -107,20 +108,20 @@ var d3demo = d3demo || {};
           force.start();
           renderNodes();
         } else {
-          console.log('Node no longer available: ' + departure.id);
+          console.log('Node no longer available: ' + departure.user.id);
         }
       }, 1200);
     } else {
-      console.log('Unable to remove node: ' + departure.id);
+      console.log('Unable to remove node: ' + departure.user.id);
     };
   };
 
   var checkoutNode = function(checkout) {
-    var index = findNodeById(dataNodes, checkout.id);
+    var index = findNodeById(dataNodes, checkout.user.id);
     if (index >= 0) {
       dataNodes[index].present = false;
     } else {
-      console.log('Unable to check-out node: ' + checkout.id);
+      console.log('Unable to check-out node: ' + checkout.user.id);
     };
   };
 
@@ -139,7 +140,9 @@ var d3demo = d3demo || {};
   var reset = Rx.Observable.fromEvent(d3.select('#reset').node(), 'click')
     , pause = Rx.Observable.fromEvent(d3.select('#pause').node(), 'click')
     , play = Rx.Observable.fromEvent(d3.select('#play').node(), 'click')
-    , add = Rx.Observable.fromEvent(d3.select('#add').node(), 'click');
+    , add = Rx.Observable.fromEvent(d3.select('#add').node(), 'click')
+    , nodeClick = Rx.Observable.fromEvent(d3.select('.map').node(), 'click')
+    ;
 
   var stop = Rx.Observable.merge(reset, pause);
 
@@ -179,7 +182,7 @@ var d3demo = d3demo || {};
       return event.user.lastScanner == null;
     }).map(function(event) {
       return {
-        id: event.user.id,
+        user: event.user,
         focus: event.user.scanner.location.id
       };
     });
@@ -188,7 +191,7 @@ var d3demo = d3demo || {};
       return event.user.lastScanner != null && event.scanner.type === 'check-in';
     }).map(function(event) {
       return {
-        id: event.user.id,
+        user: event.user,
         focus: event.user.scanner.location.id
       };
     });
@@ -197,18 +200,19 @@ var d3demo = d3demo || {};
       return event.scanner.type === 'check-out' && event.scanner.location.id !== 0;
     }).map(function(event) {
       return {
-        id: event.user.id,
+        user: event.user,
         focus: event.user.scanner.location.id
       };
     });
 
     var departures = source.filter(function(event) {
-        return event.scanner.type === 'check-out' && event.scanner.location.id === 0;
-      }).map(function(event) {
-        return {
-          id: event.user.id
-        };
-      });
+      return event.scanner.type === 'check-out' && event.scanner.location.id === 0;
+    }).map(function(event) {
+      return {
+        user: event.user,
+
+      };
+    });
 
     arrivals.subscribe(function(arrival) {
       addNode(arrival);
@@ -236,6 +240,25 @@ var d3demo = d3demo || {};
 
     force.start();
   };
+
+  nodeClick.filter(function(event) {
+    return event.target && event.target.nodeName === 'circle';
+  })
+  .subscribe(function(event) {
+    svg.select('.selected').classed({selected: false});
+    var node = d3.select(event.target);
+    node.classed({selected: true});
+    var data = node.data()[0];
+    updateUserInfoPanel(data.user);
+  });
+
+  var updateUserInfoPanel = function(user) {
+    var div = d3.select('.userinfo');
+    div.style({'display': 'table-cell'});
+    console.log(user);
+    div.select('.id_v').text(user.id);
+    div.select('.name_v').text(user.name);
+  }
 
   initForce();
   run();

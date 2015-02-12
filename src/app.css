@@ -1,7 +1,17 @@
 .content {
+  display: table-row;
+}
+
+.map {
   background-image: url('devnation_map_bw.png');
   background-size: contain; /* 2442x1448 */
   background-repeat: no-repeat;
+  display: table-cell;
+}
+
+.userinfo {
+  display: table-cell;
+  vertical-align: top;
 }
 
 .node {
@@ -31,7 +41,7 @@
 }
 
 .node5 {
-    fill: magenta;
+    fill: lightgreen;
 }
 
 .node6 {
@@ -68,4 +78,28 @@
 
 .check-out {
   color: red;
+}
+
+.selected {
+  fill: magenta;
+}
+
+.userinfo {
+  display:none;
+}
+
+.userinfo .title {
+  font-size: 120%;
+  text-align: center;
+}
+
+.userinfo th {
+  font-weight: normal;
+  text-align: right;
+}
+
+.userinfo td {
+  white-space: nowrap;
+  font-weight: bold;
+  text-align: left;
 }
