@@ -94,10 +94,17 @@ d3demo = (function dataSimulator(d3, Rx) {
     }
   });
 
+  var resetUsers = function() {
+    users.forEach(function(user) {
+      user.lastScanner = user.scanner = null;
+    })
+  };
+
   return {
-    width: width,
-    height: height,
-    locations: locations,
-    source: source
+    width: width
+  , height: height
+  , locations: locations
+  , source: source
+  , resetUsers: resetUsers
   }
 })(d3, Rx);

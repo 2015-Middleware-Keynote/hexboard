@@ -140,26 +140,31 @@ var d3demo = d3demo || {};
   var reset = Rx.Observable.fromEvent(d3.select('#reset').node(), 'click')
     , pause = Rx.Observable.fromEvent(d3.select('#pause').node(), 'click')
     , play = Rx.Observable.fromEvent(d3.select('#play').node(), 'click')
-    , add = Rx.Observable.fromEvent(d3.select('#add').node(), 'click')
     , nodeClick = Rx.Observable.fromEvent(d3.select('.map').node(), 'click')
+    , pauser = new Rx.Subject()
     ;
 
-  var stop = Rx.Observable.merge(reset, pause);
+  var stop = Rx.Observable.merge(reset);
 
   play.subscribe(function() {
-    run();
+    pauser.onNext(true);
+  });
+
+  pause.subscribe(function() {
+    pauser.onNext(false);
   });
 
   reset.subscribe(function() {
     if (force) {
-        force.stop();
+      force.stop();
     }
     initForce();
+    d3demo.resetUsers();
     run();
   });
 
   var run = function() {
-    var source = d3demo.source.take(1000).takeUntil(stop).publish();
+    var source = d3demo.source.take(1000).takeUntil(stop).pausable(pauser).publish();
 
     // a shared error handler
     var errorHandler = function (err) {
@@ -240,6 +245,7 @@ var d3demo = d3demo || {};
 
     // start the shared (published) interval timer
     source.connect();
+    pauser.onNext(true);
 
     force.start();
   };
