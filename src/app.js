@@ -185,7 +185,7 @@ var d3demo = d3demo || {};
   });
 
   var run = function() {
-    var source = d3demo.source.take(1000).takeUntil(stop).pausable(pauser).publish();
+    var source = d3demo.source.take(5000).takeUntil(stop).pausable(pauser).publish();
 
     // a shared error handler
     var errorHandler = function (err) {

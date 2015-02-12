@@ -76,14 +76,13 @@ d3demo = (function dataSimulator(d3, Rx) {
   var interval = Rx.Observable
     .interval(500);
 
-  var interval2 = Rx.Observable.merge(
-    interval.take(2).flatMap(function() {
-      return Rx.Observable.interval(20).take(25)
-    })
-  , interval.skip(2).flatMap(function() {
-      return Rx.Observable.interval(50).take(getRandomInt(2,10))
-    })
-  );
+  var count = 0;
+  var interval2 = interval.flatMap(function() {
+    var dur = count % 20 <= 1 ? 15 : 50;
+    var num = count % 20 <= 1 ? 40 : getRandomInt(3,10);
+    count++;
+    return Rx.Observable.interval(dur).take(num)
+  });
 
   var source = interval2.map(function() {
     var user = users[getRandomInt(0, users.length)];
