@@ -57,9 +57,29 @@ var d3demo = d3demo || {};
       datum.x += (foci[datum.focus].x - datum.x) * k;
     });
 
+    var color = getColor('0');
+    console.log(color);
+    var now = new Date().getTime();
+
     nodes.attr("cx", function(d) { return d.x; })
          .attr("cy", function(d) { return d.y; })
-         .attr('r', function(d) { return d.present ? 8 : 3});
+         .attr('r', function(d) { return d.present ? 8 : 3})
+         .style('fill', function(d) {
+           if (d.present) {
+             return getColor(now - d.checkInTime);
+           } else {
+             return getColor(d.checkOutTime - d.checkInTime);
+           }
+         });
+  };
+
+  var getColor = function(temp) { // temp : 0 - 100
+    // var hue = 30 + 1/(1-temp) * 270;
+    var hue = 270/(temp/2000 + 1);
+    // var hue = 30 + 240 * ((100 - temp)/100); // 60;  30 - 270
+    var color = 'hsl(' + [Math.floor(hue), '70%', '50%'] + ')'
+    console.log(temp, color);
+    return color;
   };
 
   var findNodeById = function(nodeList, id) {
@@ -80,6 +100,7 @@ var d3demo = d3demo || {};
       , focus: arrival.focus
       , present: true
       , user: arrival.user
+      , checkInTime: new Date().getTime()
       , id: arrival.user.id});
   };
 
@@ -89,6 +110,7 @@ var d3demo = d3demo || {};
       var dataNode = dataNodes[index];
       dataNode.present = true;
       dataNode.focus = movement.focus;
+      dataNode.checkInTime = new Date().getTime();
     } else {
       console.log('Unable to move node: ' + movement.user.id);
     };
@@ -120,6 +142,7 @@ var d3demo = d3demo || {};
     var index = findNodeById(dataNodes, checkout.user.id);
     if (index >= 0) {
       dataNodes[index].present = false;
+      dataNodes[index].checkOutTime = new Date().getTime();
     } else {
       console.log('Unable to check-out node: ' + checkout.user.id);
     };
@@ -130,7 +153,7 @@ var d3demo = d3demo || {};
       return datum.id;
     });
     nodes.enter().append("circle")
-      .attr("class", function(d) { return 'node node' + d.focus} )
+      .attr("class", 'node' )
       .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; })
       .attr('r', function(d) { return d.present ? 8 : 2});

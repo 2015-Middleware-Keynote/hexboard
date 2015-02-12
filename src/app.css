@@ -20,34 +20,6 @@
     stroke-width: 0.5px;
 }
 
-.node0 {
-    fill: cyan;
-}
-
-.node1 {
-    fill: red;
-}
-
-.node2 {
-    fill: green;
-}
-
-.node3 {
-    fill: blue;
-}
-
-.node4 {
-    fill: orange;
-}
-
-.node5 {
-    fill: lightgreen;
-}
-
-.node6 {
-    fill: yellow;
-}
-
 .link {
     stroke: #777;
     stroke-width: 2px;
