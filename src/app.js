@@ -25,11 +25,11 @@
 
     foci = [ { x: 150, y: height}  // Entrance
            , { x: 360, y: 245, id: 0}  // Red Hat Booth 1
-           , { x: 640, y: 245, id: 1} // Red Hat Booth 2
+           , { x: 635, y: 245, id: 1} // Red Hat Booth 2
            , { x: 100, y: 350, id: 2} // The Cube
-           , { x: 340, y: 405, id: 3} // Room 207 SUMMIT Track
-           , { x: 455, y: 405, id: 4} // Room 208 SUMMIT Track
-           , { x: 560, y: 405, id: 5} // Room 209 SUMMIT Track
+           , { x: 340, y: 400, id: 3} // Room 207 SUMMIT Track
+           , { x: 455, y: 400, id: 4} // Room 208 SUMMIT Track
+           , { x: 550, y: 400, id: 5} // Room 209 SUMMIT Track
     ]
 
     // define the data
@@ -41,7 +41,8 @@
         .nodes(dataNodes)
         .links([])
         .gravity(0)
-        .charge(-5);
+        .friction(0.83)
+        .charge(-6);
 
     nodes = svg.selectAll('.node')
         .data(dataNodes, function(datum, index) {
@@ -144,30 +145,13 @@
         force.stop();
     }
     initForce();
-    runSetup();
     run();
   });
-
-  var runSetup = function() {
-    var source = Rx.Observable
-      .interval(1)
-      .take(50)
-      .takeUntil(stop)
-      .map(function() {
-        return getRandomInt(1, foci.length);
-      });
-
-    source.subscribe(function(focus) {
-      addNode(focus);
-      force.start();
-      renderNodes();
-    });
-  }
 
   var run = function() {
     var source = Rx.Observable
       .interval(500)
-      .take(5000)
+      .take(500)
       .takeUntil(stop);
 
     var count = 0;
@@ -179,14 +163,14 @@
     var arrivals = source.filter(function() {
         return (dataNodes.length < 200);
       }).flatMap(function() {
-        var max = getRandomInt(1,4);
-        return Rx.Observable.range(0, max).map(function() {
+        var num = dataNodes.length < 30 ? getRandomInt(30, 50) : getRandomInt(1,4);
+        return Rx.Observable.interval(10).take(num).map(function() {
           return getRandomInt(1, foci.length);
         });
       });
 
-    var movements = source.flatMap(function() {
-        var max = dataNodes.length < 20 ? 1 : 5;
+    var movements = source.skip(5).flatMap(function() {
+        var max = Math.min(dataNodes.length - 1, 5);
         var num = getRandomInt(1, max + 1);
         return Rx.Observable.range(0, num).map(function() {
           var randomNodeIndex = getRandomInt(0, dataNodes.length);
@@ -198,8 +182,8 @@
         });
       });
 
-    var checkouts = source.flatMap(function() {
-        var max = dataNodes.length < 20 ? 1 : 5;
+    var checkouts = source.skip(5).flatMap(function() {
+        var max = Math.min(dataNodes.length - 1, 5);
         var num = getRandomInt(1, max + 1);
         return Rx.Observable.range(0, num).map(function() {
           var randomNodeIndex = getRandomInt(0, dataNodes.length);
@@ -210,7 +194,7 @@
     var departures = source.filter(function() {
         return (dataNodes.length > 30);
       }).flatMap(function() {
-        var max = getRandomInt(1,3);
+        var max = getRandomInt(0,2);
         return Rx.Observable.range(0, max).map(function() {
           var randomNodeIndex = getRandomInt(0, dataNodes.length);
           return randomNodeIndex;
@@ -243,6 +227,5 @@
   };
 
   initForce();
-  runSetup();
   run();
 })(d3, Rx);
