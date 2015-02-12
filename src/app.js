@@ -161,10 +161,12 @@ var d3demo = d3demo || {};
   var run = function() {
     var source = d3demo.source.take(1000).takeUntil(stop).publish();
 
+    // a shared error handler
     var errorHandler = function (err) {
       console.log(err.stack);
     };
 
+    // logging
     var count = 0;
     source.subscribe(function(event) {
       document.getElementById('interval').innerHTML = count++;
@@ -178,64 +180,65 @@ var d3demo = d3demo || {};
       log.scrollTop = log.scrollHeight;
     }, errorHandler);
 
-    var arrivals = source.filter(function(event) {
+    // arrivals
+    source.filter(function(event) {
       return event.user.lastScanner == null;
     }).map(function(event) {
       return {
         user: event.user,
         focus: event.user.scanner.location.id
       };
-    });
+    })
+    .subscribe(function(arrival) {
+      addNode(arrival);
+      force.start();
+      renderNodes();
+    }, errorHandler);
 
-    var movements = source.filter(function(event) {
+    // movements
+    source.filter(function(event) {
       return event.user.lastScanner != null && event.scanner.type === 'check-in';
     }).map(function(event) {
       return {
         user: event.user,
         focus: event.user.scanner.location.id
       };
+    })
+    .subscribe(function(movement) {
+      moveNode(movement);
+      force.start();
+      renderNodes();
     });
 
-    var checkouts = source.filter(function(event) {
+    // checkouts
+    source.filter(function(event) {
       return event.scanner.type === 'check-out' && event.scanner.location.id !== 0;
     }).map(function(event) {
       return {
         user: event.user,
         focus: event.user.scanner.location.id
       };
-    });
+    })
+    .subscribe(function(checkout) {
+      checkoutNode(checkout);
+      force.start();
+      renderNodes();
+    }, errorHandler);
 
-    var departures = source.filter(function(event) {
+    // departures
+    source.filter(function(event) {
       return event.scanner.type === 'check-out' && event.scanner.location.id === 0;
     }).map(function(event) {
       return {
         user: event.user,
 
       };
-    });
-
-    arrivals.subscribe(function(arrival) {
-      addNode(arrival);
-      force.start();
-      renderNodes();
-    }, errorHandler);
-
-    movements.subscribe(function(movement) {
-      moveNode(movement);
-      force.start();
-      renderNodes();
-    });
-
-    checkouts.subscribe(function(checkout) {
-      checkoutNode(checkout);
-      force.start();
-      renderNodes();
-    }, errorHandler);
-
-    departures.subscribe(function(departure) {
+    })
+    .subscribe(function(departure) {
       removeNode(departure);
     }, errorHandler);
 
+    // start the shared (published) interval timer
     source.connect();
 
     force.start();
