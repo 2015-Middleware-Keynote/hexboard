@@ -1,10 +1,11 @@
 'use strict';
 
-(function d3andRxDemo(d3, rx) {
+var d3demo = d3demo || {};
 
+(function d3andRxDemo(d3, Rx) {
   // init
-  var width = 960
-    , height = 570;
+  var width = d3demo.width
+    , height = d3demo.height;
 
   var animationStep = 400;
 
@@ -23,14 +24,9 @@
     // makes it possible to restart the layout without refreshing the page
     svg.selectAll('*').remove();
 
-    foci = [ { x: 150, y: height}  // Entrance
-           , { x: 360, y: 245, id: 0}  // Red Hat Booth 1
-           , { x: 635, y: 245, id: 1} // Red Hat Booth 2
-           , { x: 100, y: 350, id: 2} // The Cube
-           , { x: 340, y: 400, id: 3} // Room 207 SUMMIT Track
-           , { x: 455, y: 400, id: 4} // Room 208 SUMMIT Track
-           , { x: 550, y: 400, id: 5} // Room 209 SUMMIT Track
-    ]
+    foci = d3demo.locations.map(function(location) {
+      return {x: location.x, y: location.y};
+    });
 
     // define the data
     dataNodes = [];
@@ -66,43 +62,66 @@
          .attr('r', function(d) { return d.present ? 8 : 3});
   };
 
+  var findNodeById = function(nodeList, id) {
+    var index = -1;
+    for (var i = 0; i < dataNodes.length; i++) {
+      if (id === dataNodes[i].id) {
+        index = i;
+        break;
+      }
+    }
+    return index;
+  };
 
-  var uniqueId = 0;
-  var addNode = function(focus) {
+  var addNode = function(arrival) {
     dataNodes.push({
         x:150
       , y:height
-      , focus: focus
+      , focus: arrival.focus
       , present: true
-      , id: uniqueId++});
+      , id: arrival.id});
   };
 
-  var moveNode = function(dataNode, id) {
-    dataNode.present = true;
-    dataNode.focus = id;
+  var moveNode = function(movement) {
+    var index = findNodeById(dataNodes, movement.id);
+    if (index >= 0) {
+      var dataNode = dataNodes[index];
+      dataNode.present = true;
+      dataNode.focus = movement.focus;
+    } else {
+      console.log('Unable to move node: ' + movement.id);
+    };
   };
 
-  var removeNode = function(index) {
-    var dataNode = dataNodes[index];
-    dataNode.focus = 0;
-    dataNode.present = true;
-    setTimeout(function() {
-      var currentIndex;
-      for (var i = 0; i < dataNodes.length; i++) {
-        if (dataNode.id === dataNodes[i].id) {
-          currentIndex = i;
-          break;
+  var removeNode = function(departure) {
+    var index = findNodeById(dataNodes, departure.id);
+    if (index >= 0) {
+      var dataNode = dataNodes[index];
+      dataNode.focus = 0;
+      dataNode.present = true;
+      dataNode.id += new Date().getTime(); // a unique id in case user comes back
+      setTimeout(function() {
+        var currentIndex = findNodeById(dataNodes, dataNode.id);
+        if (currentIndex >= 0) {
+          dataNodes.splice(currentIndex, 1);
+          force.start();
+          renderNodes();
+        } else {
+          console.log('Node no longer available: ' + departure.id);
         }
-      }
-      dataNodes.splice(currentIndex, 1);
-      force.start();
-      renderNodes();
-    }, 1000);
+      }, 1200);
+    } else {
+      console.log('Unable to remove node: ' + departure.id);
+    };
   };
 
-  var checkoutNode = function(index) {
-    var dataNode = dataNodes[index];
-    dataNode.present = false;
+  var checkoutNode = function(checkout) {
+    var index = findNodeById(dataNodes, checkout.id);
+    if (index >= 0) {
+      dataNodes[index].present = false;
+    } else {
+      console.log('Unable to check-out node: ' + checkout.id);
+    };
   };
 
   var renderNodes = function() {
@@ -117,11 +136,6 @@
     nodes.exit().remove();
   }
 
-  // Returns a random integer between min included) and max (excluded)
-  var getRandomInt = function (min, max) {
-    return Math.floor(Math.random() * (max - min)) + min;
-  }
-
   var reset = Rx.Observable.fromEvent(d3.select('#reset').node(), 'click')
     , pause = Rx.Observable.fromEvent(d3.select('#pause').node(), 'click')
     , play = Rx.Observable.fromEvent(d3.select('#play').node(), 'click')
@@ -133,12 +147,6 @@
     run();
   });
 
-  add.subscribe(function() {
-    addNode(getRandomInt(1, foci.length));
-    force.start();
-    renderNodes();
-  });
-
   reset.subscribe(function() {
     if (force) {
         force.stop();
@@ -148,87 +156,83 @@
   });
 
   var run = function() {
-    var source = Rx.Observable
-      .interval(500)
-      .take(500)
-      .takeUntil(stop);
+    var source = d3demo.source.take(1000).takeUntil(stop).publish();
+
+    var errorHandler = function (err) {
+      console.log(err.stack);
+    };
 
     var count = 0;
-    source.subscribe(function(x) {
+    source.subscribe(function(event) {
       document.getElementById('interval').innerHTML = count++;
       document.getElementById('nodeCount').innerHTML = dataNodes.length;
-    })
+      var message = 'User '+ event.user.id + ' ' + event.scanner.type + ' at ' + event.scanner.location.name;
+      var log = document.getElementById('log');
+      var span = document.createElement("span");
+      span.className = event.scanner.type;
+      span.textContent = message;
+      log.appendChild(span);
+      log.scrollTop = log.scrollHeight;
+    }, errorHandler);
 
-    var arrivals = source.filter(function() {
-        return (dataNodes.length < 200);
-      }).flatMap(function() {
-        var num = dataNodes.length < 30 ? getRandomInt(30, 50) : getRandomInt(1,4);
-        return Rx.Observable.interval(10).take(num).map(function() {
-          return getRandomInt(1, foci.length);
-        });
+    var arrivals = source.filter(function(event) {
+      return event.user.lastScanner == null;
+    }).map(function(event) {
+      return {
+        id: event.user.id,
+        focus: event.user.scanner.location.id
+      };
+    });
+
+    var movements = source.filter(function(event) {
+      return event.user.lastScanner != null && event.scanner.type === 'check-in';
+    }).map(function(event) {
+      return {
+        id: event.user.id,
+        focus: event.user.scanner.location.id
+      };
+    });
+
+    var checkouts = source.filter(function(event) {
+      return event.scanner.type === 'check-out' && event.scanner.location.id !== 0;
+    }).map(function(event) {
+      return {
+        id: event.user.id,
+        focus: event.user.scanner.location.id
+      };
+    });
+
+    var departures = source.filter(function(event) {
+        return event.scanner.type === 'check-out' && event.scanner.location.id === 0;
+      }).map(function(event) {
+        return {
+          id: event.user.id
+        };
       });
 
-    var movements = source.skip(5).flatMap(function() {
-        var max = Math.min(dataNodes.length - 1, 5);
-        var num = getRandomInt(1, max + 1);
-        return Rx.Observable.range(0, num).map(function() {
-          var checkedOut = dataNodes.filter(function(node) {
-            return ! node.present;
-          });
-          if (! checkedOut.length) {
-            return null;
-          }
-          var randomNodeIndex = getRandomInt(0, checkedOut.length);
-          var focus = getRandomInt(1, foci.length);
-          return {
-            dataNode: checkedOut[randomNodeIndex],
-            focus: focus
-          };
-        }).filter(function(entry) {
-          return entry != null;
-        });
-      });
-
-    var checkouts = source.skip(5).flatMap(function() {
-        var max = Math.min(dataNodes.length - 1, 5);
-        var num = getRandomInt(1, max + 1);
-        return Rx.Observable.range(0, num).map(function() {
-          var randomNodeIndex = getRandomInt(0, dataNodes.length);
-          return randomNodeIndex;
-        });
-      });
-
-    var departures = source.filter(function() {
-        return (dataNodes.length > 30);
-      }).flatMap(function() {
-        var max = getRandomInt(0,2);
-        return Rx.Observable.range(0, max).map(function() {
-          var randomNodeIndex = getRandomInt(0, dataNodes.length);
-          return randomNodeIndex;
-        });
-      });
-
-    arrivals.subscribe(function(focus) {
-      addNode(focus);
+    arrivals.subscribe(function(arrival) {
+      addNode(arrival);
       force.start();
       renderNodes();
-    });
+    }, errorHandler);
 
     movements.subscribe(function(movement) {
-      moveNode(movement.dataNode, movement.focus);
+      moveNode(movement);
       force.start();
       renderNodes();
     });
 
-    checkouts.subscribe(function(index) {
-      checkoutNode(index);
+    checkouts.subscribe(function(checkout) {
+      checkoutNode(checkout);
       force.start();
       renderNodes();
-    });
+    }, errorHandler);
 
-    departures.subscribe(function(index) {
-      removeNode(index);
-    });
+    departures.subscribe(function(departure) {
+      removeNode(departure);
+    }, errorHandler);
+
+    source.connect();
 
     force.start();
   };

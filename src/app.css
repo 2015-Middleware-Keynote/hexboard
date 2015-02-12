@@ -10,6 +10,10 @@
     stroke-width: 0.5px;
 }
 
+.node0 {
+    fill: cyan;
+}
+
 .node1 {
     fill: red;
 }
@@ -46,4 +50,22 @@
 
 .buttons button {
     width: 30px;
+}
+
+#log {
+  height: 20ex;
+  width: 60ex;
+  overflow: scroll;
+}
+
+#log span {
+  display:block;
+}
+
+.check-in {
+  color: green;
+}
+
+.check-out {
+  color: red;
 }
