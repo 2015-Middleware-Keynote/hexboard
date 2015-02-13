@@ -45,18 +45,48 @@ d3demo = (function dataSimulator(d3, Rx) {
     });
   };
 
+  scanners.forEach(function(scanner) {
+    scanner.location['scanners'] = scanner.location['scanners'] || {};
+    scanner.location['scanners'][scanner.type] = scanner;
+  });
+
   // Returns a random integer between min included) and max (excluded)
+  var getRandom = function (min, max) {
+    return Math.random() * (max - min) + min;
+  };
+
   var getRandomInt = function (min, max) {
-    return Math.floor(Math.random() * (max - min)) + min;
+    return Math.floor(getRandom(min,max));
+  };
+
+  var locationWeights = [4, 30, 80, 30, 50, 20, 50, 0];
+  var getLocationWeight = function(location) {
+    if (location.id === 7 && count > 20 && count % 60 <= 15) {
+      return 3000;
+    };
+    if (count < 20 && location.id !== 7) {
+      return 4;
+    }
+    return locationWeights[location.id];
   }
 
-  var checkInScanners = scanners.filter(function(scanner) {
-    return scanner.type === 'check-in' && scanner.location.id != 7;
-  });
-
-  var availableScanners = [scanners[1]].concat(checkInScanners).filter(function(scanner) {
-    return !(scanner.type === 'check-in' && scanner.location.id === 0 && scanner.location.id != 7);
-  });
+  var getRandomLocation = function() {
+    var totalWeight = locations.reduce(function (sumSoFar, location, index, array) {
+      return sumSoFar + getLocationWeight(location);
+    }, 0);
+    var random = getRandom(0, totalWeight)
+      , sum = 0
+      , randomLocation;
+    for (var i = 0; i < locations.length; i++) {
+      var location = locations[i];
+      sum += getLocationWeight(location);
+      if (random < sum) {
+        randomLocation = locations[i];
+        break;
+      }
+    }
+    return randomLocation;
+  };
 
   var pickRandomScanner = function (user) {
     var userLeft = (user.scanner && user.scanner.type === 'check-out' && user.scanner.location.id === 0);
@@ -67,14 +97,8 @@ d3demo = (function dataSimulator(d3, Rx) {
     if (checkedIn && ! atEntrance) {
       user.scanner = scanners[user.lastScanner.id + 1];
     } else {
-      if (count > 20 && count % 60 <= 15) {
-        user.scanner = scanners[14];
-      } else if (arrived) {
-        // can't check-in to Entrance
-        user.scanner = availableScanners[getRandomInt(0, availableScanners.length)];
-      } else {
-        user.scanner = checkInScanners[getRandomInt(0, checkInScanners.length)];
-      }
+      var location = getRandomLocation();
+      user.scanner = user.scanner = location.scanners['check-in'];
     }
   }
 
