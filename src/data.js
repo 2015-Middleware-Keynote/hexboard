@@ -79,7 +79,7 @@ d3demo = (function dataSimulator(d3, Rx) {
   var count = 0;
   var interval2 = interval.flatMap(function() {
     var dur = count % 20 <= 1 ? 15 : 50;
-    var num = count % 20 <= 1 ? 40 : getRandomInt(3,10);
+    var num = count % 20 <= 1 ? 30 : getRandomInt(3,10);
     count++;
     return Rx.Observable.interval(dur).take(num)
   });
