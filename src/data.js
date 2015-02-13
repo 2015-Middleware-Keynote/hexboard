@@ -14,6 +14,7 @@ d3demo = (function dataSimulator(d3, Rx) {
   , { id: 4, x: 340, y: 400, name: 'Room 207 SUMMIT Track'}
   , { id: 5, x: 455, y: 400, name: 'Room 208 SUMMIT Track'}
   , { id: 6, x: 550, y: 400, name: 'Room 209 SUMMIT Track'}
+  , { id: 7, x: 140, y: 220, name: 'General Sessions'}
   ];
 
   var scanners = [
@@ -31,6 +32,8 @@ d3demo = (function dataSimulator(d3, Rx) {
   , { id: 11, type: 'check-out', location: locations[5]}
   , { id: 12, type: 'check-in', location: locations[6]}
   , { id: 13, type: 'check-out', location: locations[6]}
+  , { id: 14, type: 'check-in', location: locations[7]}
+  , { id: 15, type: 'check-out', location: locations[7]}
   ];
 
   var users = [];
@@ -48,11 +51,11 @@ d3demo = (function dataSimulator(d3, Rx) {
   }
 
   var checkInScanners = scanners.filter(function(scanner) {
-    return scanner.type === 'check-in';
+    return scanner.type === 'check-in' && scanner.location.id != 7;
   });
 
   var availableScanners = [scanners[1]].concat(checkInScanners).filter(function(scanner) {
-    return !(scanner.type === 'check-in' && scanner.location.id === 0);
+    return !(scanner.type === 'check-in' && scanner.location.id === 0 && scanner.location.id != 7);
   });
 
   var pickRandomScanner = function (user) {
@@ -64,7 +67,9 @@ d3demo = (function dataSimulator(d3, Rx) {
     if (checkedIn && ! atEntrance) {
       user.scanner = scanners[user.lastScanner.id + 1];
     } else {
-      if (arrived) {
+      if (count > 20 && count % 60 <= 15) {
+        user.scanner = scanners[14];
+      } else if (arrived) {
         // can't check-in to Entrance
         user.scanner = availableScanners[getRandomInt(0, availableScanners.length)];
       } else {

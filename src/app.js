@@ -111,7 +111,6 @@ var d3demo = d3demo || {};
     newNode.present = true;
     newNode.user = arrival.user;
     newNode.checkInTime = new Date().getTime();
-
     if (add) {
       dataNodes.push(newNode);
     };
