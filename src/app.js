@@ -7,7 +7,7 @@ var d3demo = d3demo || {};
   var width = d3demo.width
     , height = d3demo.height;
 
-  var debugging = true;
+  var debugging = false;
 
   var animationStep = 400;
 

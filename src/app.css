@@ -81,3 +81,7 @@
 .info, .news {
   display: table-cell;
 }
+
+.new {
+  color: blue;
+}
