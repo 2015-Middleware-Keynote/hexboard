@@ -126,6 +126,7 @@ d3demo = (function dataSimulator(d3, Rx) {
     users.forEach(function(user) {
       user.lastScanner = user.scanner = null;
     })
+    count = 0;
   };
 
   return {
