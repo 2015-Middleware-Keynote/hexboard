@@ -7,6 +7,8 @@ var d3demo = d3demo || {};
   var width = d3demo.width
     , height = d3demo.height;
 
+  var debugging = true;
+
   var animationStep = 400;
 
   var force = null
@@ -91,14 +93,28 @@ var d3demo = d3demo || {};
   };
 
   var addNode = function(arrival) {
-    dataNodes.push({
-        x:150
-      , y:height
-      , focus: arrival.focus
-      , present: true
-      , user: arrival.user
-      , checkInTime: new Date().getTime()
-      , id: arrival.user.id});
+    var index = findNodeById(dataNodes, arrival.user.id);
+    var newNode;
+    var add;
+    if (index >=0) {
+      newNode = dataNodes[index];
+      newNode.exiting = false;
+      add = false;
+      debugging && console.log('Arrival node already present:' + arrival.user.id);
+    } else {
+      newNode = {id: arrival.user.id};
+      add = true;
+    }
+    newNode.x = 150;
+    newNode.y = height;
+    newNode.focus = arrival.focus;
+    newNode.present = true;
+    newNode.user = arrival.user;
+    newNode.checkInTime = new Date().getTime();
+
+    if (add) {
+      dataNodes.push(newNode);
+    };
   };
 
   var moveNode = function(movement) {
@@ -106,11 +122,12 @@ var d3demo = d3demo || {};
     if (index >= 0) {
       var dataNode = dataNodes[index];
       dataNode.present = true;
+      dataNode.exiting = false;
       dataNode.focus = movement.focus;
       dataNode.checkInTime = new Date().getTime();
       dataNode.checkOutTime = null;
     } else {
-      console.log('Unable to move node: ' + movement.user.id);
+      debugging && console.log('Unable to move node: ' + movement.user.id);
     };
   };
 
@@ -118,21 +135,26 @@ var d3demo = d3demo || {};
     var index = findNodeById(dataNodes, departure.user.id);
     if (index >= 0) {
       var dataNode = dataNodes[index];
+      if (dataNode.exiting) {
+        debugging && console.log('Node already exiting, ignoring secondary exit call:' + departure.user.id);
+        return;
+      }
       dataNode.focus = 0;
       dataNode.present = true;
-      dataNode.id += new Date().getTime(); // a unique id in case user comes back
+      dataNode.exiting = true;
       setTimeout(function() {
         var currentIndex = findNodeById(dataNodes, dataNode.id);
-        if (currentIndex >= 0) {
+        var exitNode = dataNodes[currentIndex];
+        if (currentIndex >= 0 && exitNode.exiting === true) {
           dataNodes.splice(currentIndex, 1);
           force.start();
           renderNodes();
         } else {
-          console.log('Node no longer available: ' + departure.user.id);
+          debugging && console.log('Node no longer available: ' + departure.user.id);
         }
       }, 1200);
     } else {
-      console.log('Unable to remove node: ' + departure.user.id);
+      debugging && console.log('Unable to remove node: ' + departure.user.id);
     };
   };
 
@@ -142,14 +164,18 @@ var d3demo = d3demo || {};
       dataNodes[index].present = false;
       dataNodes[index].checkOutTime = new Date().getTime();
     } else {
-      console.log('Unable to check-out node: ' + checkout.user.id);
+      debugging && console.log('Unable to check-out node: ' + checkout.user.id);
     };
   };
 
   var renderNodes = function() {
-    nodes = nodes.data(dataNodes, function(datum, index) {
-      return datum.id;
-    });
+    try {
+      nodes = nodes.data(dataNodes, function(datum, index) {
+        return datum.id;
+      });
+    } catch(e) {
+      debugging && console.log(e);
+    }
     nodes.enter().append("circle")
       .attr("class", 'node' )
       .attr("cx", function(d) { return d.x; })
@@ -189,7 +215,7 @@ var d3demo = d3demo || {};
 
     // a shared error handler
     var errorHandler = function (err) {
-      console.log(err.stack);
+      debugging && console.log(err.stack);
     };
 
     // logging
@@ -262,6 +288,8 @@ var d3demo = d3demo || {};
     })
     .subscribe(function(departure) {
       removeNode(departure);
+      force.start();
+      renderNodes();
     }, errorHandler);
 
     // start the shared (published) interval timer
@@ -285,7 +313,7 @@ var d3demo = d3demo || {};
   var updateUserInfoPanel = function(data) {
     var div = d3.select('.userinfo');
     div.style({'display': 'table-cell'});
-    console.log(data);
+    debugging && console.log(data);
     div.select('.id_v').text(data.user.id);
     div.select('.name_v').text(data.user.name);
     div.select('.checkin_v').text(formatTime(data.checkInTime));
