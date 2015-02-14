@@ -74,9 +74,7 @@ var d3demo = d3demo || {};
   };
 
   var getColor = function(temp) { // temp : 0 - 100
-    // var hue = 30 + 1/(1-temp) * 270;
-    var hue = 270/(temp/2000 + 1);
-    // var hue = 30 + 240 * ((100 - temp)/100); // 60;  30 - 270
+    var hue = 270/(temp/2000 + 1); // 0 - 270
     var color = 'hsl(' + [Math.floor(hue), '70%', '50%'] + ')'
     return color;
   };
