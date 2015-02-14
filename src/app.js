@@ -7,7 +7,7 @@ var d3demo = d3demo || {};
   var width = d3demo.width
     , height = d3demo.height;
 
-  var debugging = false;
+  var debugging = true;
 
   var animationStep = 400;
 
@@ -105,7 +105,7 @@ var d3demo = d3demo || {};
       newNode = {id: arrival.user.id};
       add = true;
     }
-    newNode.x = 150;
+    newNode.x = d3demo.locations[0].x;
     newNode.y = height;
     newNode.focus = arrival.focus;
     newNode.present = true;
