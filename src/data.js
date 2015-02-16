@@ -12,6 +12,14 @@ d3demo = (function dataSimulator(d3, Rx) {
     , LUNCH1_ID = 2
     , LUNCH2_ID = 3
 
+  var KEYNOTE_1_START_TIME = 10*60
+    , KEYNOTE_2_START_TIME = 14*60
+    , LUNCH_TIME = 12*60
+    , START_TIME = 7*60 + 50
+    , END_TIME = 18*60;
+
+  var EVENT_DATE = new Date('2015-06-23').getTime() + 7 * 60 * 60 * 1000;
+
   var locations = [
     { id: 0, x: 165, y: 520, name: 'Entrance'}
   , { id: 1, x: 140, y: 220, name: 'General Sessions'}
@@ -65,18 +73,18 @@ d3demo = (function dataSimulator(d3, Rx) {
 
   var locationWeights = [4, 0, 0, 0, 30, 80, 30, 20, 50, 50, 35];
   var getLocationWeight = function(location) {
-    if (location.id === GENERAL_SESSIONS_ID && count > 20 && count % 60 <= 15) {
+    if (location.id === GENERAL_SESSIONS_ID && KEYNOTE_1_START_TIME - 10 <= time && time <= KEYNOTE_1_START_TIME + 10) {
+      return 6000;
+    };
+    if (location.id === GENERAL_SESSIONS_ID && KEYNOTE_2_START_TIME - 10 <= time && time <= KEYNOTE_2_START_TIME + 10) {
       return 3000;
     };
-    if (location.id === LUNCH1_ID && count > 20 && count % 80 <= 15) {
+    if ((location.id === LUNCH1_ID || location.id === LUNCH2_ID) && LUNCH_TIME - 5 <= time && time <= LUNCH_TIME + 25) {
       return 3000;
     };
-    if (location.id === LUNCH2_ID && count > 20 && count % 80 <= 15) {
-      return 3000;
+    if (location.id === ENTRANCE_ID && time > END_TIME - 60) {
+      return 6000;
     };
-    if (count < 20 && location.id !== GENERAL_SESSIONS_ID) {
-      return locationWeights[location.id] === 0 ? 0 : 1;
-    }
     return locationWeights[location.id];
   }
 
@@ -108,7 +116,7 @@ d3demo = (function dataSimulator(d3, Rx) {
       user.scanner = user.scanner.location.scanners['check-out'];
     } else {
       var location = getRandomLocation();
-      if (location.id == ENTRANCE_ID && arrived) {
+      if (location.id == ENTRANCE_ID && (arrived || time > END_TIME - 60)) {
         user.scanner = location.scanners['check-out'];
       } else {
         user.scanner = location.scanners['check-in'];
@@ -118,38 +126,48 @@ d3demo = (function dataSimulator(d3, Rx) {
 
   var pauser = new Rx.Subject();
 
-  var startTime = 7*60 + 55;
-  var time = startTime;
+  var time = START_TIME;
   var clock = Rx.Observable
     .interval(600).map(function() {
+      time = time + 5;
       var hour = Math.floor(time / 60) % 24
         , min = String('0' + time % 60).slice(-2);
-      time = time + 5;
       return {
-        time: time
-      , hour: hour
-      , min: min
+        time: EVENT_DATE + time * 60 * 1000
       }
     })
-    .take(450)
+    .takeWhile(function() {
+      return time <= END_TIME
+    })
     .pausable(pauser).publish()
     ;
 
-  var count = 0;
   var events = clock.flatMap(function() {
-    var dur = count % 20 <= 1 ? 15 : 50;
-    var num = count % 20 <= 1 ? 30 : getRandomInt(3,10);
-    count++;
-    return Rx.Observable.interval(dur).take(num)
+    var rush = (time + 5) % 60 < 10;
+    var dur = rush ? 5 : 50;
+    var num = rush ? 200 : getRandomInt(3,10);
+    return Rx.Observable.interval(dur).map(function(eventCount) {
+      return {
+        eventCount: eventCount
+      , dur: dur
+      , num: num
+      }
+    }).take(num)
   });
 
-  var scans = events.map(function() {
+
+  var scans = events.map(function(event) {
+    var eventTime = time + (event.eventCount * event.dur) * 5 / 600;
     var user = users[getRandomInt(0, users.length)];
     pickRandomScanner(user);
     return {
       user: user
+    , time: EVENT_DATE + eventTime * 60 * 1000
     , scanner: user.scanner
     }
+  })
+  .takeWhile(function() {
+    return time <= END_TIME
   })
   .pausable(pauser).publish();
 
@@ -157,14 +175,14 @@ d3demo = (function dataSimulator(d3, Rx) {
     users.forEach(function(user) {
       user.lastScanner = user.scanner = null;
     })
-    count = 0;
+    time = START_TIME;
   };
 
   return {
     width: width
   , height: height
   , locations: locations
-  , startTime: startTime
+  , eventTimeStamp: EVENT_DATE + START_TIME * 60 * 1000
   , pauser: pauser
   , clock: clock
   , scans: scans

@@ -66,9 +66,9 @@ var d3demo = d3demo || {};
          .attr('r', function(d) { return d.present ? 8 : 3})
          .style('fill', function(d) {
            if (d.present) {
-             return getColor(now - d.checkInTime);
+             return getColor(now - d.checkInTimeInternal);
            } else {
-             return getColor(d.checkOutTime - d.checkInTime);
+             return getColor(d.checkOutTimeInternal - d.checkInTimeInternal);
            }
          });
   };
@@ -108,7 +108,8 @@ var d3demo = d3demo || {};
     newNode.focus = arrival.focus;
     newNode.present = true;
     newNode.user = arrival.user;
-    newNode.checkInTime = new Date().getTime();
+    newNode.checkInTime = arrival.time;
+    newNode.checkInTimeInternal = new Date().getTime();
     if (add) {
       dataNodes.push(newNode);
     };
@@ -121,7 +122,8 @@ var d3demo = d3demo || {};
       dataNode.present = true;
       dataNode.exiting = false;
       dataNode.focus = movement.focus;
-      dataNode.checkInTime = new Date().getTime();
+      dataNode.checkInTime = movement.time;
+      dataNode.checkInTimeInternal = new Date().getTime();
       dataNode.checkOutTime = null;
     } else {
       debugging && console.log('Unable to move node: ' + movement.user.id);
@@ -159,7 +161,8 @@ var d3demo = d3demo || {};
     var index = findNodeById(dataNodes, checkout.user.id);
     if (index >= 0) {
       dataNodes[index].present = false;
-      dataNodes[index].checkOutTime = new Date().getTime();
+      dataNodes[index].checkOutTime = checkout.time;
+      dataNodes[index].checkOutTimeInternal = new Date().getTime();
     } else {
       debugging && console.log('Unable to check-out node: ' + checkout.user.id);
     };
@@ -184,21 +187,34 @@ var d3demo = d3demo || {};
   var reset = Rx.Observable.fromEvent(d3.select('#reset').node(), 'click')
     , pause = Rx.Observable.fromEvent(d3.select('#pause').node(), 'click')
     , play = Rx.Observable.fromEvent(d3.select('#play').node(), 'click')
+    , slow = Rx.Observable.fromEvent(d3.select('#slow').node(), 'click')
     , nodeClick = Rx.Observable.fromEvent(d3.select('.map').node(), 'click')
     ;
 
   var pauser = d3demo.pauser;
+  var clock = d3demo.clock;
+  var source = d3demo.scans;
   var stop = Rx.Observable.merge(reset);
 
   play.subscribe(function() {
     pauser.onNext(true);
   });
 
+  slow.subscribe(function() {
+    pauser.onNext(true);
+    clock.take(1).count().subscribe(function(event) {
+      setTimeout(function() {
+        pauser.onNext(false);
+      }, 590);
+    });
+  })
+
   pause.subscribe(function() {
     pauser.onNext(false);
   });
 
   reset.subscribe(function() {
+    pauser.onNext(false);
     if (force) {
       force.stop();
     }
@@ -207,10 +223,8 @@ var d3demo = d3demo || {};
     run();
   });
 
+  var eventTime = d3demo.eventTimeStamp;
   var run = function() {
-    var clock = d3demo.clock;
-    var source = d3demo.scans;
-
     // a shared error handler
     var errorHandler = function (err) {
       debugging && console.log(err.stack);
@@ -218,14 +232,16 @@ var d3demo = d3demo || {};
 
     // logging
     clock.subscribe(function(time) {
-      document.getElementById('time').innerHTML = time.hour + ':' + time.min;
+      console.log()
+      document.getElementById('time').innerHTML = formatTime(time.time);
     });
 
     var count = 0;
     source.subscribe(function(event) {
+      eventTime = event.time;
       document.getElementById('interval').innerHTML = count++;
       document.getElementById('nodeCount').innerHTML = dataNodes.length;
-      var message = 'User '+ event.user.id + ' ' + event.scanner.type + ' at ' + event.scanner.location.name;
+      var message = formatTime(event.time) + ': User '+ event.user.id + ' ' + event.scanner.type + ' at ' + event.scanner.location.name;
       var log = document.getElementById('log');
       var span = document.createElement("span");
       span.className = event.scanner.type;
@@ -236,10 +252,11 @@ var d3demo = d3demo || {};
 
     // arrivals
     source.filter(function(event) {
-      return event.user.lastScanner == null;
+      return event.user.lastScanner == null && event.scanner.type === 'check-in';
     }).map(function(event) {
       return {
         user: event.user,
+        time: event.time,
         focus: event.user.scanner.location.id
       };
     })
@@ -255,6 +272,7 @@ var d3demo = d3demo || {};
     }).map(function(event) {
       return {
         user: event.user,
+        time: event.time,
         focus: event.user.scanner.location.id
       };
     })
@@ -270,6 +288,7 @@ var d3demo = d3demo || {};
     }).map(function(event) {
       return {
         user: event.user,
+        time: event.time,
         focus: event.user.scanner.location.id
       };
     })
@@ -285,7 +304,7 @@ var d3demo = d3demo || {};
     }).map(function(event) {
       return {
         user: event.user,
-
+        time: event.time
       };
     })
     .subscribe(function(departure) {
