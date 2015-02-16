@@ -185,9 +185,9 @@ var d3demo = d3demo || {};
     , pause = Rx.Observable.fromEvent(d3.select('#pause').node(), 'click')
     , play = Rx.Observable.fromEvent(d3.select('#play').node(), 'click')
     , nodeClick = Rx.Observable.fromEvent(d3.select('.map').node(), 'click')
-    , pauser = new Rx.Subject()
     ;
 
+  var pauser = d3demo.pauser;
   var stop = Rx.Observable.merge(reset);
 
   play.subscribe(function() {
@@ -208,8 +208,8 @@ var d3demo = d3demo || {};
   });
 
   var run = function() {
-    var clock = d3demo.clock.pausable(pauser).publish();
-    var source = d3demo.scans.take(5000).takeUntil(stop).pausable(pauser).publish();
+    var clock = d3demo.clock;
+    var source = d3demo.scans;
 
     // a shared error handler
     var errorHandler = function (err) {
@@ -217,12 +217,8 @@ var d3demo = d3demo || {};
     };
 
     // logging
-    var time = d3demo.startTime;
-    clock.subscribe(function(event) {
-      var hour = Math.floor(time / 60);
-      var min = String('0' + time % 60).slice(-2);
-      document.getElementById('time').innerHTML = hour + ':' + min;
-      time += 5;
+    clock.subscribe(function(time) {
+      document.getElementById('time').innerHTML = time.hour + ':' + time.min;
     });
 
     var count = 0;

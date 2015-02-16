@@ -116,10 +116,24 @@ d3demo = (function dataSimulator(d3, Rx) {
     }
   }
 
+  var pauser = new Rx.Subject();
+
   var startTime = 7*60 + 55;
   var time = startTime;
   var clock = Rx.Observable
-    .interval(600);
+    .interval(600).map(function() {
+      var hour = Math.floor(time / 60) % 24
+        , min = String('0' + time % 60).slice(-2);
+      time = time + 5;
+      return {
+        time: time
+      , hour: hour
+      , min: min
+      }
+    })
+    .take(450)
+    .pausable(pauser).publish()
+    ;
 
   var count = 0;
   var events = clock.flatMap(function() {
@@ -136,7 +150,8 @@ d3demo = (function dataSimulator(d3, Rx) {
       user: user
     , scanner: user.scanner
     }
-  });
+  })
+  .pausable(pauser).publish();
 
   var resetUsers = function() {
     users.forEach(function(user) {
@@ -150,6 +165,7 @@ d3demo = (function dataSimulator(d3, Rx) {
   , height: height
   , locations: locations
   , startTime: startTime
+  , pauser: pauser
   , clock: clock
   , scans: scans
   , resetUsers: resetUsers
