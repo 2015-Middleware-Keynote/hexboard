@@ -116,18 +116,20 @@ d3demo = (function dataSimulator(d3, Rx) {
     }
   }
 
-  var interval = Rx.Observable
-    .interval(500);
+  var startTime = 7*60 + 55;
+  var time = startTime;
+  var clock = Rx.Observable
+    .interval(600);
 
   var count = 0;
-  var interval2 = interval.flatMap(function() {
+  var events = clock.flatMap(function() {
     var dur = count % 20 <= 1 ? 15 : 50;
     var num = count % 20 <= 1 ? 30 : getRandomInt(3,10);
     count++;
     return Rx.Observable.interval(dur).take(num)
   });
 
-  var source = interval2.map(function() {
+  var scans = events.map(function() {
     var user = users[getRandomInt(0, users.length)];
     pickRandomScanner(user);
     return {
@@ -147,7 +149,9 @@ d3demo = (function dataSimulator(d3, Rx) {
     width: width
   , height: height
   , locations: locations
-  , source: source
+  , startTime: startTime
+  , clock: clock
+  , scans: scans
   , resetUsers: resetUsers
   }
 })(d3, Rx);

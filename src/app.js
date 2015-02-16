@@ -208,7 +208,8 @@ var d3demo = d3demo || {};
   });
 
   var run = function() {
-    var source = d3demo.source.take(5000).takeUntil(stop).pausable(pauser).publish();
+    var clock = d3demo.clock.pausable(pauser).publish();
+    var source = d3demo.scans.take(5000).takeUntil(stop).pausable(pauser).publish();
 
     // a shared error handler
     var errorHandler = function (err) {
@@ -216,6 +217,14 @@ var d3demo = d3demo || {};
     };
 
     // logging
+    var time = d3demo.startTime;
+    clock.subscribe(function(event) {
+      var hour = Math.floor(time / 60);
+      var min = String('0' + time % 60).slice(-2);
+      document.getElementById('time').innerHTML = hour + ':' + min;
+      time += 5;
+    });
+
     var count = 0;
     source.subscribe(function(event) {
       document.getElementById('interval').innerHTML = count++;
@@ -290,6 +299,8 @@ var d3demo = d3demo || {};
     }, errorHandler);
 
     // start the shared (published) interval timer
+    pauser.onNext(false);
+    clock.connect();
     source.connect();
     pauser.onNext(true);
 
