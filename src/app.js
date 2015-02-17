@@ -40,7 +40,9 @@ var d3demo = d3demo || {};
         .links([])
         .gravity(0)
         .friction(0.83)
-        .charge(-6);
+        .charge(function(d) {
+          return d.present ? -14 : -2;
+        });
 
     nodes = svg.selectAll('.node')
         .data(dataNodes, function(datum, index) {
@@ -54,9 +56,9 @@ var d3demo = d3demo || {};
     var stepSize = .1;
     var k = stepSize * event.alpha;
      // Push nodes toward their designated focus.
-    dataNodes.forEach(function(datum, i) {
-      datum.y += (foci[datum.focus].y - datum.y) * k;
-      datum.x += (foci[datum.focus].x - datum.x) * k;
+    dataNodes.forEach(function(d, i) {
+      d.y += (foci[d.focus].y - d.y) * k;
+      d.x += (foci[d.focus].x - d.x) * k;
     });
 
     var now = new Date().getTime();
@@ -73,8 +75,8 @@ var d3demo = d3demo || {};
          });
   };
 
-  var getColor = function(temp) { // temp : 0 - 100
-    var hue = 270/(temp/2000 + 1); // 0 - 270
+  var getColor = function(temp) {
+    var hue = 270/(temp/1000 + 1);
     var color = 'hsl(' + [Math.floor(hue), '70%', '50%'] + ')'
     return color;
   };
