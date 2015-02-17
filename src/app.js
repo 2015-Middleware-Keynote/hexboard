@@ -225,7 +225,6 @@ var d3demo = d3demo || {};
     run();
   });
 
-  var eventTime = d3demo.eventTimeStamp;
   var run = function() {
     // a shared error handler
     var errorHandler = function (err) {
@@ -240,7 +239,6 @@ var d3demo = d3demo || {};
 
     var count = 0;
     source.subscribe(function(event) {
-      eventTime = event.time;
       document.getElementById('interval').innerHTML = count++;
       document.getElementById('nodeCount').innerHTML = dataNodes.length;
       var message = formatTime(event.time) + ': User '+ event.user.id + ' ' + event.scanner.type + ' at ' + event.scanner.location.name;
