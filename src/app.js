@@ -49,7 +49,9 @@ var d3demo = d3demo || {};
           datum.id;
         });
 
-    force.on('tick', stepForce);
+    force.on('tick', function(event) {
+      requestAnimationFrame(function() {stepForce(event)});
+    });
   };
 
   var stepForce = function(event) {

@@ -281,14 +281,6 @@ d3demo = (function dataSimulator(d3, Rx) {
     console.log('Number of intervals with "n" events:', numEventsPerInterval)
   }
 
-  var fireEvent = function(event, wait, cb) {
-    setTimeout(function() {
-      // console.log(json[time]);
-      observer.onNext(json[time]);
-      cb();
-    }, wait)
-  }
-
   return {
     width: width
   , height: height
@@ -296,7 +288,7 @@ d3demo = (function dataSimulator(d3, Rx) {
   , eventTimeStamp: EVENT_DATE + START_MINUTES * 60 * 1000
   , pauser: pauser
   , resetUsers: resetUsers
-  // , playback: playbackRandom
-  , playback: playbackScans
+  , playback: playbackRandom
+  // , playback: playbackScans
   }
 })(d3, Rx);
