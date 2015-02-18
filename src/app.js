@@ -7,7 +7,7 @@ var d3demo = d3demo || {};
   var width = d3demo.width
     , height = d3demo.height;
 
-  var debugging = true;
+  var debugging = false;
 
   var animationStep = 400;
 
@@ -83,8 +83,8 @@ var d3demo = d3demo || {};
 
   var findNodeById = function(nodeList, id) {
     var index = -1;
-    for (var i = 0; i < dataNodes.length; i++) {
-      if (id === dataNodes[i].id) {
+    for (var i = 0; i < nodeList.length; i++) {
+      if (id === nodeList[i].id) {
         index = i;
         break;
       }
@@ -93,81 +93,56 @@ var d3demo = d3demo || {};
   };
 
   var addNode = function(arrival) {
-    var index = findNodeById(dataNodes, arrival.user.id);
-    var newNode;
-    var add;
-    if (index >=0) {
-      newNode = dataNodes[index];
-      newNode.exiting = false;
-      add = false;
-      debugging && console.log('Arrival node already present:' + arrival.user.id);
-    } else {
-      newNode = {id: arrival.user.id};
-      add = true;
+    var newNode = {
+      id: arrival.user.id,
+      x: d3demo.locations[0].x,
+      y: height,
+      focus: arrival._focus,
+      present: arrival.scanner.type === 'check-in',
+      user: arrival.user,
+      checkInTime: arrival.timestamp,
+      checkInTimeInternal: new Date().getTime()
     }
-    newNode.x = d3demo.locations[0].x;
-    newNode.y = height;
-    newNode.focus = arrival.focus;
-    newNode.present = true;
-    newNode.user = arrival.user;
-    newNode.checkInTime = arrival.time;
-    newNode.checkInTimeInternal = new Date().getTime();
-    if (add) {
-      dataNodes.push(newNode);
-    };
+    dataNodes.push(newNode);
   };
 
   var moveNode = function(movement) {
-    var index = findNodeById(dataNodes, movement.user.id);
-    if (index >= 0) {
-      var dataNode = dataNodes[index];
-      dataNode.present = true;
-      dataNode.exiting = false;
-      dataNode.focus = movement.focus;
-      dataNode.checkInTime = movement.time;
-      dataNode.checkInTimeInternal = new Date().getTime();
-      dataNode.checkOutTime = null;
-    } else {
-      debugging && console.log('Unable to move node: ' + movement.user.id);
-    };
+    var dataNode = dataNodes[movement._index];
+    dataNode.present = true;
+    dataNode.exiting = false;
+    dataNode.focus = movement._focus;
+    dataNode.checkInTime = movement.timestamp;
+    dataNode.checkInTimeInternal = new Date().getTime();
+    dataNode.checkOutTime = null;
   };
 
   var removeNode = function(departure) {
-    var index = findNodeById(dataNodes, departure.user.id);
-    if (index >= 0) {
-      var dataNode = dataNodes[index];
-      if (dataNode.exiting) {
-        debugging && console.log('Node already exiting, ignoring secondary exit call:' + departure.user.id);
-        return;
+    var dataNode = dataNodes[departure._index];
+    if (dataNode.exiting) {
+      debugging && console.log('Node already exiting, ignoring secondary exit call:' + departure.user.id);
+      return;
+    }
+    dataNode.focus = 0;
+    dataNode.present = true;
+    dataNode.exiting = true;
+    setTimeout(function() {
+      var currentIndex = findNodeById(dataNodes, dataNode.id);
+      if (currentIndex >= 0 && dataNodes[currentIndex].exiting === true) {
+        dataNodes.splice(currentIndex, 1);
+        force.start();
+        renderNodes();
+      } else {
+        debugging && console.log('Node no longer available: ' + departure.user.id);
       }
-      dataNode.focus = 0;
-      dataNode.present = true;
-      dataNode.exiting = true;
-      setTimeout(function() {
-        var currentIndex = findNodeById(dataNodes, dataNode.id);
-        var exitNode = dataNodes[currentIndex];
-        if (currentIndex >= 0 && exitNode.exiting === true) {
-          dataNodes.splice(currentIndex, 1);
-          force.start();
-          renderNodes();
-        } else {
-          debugging && console.log('Node no longer available: ' + departure.user.id);
-        }
-      }, 1200);
-    } else {
-      debugging && console.log('Unable to remove node: ' + departure.user.id);
-    };
+    }, 1200);
   };
 
   var checkoutNode = function(checkout) {
-    var index = findNodeById(dataNodes, checkout.user.id);
-    if (index >= 0) {
-      dataNodes[index].present = false;
-      dataNodes[index].checkOutTime = checkout.time;
-      dataNodes[index].checkOutTimeInternal = new Date().getTime();
-    } else {
-      debugging && console.log('Unable to check-out node: ' + checkout.user.id);
-    };
+    var dataNode = dataNodes[checkout._index];
+    dataNode.present = false;
+    dataNode.exiting = false;
+    dataNode.checkOutTime = checkout.timestamp;
+    dataNode.checkOutTimeInternal = new Date().getTime();
   };
 
   var renderNodes = function() {
@@ -194,8 +169,6 @@ var d3demo = d3demo || {};
     ;
 
   var pauser = d3demo.pauser;
-  var clock = d3demo.clock;
-  var source = d3demo.scans;
   var stop = Rx.Observable.merge(reset);
 
   play.subscribe(function() {
@@ -225,99 +198,56 @@ var d3demo = d3demo || {};
     run();
   });
 
-  var run = function() {
+  var run = function(clock, source) {
     // a shared error handler
     var errorHandler = function (err) {
-      debugging && console.log(err.stack);
+      console.log(err.stack);
     };
 
     // logging
     clock.subscribe(function(time) {
-      console.log()
-      document.getElementById('time').innerHTML = formatTime(time.time);
+      document.getElementById('time').innerHTML = formatTime(time.timestamp);
     });
 
     var count = 0;
-    source.subscribe(function(event) {
+    source.subscribe(function(scan) {
       document.getElementById('interval').innerHTML = count++;
       document.getElementById('nodeCount').innerHTML = dataNodes.length;
-      var message = formatTime(event.time) + ': User '+ event.user.id + ' ' + event.scanner.type + ' at ' + event.scanner.location.name;
+      var message = formatTime(scan.timestamp) + ': User '+ scan.user.id + ' ' + scan.scanner.type + ' at ' + scan.scanner.location.name;
       var log = document.getElementById('log');
       var span = document.createElement("span");
-      span.className = event.scanner.type;
+      span.className = scan.scanner.type;
       span.textContent = message;
       log.appendChild(span);
       log.scrollTop = log.scrollHeight;
     }, errorHandler);
 
-    // arrivals
-    source.filter(function(event) {
-      return event.user.lastScanner == null && event.scanner.type === 'check-in';
-    }).map(function(event) {
-      return {
-        user: event.user,
-        time: event.time,
-        focus: event.user.scanner.location.id
-      };
+    var indexedScans = source.map(function(scan) {
+      scan._index = findNodeById(dataNodes, scan.user.id);
+      scan._focus = scan.scanner.location.id;
+      return scan;
     })
-    .subscribe(function(arrival) {
-      addNode(arrival);
+
+    indexedScans.subscribe(function(scan) {
+      if (scan._index < 0) {
+        if (! (scan.scanner.type === 'check-out' && scan.scanner.location.id === 0)) {
+          // ignore checkouts at the entrance if we are already not present
+          addNode(scan);
+        }
+      } else {
+        if (scan.scanner.type === 'check-in') {
+          moveNode(scan);
+        } else {
+          if (scan.scanner.location.id !== 0) {
+            checkoutNode(scan);
+          } else {
+            removeNode(scan);
+          }
+        }
+      }
       force.start();
       renderNodes();
     }, errorHandler);
-
-    // movements
-    source.filter(function(event) {
-      return event.user.lastScanner != null && event.scanner.type === 'check-in';
-    }).map(function(event) {
-      return {
-        user: event.user,
-        time: event.time,
-        focus: event.user.scanner.location.id
-      };
-    })
-    .subscribe(function(movement) {
-      moveNode(movement);
-      force.start();
-      renderNodes();
-    });
-
-    // checkouts
-    source.filter(function(event) {
-      return event.scanner.type === 'check-out' && event.scanner.location.id !== 0;
-    }).map(function(event) {
-      return {
-        user: event.user,
-        time: event.time,
-        focus: event.user.scanner.location.id
-      };
-    })
-    .subscribe(function(checkout) {
-      checkoutNode(checkout);
-      force.start();
-      renderNodes();
-    }, errorHandler);
-
-    // departures
-    source.filter(function(event) {
-      return event.scanner.type === 'check-out' && event.scanner.location.id === 0;
-    }).map(function(event) {
-      return {
-        user: event.user,
-        time: event.time
-      };
-    })
-    .subscribe(function(departure) {
-      removeNode(departure);
-      force.start();
-      renderNodes();
-    }, errorHandler);
-
-    // start the shared (published) interval timer
-    pauser.onNext(false);
-    clock.connect();
-    source.connect();
-    pauser.onNext(true);
 
     force.start();
   };
@@ -358,5 +288,5 @@ var d3demo = d3demo || {};
   }
 
   initForce();
-  run();
+  d3demo.playback(run);
 })(d3, Rx);

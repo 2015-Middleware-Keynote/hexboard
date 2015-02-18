@@ -12,11 +12,11 @@ d3demo = (function dataSimulator(d3, Rx) {
     , LUNCH1_ID = 2
     , LUNCH2_ID = 3
 
-  var KEYNOTE_1_START_TIME = 10*60
-    , KEYNOTE_2_START_TIME = 14*60
+  var KEYNOTE_1_START_MINUTES = 10*60
+    , KEYNOTE_2_START_MINUTES = 14*60
     , LUNCH_TIME = 12*60
-    , START_TIME = 7*60 + 50
-    , END_TIME = 18*60;
+    , START_MINUTES = 7*60 + 50
+    , END_MINUTES = 18*60;
 
   var EVENT_DATE = new Date('2015-06-23').getTime() + 7 * 60 * 60 * 1000;
 
@@ -72,32 +72,32 @@ d3demo = (function dataSimulator(d3, Rx) {
   };
 
   var locationWeights = [4, 0, 0, 0, 30, 80, 30, 20, 50, 50, 35];
-  var getLocationWeight = function(location) {
-    if (location.id === GENERAL_SESSIONS_ID && KEYNOTE_1_START_TIME - 10 <= time && time <= KEYNOTE_1_START_TIME + 10) {
+  var getLocationWeight = function(location, minutes) {
+    if (location.id === GENERAL_SESSIONS_ID && KEYNOTE_1_START_MINUTES - 10 <= minutes && minutes <= KEYNOTE_1_START_MINUTES + 10) {
       return 6000;
     };
-    if (location.id === GENERAL_SESSIONS_ID && KEYNOTE_2_START_TIME - 10 <= time && time <= KEYNOTE_2_START_TIME + 10) {
+    if (location.id === GENERAL_SESSIONS_ID && KEYNOTE_2_START_MINUTES - 10 <= minutes && minutes <= KEYNOTE_2_START_MINUTES + 10) {
       return 3000;
     };
-    if ((location.id === LUNCH1_ID || location.id === LUNCH2_ID) && LUNCH_TIME - 5 <= time && time <= LUNCH_TIME + 25) {
+    if ((location.id === LUNCH1_ID || location.id === LUNCH2_ID) && LUNCH_TIME - 5 <= minutes && minutes <= LUNCH_TIME + 25) {
       return 3000;
     };
-    if (location.id === ENTRANCE_ID && time > END_TIME - 60) {
+    if (location.id === ENTRANCE_ID && minutes > END_MINUTES - 60) {
       return 6000;
     };
     return locationWeights[location.id];
   }
 
-  var getRandomLocation = function() {
+  var getRandomLocation = function(minutes) {
     var totalWeight = locations.reduce(function (sumSoFar, location, index, array) {
-      return sumSoFar + getLocationWeight(location);
+      return sumSoFar + getLocationWeight(location, minutes);
     }, 0);
     var random = getRandom(0, totalWeight)
       , sum = 0
       , randomLocation;
     for (var i = 0; i < locations.length; i++) {
       var location = locations[i];
-      sum += getLocationWeight(location);
+      sum += getLocationWeight(location, minutes);
       if (random < sum) {
         randomLocation = locations[i];
         break;
@@ -106,86 +106,197 @@ d3demo = (function dataSimulator(d3, Rx) {
     return randomLocation;
   };
 
-  var pickRandomScanner = function (user) {
-    var userLeft = (user.scanner && user.scanner.type === 'check-out' && user.scanner.location.id === ENTRANCE_ID);
-    user.lastScanner = userLeft ? null : user.scanner;
-    var arrived = !! user.lastScanner
-    var checkedIn = arrived && user.lastScanner.type === 'check-in';
-    var atEntrance = arrived && user.lastScanner.location.id === ENTRANCE_ID;
+  var pickRandomScanner = function (user, minutes) {
+    var userLeft = (user._scanner && user._scanner.type === 'check-out' && user._scanner.location.id === ENTRANCE_ID);
+    user._lastScanner = userLeft ? null : user._scanner;
+    var arrived = !! user._lastScanner
+    var checkedIn = arrived && user._lastScanner.type === 'check-in';
+    var atEntrance = arrived && user._lastScanner.location.id === ENTRANCE_ID;
     if (checkedIn && ! atEntrance) {
-      user.scanner = user.scanner.location.scanners['check-out'];
+      user._scanner = user._scanner.location.scanners['check-out'];
     } else {
-      var location = getRandomLocation();
-      if (location.id == ENTRANCE_ID && (arrived || time > END_TIME - 60)) {
-        user.scanner = location.scanners['check-out'];
+      var location = getRandomLocation(minutes);
+      if (location.id == ENTRANCE_ID && (arrived || minutes > END_MINUTES - 60)) {
+        user._scanner = location.scanners['check-out'];
       } else {
-        user.scanner = location.scanners['check-in'];
+        user._scanner = location.scanners['check-in'];
       }
     }
   }
 
-  var pauser = new Rx.Subject();
-
-  var time = START_TIME;
-  var clock = Rx.Observable
-    .interval(600).map(function() {
-      time = time + 5;
-      var hour = Math.floor(time / 60) % 24
-        , min = String('0' + time % 60).slice(-2);
-      return {
-        time: EVENT_DATE + time * 60 * 1000
-      }
-    })
-    .takeWhile(function() {
-      return time <= END_TIME
-    })
-    .pausable(pauser).publish()
-    ;
-
-  var events = clock.flatMap(function() {
-    var rush = (time + 5) % 60 < 10;
-    var dur = rush ? 5 : 50;
-    var num = rush ? 200 : getRandomInt(3,10);
-    return Rx.Observable.interval(dur).map(function(eventCount) {
-      return {
-        eventCount: eventCount
-      , dur: dur
-      , num: num
-      }
-    }).take(num)
-  });
-
-
-  var scans = events.map(function(event) {
-    var eventTime = time + (event.eventCount * event.dur) * 5 / 600;
-    var user = users[getRandomInt(0, users.length)];
-    pickRandomScanner(user);
-    return {
-      user: user
-    , time: EVENT_DATE + eventTime * 60 * 1000
-    , scanner: user.scanner
-    }
-  })
-  .takeWhile(function() {
-    return time <= END_TIME
-  })
-  .pausable(pauser).publish();
-
   var resetUsers = function() {
     users.forEach(function(user) {
-      user.lastScanner = user.scanner = null;
+      user._lastScanner = user._scanner = null;
     })
-    time = START_TIME;
   };
+
+  var pauser = new Rx.Subject();
+
+  var counter = Rx.Observable.interval(50)
+    .map(function(n) {
+      var minutes = START_MINUTES + n; // increment in 5 minute increments
+      return {
+        n: n
+      , minutes: minutes
+      , timestamp: EVENT_DATE + minutes * 60 * 1000 // timestamp in ms
+      }
+    })
+    .takeWhile(function(tick) {
+      return tick.minutes <= END_MINUTES;
+      // return tick.minutes <= START_MINUTES + 20;
+    })
+    .pausable(pauser).publish();
+
+  var playbackClock = counter.filter(function(tick) {
+      return tick.timestamp % 300000 === 0;
+    }).pausable(pauser).publish();
+
+  var eventLog = {};
+
+  var intervalFromEvents = function(events) {
+    var stream;
+    if (!events || !events.length) {
+       stream = Rx.Observable.empty();
+    } else {
+      // stream = Rx.Observable.range(0, events.length).map(function(n) {
+      stream = Rx.Observable.interval(5).map(function(n) {
+        return events[n];
+      }).take(events.length);
+    }
+    return stream;
+  };
+
+  var randomScans = counter.filter(function(tick) {
+    return tick.timestamp % 3000 === 0;
+  })
+  .flatMap(function(tick) {
+    var events = [];
+    var rush = (tick.minutes + 5) % 60;
+    if (rush > 30) { rush = 60 - rush};
+    var numEvents = rush < 10 ? 25 - rush : getRandomInt(0,3); // simulate a rush
+    for (var n = 0; n < numEvents; n++) {
+      var user = users[getRandomInt(0, users.length)];
+      pickRandomScanner(user, tick.minutes);
+      var eventTimeOffest = getRandomInt(0, 60).toFixed(4);
+      var event = {
+        user: user
+      , _minutes: tick.minutes
+      , timestamp: tick.timestamp + eventTimeOffest * 1000
+      , scanner: user._scanner
+      }
+      events.push(event);
+    };
+    if (events.length) {
+      var binTime = tick.timestamp;
+      eventLog[binTime] = events;
+    }
+    return intervalFromEvents(events);
+  }).pausable(pauser).publish();
+
+  randomScans.subscribe(function() {}, function(error) {console.log(error)}, function() {
+      eventLog.startTimestamp = EVENT_DATE;
+      console.log(JSON.stringify(eventLog, function(key, value) {
+        if (key === 'location') {
+          return value.id;
+        } else if (key[0] == '_') {
+          return undefined;
+        }
+        return value;
+      }, 2));
+    }
+  );
+
+  var playbackRandom = function(cb) {
+    cb(playbackClock, randomScans);
+    pauser.onNext(false);
+    counter.connect();
+    playbackClock.connect();
+    randomScans.connect();
+    pauser.onNext(true);
+  };
+
+  var playbackScans = function(cb) {
+    d3.json('/event_log.json', function(error, json) {
+      if (error) {
+        console.log(error)
+      }
+      analyzePlaybackData(json)
+      var playBackSource = counter.filter(function(tick) {
+        return tick.timestamp % 3000 === 0;
+      })
+      .flatMap(function(tick) {
+
+        var events = json[tick.timestamp];
+        if (events) {
+          events.forEach(function(event) {
+            event.scanner.location = locations[event.scanner.location];
+          })
+        }
+        return intervalFromEvents(events);
+      })
+      .pausable(pauser).publish();
+
+      cb(playbackClock, playBackSource);
+      pauser.onNext(false);
+      counter.connect();
+      playbackClock.connect();
+      playBackSource.connect();
+      pauser.onNext(true);
+    });
+  }
+
+  var analyzePlaybackData = function(json) {
+    function compareNumbers(a, b) {
+      return a - b;
+    }
+
+    var eventTimes = Object.keys(json).map(function(time) {
+      return parseInt(time);
+    }).filter(function(time) {
+      return !isNaN(time);
+    }).sort(compareNumbers);
+
+    var deltaMap = {}
+      , previousTime = 0
+      , sum = 0
+      , numEventsPerInterval = [];
+    eventTimes.forEach(function(binTime) {
+      var numEvents = json[binTime].length;
+      numEventsPerInterval[numEvents] = numEventsPerInterval[numEvents] || 0;
+      numEventsPerInterval[numEvents]++;
+      sum += json[binTime].length;
+      if (previousTime) {
+        deltaMap[binTime - previousTime] = true;
+      }
+      previousTime = binTime;
+    });
+    var deltas = Object.keys(deltaMap).map(function(time) {
+      return parseInt(time);
+    }).sort(compareNumbers);
+    console.log('No. events:', sum); // 4506
+    console.log('Deltas dividends:', deltas.map(function(time) {
+      return time / deltas[0];
+    }));
+    console.log('Smallest Delta:', deltas[0], 'ms / ', deltas[0] / 1000 , 's');
+    console.log('Number of intervals with "n" events:', numEventsPerInterval)
+  }
+
+  var fireEvent = function(event, wait, cb) {
+    setTimeout(function() {
+      // console.log(json[time]);
+      observer.onNext(json[time]);
+      cb();
+    }, wait)
+  }
 
   return {
     width: width
   , height: height
   , locations: locations
-  , eventTimeStamp: EVENT_DATE + START_TIME * 60 * 1000
+  , eventTimeStamp: EVENT_DATE + START_MINUTES * 60 * 1000
   , pauser: pauser
-  , clock: clock
-  , scans: scans
   , resetUsers: resetUsers
+  // , playback: playbackRandom
+  , playback: playbackScans
   }
 })(d3, Rx);
