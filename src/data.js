@@ -158,8 +158,7 @@ d3demo = (function dataSimulator(d3, Rx) {
     if (!events || !events.length) {
        stream = Rx.Observable.empty();
     } else {
-      // stream = Rx.Observable.range(0, events.length).map(function(n) {
-      stream = Rx.Observable.interval(5).map(function(n) {
+      stream = Rx.Observable.range(0, events.length).map(function(n) {
         return events[n];
       }).take(events.length);
     }
@@ -173,7 +172,7 @@ d3demo = (function dataSimulator(d3, Rx) {
     var events = [];
     var rush = (tick.minutes + 5) % 60;
     if (rush > 30) { rush = 60 - rush};
-    var numEvents = rush < 10 ? 25 - rush : getRandomInt(0,3); // simulate a rush
+    var numEvents = rush < 10 ? 100 - rush : getRandomInt(0,3); // simulate a rush
     for (var n = 0; n < numEvents; n++) {
       var user = users[getRandomInt(0, users.length)];
       pickRandomScanner(user, tick.minutes);
@@ -203,6 +202,7 @@ d3demo = (function dataSimulator(d3, Rx) {
         }
         return value;
       }, 2));
+      analyzePlaybackData(eventLog);
     }
   );
 
@@ -288,7 +288,8 @@ d3demo = (function dataSimulator(d3, Rx) {
   , eventTimeStamp: EVENT_DATE + START_MINUTES * 60 * 1000
   , pauser: pauser
   , resetUsers: resetUsers
-  , playback: playbackRandom
-  // , playback: playbackScans
+  , getRandomInt: getRandomInt
+  // , playback: playbackRandom
+  , playback: playbackScans
   }
 })(d3, Rx);

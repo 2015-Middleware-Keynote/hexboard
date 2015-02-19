@@ -49,9 +49,7 @@ var d3demo = d3demo || {};
           datum.id;
         });
 
-    force.on('tick', function(event) {
-      requestAnimationFrame(function() {stepForce(event)});
-    });
+    force.on('tick', stepForce);
   };
 
   var stepForce = function(event) {
@@ -97,8 +95,8 @@ var d3demo = d3demo || {};
   var addNode = function(arrival) {
     var newNode = {
       id: arrival.user.id,
-      x: d3demo.locations[0].x,
-      y: height,
+      x: d3demo.getRandomInt(d3demo.locations[0].x - 50, d3demo.locations[0].x + 50),
+      y: d3demo.getRandomInt(height, height + 50),
       focus: arrival._focus,
       present: arrival.scanner.type === 'check-in',
       user: arrival.user,
@@ -208,20 +206,36 @@ var d3demo = d3demo || {};
 
     // logging
     clock.subscribe(function(time) {
-      document.getElementById('time').innerHTML = formatTime(time.timestamp);
+      document.getElementById('time').textContent = formatTime(time.timestamp);
     });
 
     var count = 0;
+    var scrolling = false;
+    var spans = [];
+    var log = document.getElementById('log');
     source.subscribe(function(scan) {
-      document.getElementById('interval').innerHTML = count++;
-      document.getElementById('nodeCount').innerHTML = dataNodes.length;
+      document.getElementById('interval').textContent = count++;
+      document.getElementById('nodeCount').textContent = dataNodes.length;
       var message = formatTime(scan.timestamp) + ': User '+ scan.user.id + ' ' + scan.scanner.type + ' at ' + scan.scanner.location.name;
-      var log = document.getElementById('log');
-      var span = document.createElement("span");
+      var span = document.createElement('span');
       span.className = scan.scanner.type;
       span.textContent = message;
-      log.appendChild(span);
-      log.scrollTop = log.scrollHeight;
+      spans.push(span);
+      //
+      if (!scrolling) {
+        scrolling = true;
+        setTimeout(function() {
+          // log.scrollTop = log.scrollHeight;
+          spans.forEach(function(addSpan) {
+            log.insertBefore(addSpan, log.firstChild);
+            if (log.childNodes.length > 50) {
+              log.removeChild(log.lastChild);
+            }
+          });
+          spans = [];
+          scrolling = false;
+        }, 500);
+      }
     }, errorHandler);
 
     var indexedScans = source.map(function(scan) {
