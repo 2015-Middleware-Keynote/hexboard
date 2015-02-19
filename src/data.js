@@ -289,7 +289,7 @@ d3demo = (function dataSimulator(d3, Rx) {
   , pauser: pauser
   , resetUsers: resetUsers
   , getRandomInt: getRandomInt
-  // , playback: playbackRandom
-  , playback: playbackScans
+  , playback: playbackRandom
+  // , playback: playbackScans
   }
 })(d3, Rx);
