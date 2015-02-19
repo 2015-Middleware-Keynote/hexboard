@@ -234,7 +234,7 @@ var d3demo = d3demo || {};
           });
           spans = [];
           scrolling = false;
-        }, 500);
+        }, 100);
       }
     }, errorHandler);
 
