@@ -134,7 +134,7 @@ d3demo = (function dataSimulator(d3, Rx) {
 
   var counter = Rx.Observable.interval(50)
     .map(function(n) {
-      var minutes = START_MINUTES + n; // increment in 5 minute increments
+      var minutes = START_MINUTES + n; // increment in 1 minute increments
       return {
         n: n
       , minutes: minutes
@@ -165,10 +165,7 @@ d3demo = (function dataSimulator(d3, Rx) {
     return stream;
   };
 
-  var randomScans = counter.filter(function(tick) {
-    return tick.timestamp % 3000 === 0;
-  })
-  .flatMap(function(tick) {
+  var randomScans = counter.flatMap(function(tick) {
     var events = [];
     var rush = (tick.minutes + 5) % 60;
     if (rush > 30) { rush = 60 - rush};
