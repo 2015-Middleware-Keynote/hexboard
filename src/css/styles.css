@@ -4,120 +4,90 @@
 }
 .map {
   background-image: url('../devnation_map_bw.png');
-  background-size: contain; /* 2442x1448 */
+  background-size: contain;
+  /* 2442x1448 */
   background-repeat: no-repeat;
   display: table-cell;
 }
-
 .legend {
   display: table-cell;
   vertical-align: bottom;
 }
-
 .legendInner {
   width: 70px;
   margin-bottom: 20px;
 }
-
 .arrowText {
-  display:inline-block;
+  display: inline-block;
 }
-
 .arrow {
-  display:inline-block;
+  display: inline-block;
 }
-
 .scale {
   width: 20px;
   height: 200px;
   display: inline-block;
-  background-image: linear-gradient(to bottom,
-    hsl(0, 70%, 50%)
-  , hsl(30, 70%, 50%)
-  , hsl(60, 70%, 50%)
-  , hsl(90, 70%, 50%)
-  , hsl(120, 70%, 50%)
-  , hsl(150, 70%, 50%)
-  , hsl(180, 70%, 50%)
-  , hsl(210, 70%, 50%)
-  , hsl(240, 70%, 50%)
-  , hsl(270, 70%, 50%)
-  );
+  background-image: linear-gradient(to bottom, #d92626, #d98026, #d9d926, #80d926, #26d926, #26d980, #26d9d9, #267fd9, #2626d9, #7f26d9);
 }
-
 .userinfo {
   display: table-cell;
   vertical-align: top;
 }
-
 .node {
-    fill: #ccc;
-    stroke: #fff;
-    stroke-width: 0.5px;
+  fill: #ccc;
+  stroke: #fff;
+  stroke-width: 0.5px;
 }
-
 .link {
-    stroke: #777;
-    stroke-width: 2px;
+  stroke: #777;
+  stroke-width: 2px;
 }
-
 .buttons {
-    position: absolute;
-    width: 30px;
+  position: absolute;
+  width: 30px;
 }
-
 .buttons button {
-    width: 30px;
+  width: 30px;
 }
-
 #log {
   height: 20ex;
   width: 60ex;
   overflow: scroll;
 }
-
 #log span {
-  display:block;
+  display: block;
 }
-
 .check-in {
   color: green;
 }
-
 .check-out {
   color: red;
 }
-
 .selected {
   stroke: magenta !important;
   stroke-width: 2px;
 }
-
 .userinfo {
-  display:none;
+  display: none;
 }
-
 .userinfo .title {
   font-size: 120%;
   text-align: center;
 }
-
 .userinfo th {
   white-space: nowrap;
   font-weight: normal;
   text-align: right;
 }
-
 .userinfo td {
   white-space: nowrap;
   font-weight: bold;
   text-align: left;
 }
-
-.info, .news {
+.info,
+.news {
   display: table-cell;
 }
-
 .new {
   color: blue;
 }

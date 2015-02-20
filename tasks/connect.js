@@ -3,6 +3,7 @@
 var connect = require('gulp-connect')
   , open    = require('open')
   , less    = require('gulp-less')
+  , plumber = require('gulp-plumber')
   ;
 
 module.exports = function(gulp, opts) {
@@ -28,15 +29,22 @@ module.exports = function(gulp, opts) {
     gulp.src('./src/**/*.css')
       .pipe(connect.reload());
   });
-  
-// Compiles less on to /css
-gulp.task('less', function () {
-  gulp.src('./src/less/**/*.less')
-    .pipe(less())
-    .pipe(gulp.dest('./src/css'));
-});
+
+  // Compiles less on to /css
+  gulp.task('less', function () {
+    gulp.src('./src/less/**/*.less')
+      .pipe(plumber({
+          errorHandler: function (err) {
+              console.log(err);
+              this.emit('end');
+          }
+      }))
+      .pipe(less())
+      .pipe(gulp.dest('./src/css'));
+  });
 
   gulp.task('watch', function () {
+    gulp.watch(['./src/less/**/*.less'], ['less']);
     gulp.watch(['./src/**/*.html'], ['html']);
     gulp.watch(['./src/**/*.js'], ['js']);
     gulp.watch(['./src/**/*.css'], ['css']);
