@@ -1,3 +1,4 @@
+RawBlameHistory   
 var gulp = require('gulp');
 
 var opts = {};

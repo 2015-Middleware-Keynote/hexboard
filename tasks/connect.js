@@ -2,6 +2,7 @@
 
 var connect = require('gulp-connect')
   , open    = require('open')
+  , less    = require('gulp-less')
   ;
 
 module.exports = function(gulp, opts) {
@@ -27,6 +28,13 @@ module.exports = function(gulp, opts) {
     gulp.src('./src/**/*.css')
       .pipe(connect.reload());
   });
+  
+// Compiles less on to /css
+gulp.task('less', function () {
+  gulp.src('./src/less/**/*.less')
+    .pipe(less())
+    .pipe(gulp.dest('./src/css'));
+});
 
   gulp.task('watch', function () {
     gulp.watch(['./src/**/*.html'], ['html']);

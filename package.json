@@ -9,7 +9,9 @@
   "author": "Brian Leathem",
   "license": "ASLv2",
   "devDependencies": {
+    "gulp": "^3.8.11",
     "gulp-connect": "^2.2.0",
+    "gulp-less": "^3.0.0",
     "open": "0.0.5"
   }
 }
