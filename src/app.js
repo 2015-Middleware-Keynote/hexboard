@@ -281,7 +281,7 @@ var d3demo = d3demo || {};
 
   var updateUserInfoPanel = function(data) {
     var div = d3.select('.userinfo');
-    div.style({'display': 'table-cell'});
+    div.style({'display': 'block'});
     debugging && console.log(data);
     div.select('.id_v').text(data.user.id);
     div.select('.name_v').text(data.user.name);

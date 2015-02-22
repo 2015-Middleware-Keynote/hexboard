@@ -30,7 +30,7 @@
     position: absolute;
     right: 10px;
     top: 10px;
-    div{
+    &>div{
       background: rgba(255,255,255,1);
       box-shadow: 0 0 3px rgba(0,0,0,.5);
       float: left;
@@ -44,13 +44,23 @@
         line-height: 35px;
         margin: 0;
       }
+      &:last-child{
+        background: none;
+        width: 50%;
+        padding: 0;
+        div{
+          background: rgba(255,255,255,1);
+          box-shadow: 0 0 3px rgba(0,0,0,.5);
+          padding: 10px;
+          width: 100%;
+        }
+      }
+
     }
+    
     .userinfo {
-      clear: left;
       display:none;
-      margin: 2px 0 0 45.3%;
-      padding: 10px;
-      width: 50%;
+      margin: 1px 0 0 0;
       span{
         display: inline;
         line-height: normal;
@@ -73,18 +83,51 @@
       height: 76px;
       overflow: hidden;
       text-transform: none;
-      width: 50%;
       span {
         display:block;
-        line-height: 20px!important;
+        line-height: 19px!important;
       }
  
       .check-in {
-        color: @brand-success;
+//        color: @brand-success;
       }
  
       .check-out {
-        color: @brand-danger;
+          .log-action{
+            background: @brand-danger!important;
+            }
+//        color: @brand-danger;
+      }
+      
+      ul{
+        padding: 0;
+        li{
+          margin: 0;
+          .list-unstyled;
+            border-bottom: 1px solid @gray-lighter;
+            line-height: 19px;
+          }
+        span{
+          display: inline-block;
+          &.log-action{
+            background: @brand-success;
+            color: #fff;
+//            text-align: center;
+            width: 17%;
+            i{
+              padding-left: 5px;
+            }
+          }
+          &.log-time{
+            width: 15%;
+          }
+          &.log-id{
+            width: 15%;
+          }
+          &.log-location{
+            width: 50%;
+          }
+        }
       }
     }
   }

@@ -10418,7 +10418,7 @@ h2,
 .map-container .info:after {
   clear: both;
 }
-.map-container .info div {
+.map-container .info > div {
   background: #ffffff;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
   float: left;
@@ -10428,17 +10428,25 @@ h2,
   text-transform: uppercase;
   width: 15%;
 }
-.map-container .info div span {
+.map-container .info > div span {
   display: block;
   line-height: 35px;
   margin: 0;
 }
-.map-container .info .userinfo {
-  clear: left;
-  display: none;
-  margin: 2px 0 0 45.3%;
-  padding: 10px;
+.map-container .info > div:last-child {
+  background: none;
   width: 50%;
+  padding: 0;
+}
+.map-container .info > div:last-child div {
+  background: #ffffff;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  width: 100%;
+}
+.map-container .info .userinfo {
+  display: none;
+  margin: 1px 0 0 0;
 }
 .map-container .info .userinfo span {
   display: inline;
@@ -10460,17 +10468,43 @@ h2,
   height: 76px;
   overflow: hidden;
   text-transform: none;
-  width: 50%;
 }
 .map-container .info #log span {
   display: block;
-  line-height: 20px!important;
+  line-height: 19px!important;
 }
-.map-container .info #log .check-in {
-  color: #3f9c35;
+.map-container .info #log .check-out .log-action {
+  background: #cc0000 !important;
 }
-.map-container .info #log .check-out {
-  color: #cc0000;
+.map-container .info #log ul {
+  padding: 0;
+}
+.map-container .info #log ul li {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  border-bottom: 1px solid #eeeeee;
+  line-height: 19px;
+}
+.map-container .info #log ul span {
+  display: inline-block;
+}
+.map-container .info #log ul span.log-action {
+  background: #3f9c35;
+  color: #fff;
+  width: 17%;
+}
+.map-container .info #log ul span.log-action i {
+  padding-left: 5px;
+}
+.map-container .info #log ul span.log-time {
+  width: 15%;
+}
+.map-container .info #log ul span.log-id {
+  width: 15%;
+}
+.map-container .info #log ul span.log-location {
+  width: 50%;
 }
 .map {
   background-image: url(../img/map.png);
