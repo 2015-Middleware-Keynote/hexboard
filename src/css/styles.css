@@ -10468,6 +10468,7 @@ h2,
   height: 76px;
   overflow: hidden;
   text-transform: none;
+  color: #999999;
 }
 .map-container .info #log span {
   display: block;
