@@ -3,33 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <title>Force Layout Example 6</title>
-  <link rel="stylesheet" type="text/css" href="lib/font-awesome/css/font-awesome.css"></link>
-  <link rel="stylesheet" type="text/css" href="css/styles.css"></link>
+<!--  <link rel="stylesheet" type="text/css" href="lib/font-awesome/css/font-awesome.css"></link> -->
+  <link rel="stylesheet" type="text/css" href="css/styles.css">
   <script defer src="lib/d3/d3.js"></script>
   <script defer src="lib/rxjs/dist/rx.lite.js"></script>
   <script defer src="lib/rxjs/dist/rx.aggregates.js"></script>
   <script defer src="lib/rxjs/dist/rx.binding.js"></script>
   <script defer src="data.js"></script>
   <script defer src="app.js"></script>
+  
+  <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+  <script type="text/javascript" src="lib/patternfly/components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="lib/patternfly/dist/js/patternfly.min.js"></script>
+  
 </head>
 
-<body>
-  <h1>A D3/Rx.JS example</h1>
-  <div class="buttons">
-    <button id='play' title='Run the Force Layout'>
-      <i class='fa fa-play'></i>
-    </button>
-    <button id='slow' title='Run the clock a single interval'>
-      <i class='fa fa-step-forward'></i>
-    </button>
-    <button id='pause' title='Pause the Force Layout'>
-      <i class='fa fa-pause'></i>
-    </button>
-    <button id='reset' title='Reset Layout to Beginning'>
-      <i class='fa fa-undo'></i>
-    </button>
-  </div>
-  <div class="content">
+<body>  
+  <nav class="navbar navbar-default navbar-pf" role="navigation">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">
+        <img src="lib/patternfly/dist/img/brand.png" alt="Aerogear" />
+      </a>
+    </div>
+
+    <div class="collapse navbar-collapse navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-utility">
+        <li>
+          <a href="#" id='play' title='Run the Force Layout'>
+            <i class='fa fa-play'></i>
+          </a>
+        </li>
+        <li>
+          <a href="#" id='slow' title='Run the Force Layout'>
+            <i class='fa fa-step-forward'></i>
+          </a>
+        </li>
+        <li>
+          <a href="#" id='pause' title='Run the Force Layout'>
+            <i class='fa fa-pause'></i>
+          </a>
+        </li>
+        <li>
+          <a href="#" id='reset' title='Run the Force Layout'>
+            <i class='fa fa-undo'></i>
+          </a>
+        </li>  
+      </ul>
+    </div>
+    <div class="collapse navbar-collapse navbar-collapse-1">
+    </div>
+  </nav>    
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="map-container">
+          <div class="info">
+            <div>
+              <span class="h1" id="time"></span>
+              <strong>
+                <i class="fa fa-clock-o"></i>
+                Time
+              </strong>
+            </div>
+            <div>
+              <span class="h1" id="interval"></span>
+              <strong>
+                <i class="fa fa-bookmark"></i>
+                Events
+              </strong>
+            </div>
+            <div>
+              <span class="h1" id="nodeCount"></span>
+              <strong>
+                <i class="fa fa-dot-circle-o"></i>
+                Nodes
+              </strong>
+            </div>
+            <div id="log">
+              <!-- log -->
+            </div>
+            <div class="userinfo">
+              <h2><span class="pficon pficon-user"></span> <span class="name_v"></span></h2>
+              <ul class="list-inline">
+                <li><strong><i class="fa fa-dot-circle-o"></i> ID:</strong> <span class="id_v"></span></li>
+                <li><strong><i class="fa fa-sign-in"></i> Check-in:</strong> <span class="checkin_v"></span></li>
+                <li><strong><i class="fa fa-sign-out"></i> Check-out:</strong> <span class="checkout_v"></span></li>
+              </ul>
+            </div>
+          </div>
+          <div class="map">
+          </div><!-- map -->      
+        <div><!-- map container -->  
+  
+  <!-- 
     <div class="legend">
       <div class="legendInner">
         <div class="arrowText">
@@ -49,9 +122,12 @@
         </div>
         <div class="scale"></div>
       </div>
-    </div>
-    <div class="map">
-    </div>
+    </div>legend -->
+
+
+
+<!--
+    
     <div class="userinfo">
       <p class="title">Selected User</p>
       <table>
@@ -73,15 +149,24 @@
         </tr>
       </table>
     </div>
-  </div>
+
+-->
+  
+      </div><!--col -->
+    </div><!-- row -->
+  </div><!--container-fluid -->
+  
+  
   <div class="footer">
+    <!--
     <div class="info">
-      <div>No. of events: <span id="time"/></div>
-      <div>No. of events: <span id="interval"/></div>
-      <div>No. of nodes : <span id="nodeCount"/></div>
+      <div>Time: <span id="time"></span></div>
+      <div>No. of events: <span id="interval"></span></div>
+      <div>No. of nodes : <span id="nodeCount"></span></div>
       <div>Log:</div>
       <div id="log"></div>
     </div>
+    -->
     <div class="news">
       <h3>What's new:</h3>
       <ul>
@@ -103,6 +188,8 @@
       </ul>
     </div>
   </div>
+  
+  
 </body>
 
 </html>

@@ -1,123 +1,155 @@
-.content {
-  display: table-row;
-  height: 798px;
-}
+@import "../lib/patternfly/less/patternfly.less";
+
+@fa-font-path:      "../lib/patternfly/components/font-awesome/fonts/";
+@font-path:         "../lib/patternfly/dist/fonts";
+@icon-font-path:    "../lib/patternfly/components/bootstrap/fonts/";
+
+
+//navbar changes to make it heigher ==========================================================
+
+ .navbar-header{
+   padding: 5px 0;
+ }
+ 
+ .navbar-pf .navbar-utility  > li > a {
+ padding: 12px 10px;}
+ 
+ .navbar-pf .navbar-utility li.dropdown > .dropdown-toggle .pficon-user{
+   top: 12px;
+ }
+
+
+// map ==========================================================
+
+.map-container{
+  margin: 20px 0 0 0;
+  position: relative;
+  .info{
+    .clearfix();
+    left: 10px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    div{
+      background: rgba(255,255,255,1);
+      box-shadow: 0 0 3px rgba(0,0,0,.5);
+      float: left;
+      margin-right: 1px;
+      line-height: 20px;
+      padding: 10px;
+      text-transform: uppercase;
+      width: 15%;
+      span{
+        display: block;
+        line-height: 35px;
+        margin: 0;
+      }
+    }
+    .userinfo {
+      clear: left;
+      display:none;
+      margin: 2px 0 0 45.3%;
+      padding: 10px;
+      width: 50%;
+      span{
+        display: inline;
+        line-height: normal;
+      }
+      h2{
+        line-height: 35px;      
+        margin: 0;
+        text-transform: none;
+      }
+      ul{
+        margin: 0;
+        li{
+          line-height: 20px;  
+          margin-right: 8px;    
+        }    
+      }
+    }
+ 
+    #log {
+      height: 76px;
+      overflow: hidden;
+      text-transform: none;
+      width: 50%;
+      span {
+        display:block;
+        line-height: 20px!important;
+      }
+ 
+      .check-in {
+        color: @brand-success;
+      }
+ 
+      .check-out {
+        color: @brand-danger;
+      }
+    }
+  }
+} 
+
 .map {
-  background-image: url('../devnation_map_bw.png');
-  background-size: contain; /* 2442x1448 */
+  background-image: url(../img/map.png);
   background-repeat: no-repeat;
-  display: table-cell;
+  background-size: 100%; /* 2442x1448 */
+  border: 1px solid @gray-lighter;
 }
 
-.legend {
-  display: table-cell;
-  vertical-align: bottom;
-}
-
-.legendInner {
-  width: 70px;
-  margin-bottom: 20px;
-}
-
-.arrowText {
-  display:inline-block;
-}
-
-.arrow {
-  display:inline-block;
-}
-
-.scale {
-  width: 20px;
-  height: 200px;
-  display: inline-block;
-  background-image: linear-gradient(to bottom,
-    hsl(0, 70%, 50%)
-  , hsl(30, 70%, 50%)
-  , hsl(60, 70%, 50%)
-  , hsl(90, 70%, 50%)
-  , hsl(120, 70%, 50%)
-  , hsl(150, 70%, 50%)
-  , hsl(180, 70%, 50%)
-  , hsl(210, 70%, 50%)
-  , hsl(240, 70%, 50%)
-  , hsl(270, 70%, 50%)
-  );
-}
-
-.userinfo {
-  display: table-cell;
-  vertical-align: top;
-}
 
 .node {
-    fill: #ccc;
-    stroke: #fff;
-    stroke-width: 0.5px;
+  fill: #ccc;
+  stroke: #fff;
+  stroke-width: 0.5px;
 }
 
 .link {
-    stroke: #777;
-    stroke-width: 2px;
-}
-
-.buttons {
-    position: absolute;
-    width: 30px;
-}
-
-.buttons button {
-    width: 30px;
-}
-
-#log {
-  height: 20ex;
-  width: 60ex;
-  overflow: scroll;
-}
-
-#log span {
-  display:block;
-}
-
-.check-in {
-  color: green;
-}
-
-.check-out {
-  color: red;
-}
-
-.selected {
-  stroke: magenta !important;
+  stroke: #777;
   stroke-width: 2px;
 }
 
-.userinfo {
-  display:none;
+.selected {
+  stroke:rgba(0,0,0,.5);
+  stroke-width: 5px;  
 }
+ 
 
-.userinfo .title {
-  font-size: 120%;
-  text-align: center;
-}
 
-.userinfo th {
-  white-space: nowrap;
-  font-weight: normal;
-  text-align: right;
-}
 
-.userinfo td {
-  white-space: nowrap;
-  font-weight: bold;
-  text-align: left;
-}
-
-.info, .news {
-  display: table-cell;
-}
-
-.new {
-  color: blue;
-}
+//  .legend {
+//    display: table-cell;
+//    vertical-align: bottom;
+//  }
+//  
+//  .legendInner {
+//    width: 70px;
+//    margin-bottom: 20px;
+//  }
+ 
+// .arrowText {
+//   display:inline-block;
+// }
+// 
+// .arrow {
+//   display:inline-block;
+// }
+// 
+// .scale {
+//   width: 20px;
+//   height: 200px;
+//   display: inline-block;
+//   background-image: linear-gradient(to bottom,
+//     hsl(0, 70%, 50%)
+//   , hsl(30, 70%, 50%)
+//   , hsl(60, 70%, 50%)
+//   , hsl(90, 70%, 50%)
+//   , hsl(120, 70%, 50%)
+//   , hsl(150, 70%, 50%)
+//   , hsl(180, 70%, 50%)
+//   , hsl(210, 70%, 50%)
+//   , hsl(240, 70%, 50%)
+//   , hsl(270, 70%, 50%)
+//   );
+// }
+ 
