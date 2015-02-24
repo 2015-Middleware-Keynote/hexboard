@@ -198,6 +198,45 @@ var d3demo = d3demo || {};
     run();
   });
 
+  var checkInElement = (function() {
+    var html = '<li class="check-out">'
+      + '<span class="log-action"><i class="fa fa-sign-out"></i> Check-out</span>'
+      + '<span class="log-time"><i class="fa fa-clock-o"></i></span>'
+      + '<span class="log-id"><i class="fa fa-dot-circle-o"></i></span>'
+      + '<span class="log-location"><i class="fa fa-map-marker"></i></span>'
+    + '</li>';
+    var documentFragment = document.createDocumentFragment();
+    var element = document.createElement('div');
+    element.innerHTML = html;
+    documentFragment.appendChild(element.childNodes[0]);
+    return documentFragment;
+  })();
+
+  var checkOutElement = (function() {
+    var html = '<li class="check-in">'
+      + '<span class="log-action"><i class="fa fa-sign-in"></i> Check-in</span>'
+      + '<span class="log-time"><i class="fa fa-clock-o"></i></span>'
+      + '<span class="log-id"><i class="fa fa-dot-circle-o"></i></span>'
+      + '<span class="log-location"><i class="fa fa-map-marker"></i></span>'
+    + '</li>';
+    var documentFragment = document.createDocumentFragment();
+    var element = document.createElement('div');
+    element.innerHTML = html;
+    documentFragment.appendChild(element.childNodes[0]);
+    return documentFragment;
+  })();
+
+  var createMessageElement = function(scan) {
+    // var baseNode = scan.type === 'check-in' ? checkInElement : checkOutElement;
+    var baseNode = checkOutElement;
+    var element = baseNode.cloneNode(true);
+    var li = element.childNodes[0];
+    li.childNodes[1].textContent = formatTime(scan.timestamp);
+    li.childNodes[2].textContent = 'User ' + scan.user.id;
+    li.childNodes[3].textContent = scan.scanner.location.name;
+    return element;
+  }
+
   var run = function(clock, source) {
     // a shared error handler
     var errorHandler = function (err) {
@@ -216,12 +255,9 @@ var d3demo = d3demo || {};
     source.subscribe(function(scan) {
       document.getElementById('interval').textContent = count++;
       document.getElementById('nodeCount').textContent = dataNodes.length;
-      var message = formatTime(scan.timestamp) + ': User '+ scan.user.id + ' ' + scan.scanner.type + ' at ' + scan.scanner.location.name;
-      var span = document.createElement('span');
-      span.className = scan.scanner.type;
-      span.textContent = message;
-      spans.push(span);
-      //
+      // var message = formatTime(scan.timestamp) + ': User '+ scan.user.id + ' ' + scan.scanner.type + ' at ' + scan.scanner.location.name;
+      // console.log(message);
+      spans.push(createMessageElement(scan));
       if (!scrolling) {
         scrolling = true;
         setTimeout(function() {
