@@ -10465,46 +10465,44 @@ h2,
   margin-right: 8px;
 }
 .map-container .info #log {
-  height: 76px;
+  height: 56px;
   overflow: hidden;
   text-transform: none;
   color: #999999;
+  padding: 0;
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
 }
 .map-container .info #log span {
-  display: block;
-  line-height: 19px!important;
+  line-height: 18px!important;
 }
 .map-container .info #log .check-out .log-action {
   background: #cc0000 !important;
 }
-.map-container .info #log ul {
-  padding: 0;
-}
-.map-container .info #log ul li {
+.map-container .info #log li {
   margin: 0;
-  padding-left: 0;
-  list-style: none;
   border-bottom: 1px solid #eeeeee;
-  line-height: 19px;
+  line-height: 18px;
 }
-.map-container .info #log ul span {
+.map-container .info #log span {
   display: inline-block;
 }
-.map-container .info #log ul span.log-action {
+.map-container .info #log span.log-action {
   background: #3f9c35;
   color: #fff;
   width: 17%;
 }
-.map-container .info #log ul span.log-action i {
+.map-container .info #log span.log-action i {
   padding-left: 5px;
 }
-.map-container .info #log ul span.log-time {
+.map-container .info #log span.log-time {
   width: 15%;
 }
-.map-container .info #log ul span.log-id {
+.map-container .info #log span.log-id {
   width: 15%;
 }
-.map-container .info #log ul span.log-location {
+.map-container .info #log span.log-location {
   width: 50%;
 }
 .map {

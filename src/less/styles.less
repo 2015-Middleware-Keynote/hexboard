@@ -80,33 +80,26 @@
     }
  
     #log {
-      height: 76px;
+      height: 56px;
       overflow: hidden;
       text-transform: none;
       color: @gray-light;
+      padding: 0;
+      margin: 0;
+      .list-unstyled;
       span {
-        display:block;
-        line-height: 19px!important;
-      }
- 
-      .check-in {
-//        color: @brand-success;
-      }
- 
+        line-height: 18px!important;
+      } 
       .check-out {
           .log-action{
             background: @brand-danger!important;
             }
-//        color: @brand-danger;
       }
       
-      ul{
-        padding: 0;
         li{
           margin: 0;
-          .list-unstyled;
-            border-bottom: 1px solid @gray-lighter;
-            line-height: 19px;
+          border-bottom: 1px solid @gray-lighter;
+          line-height: 18px;
           }
         span{
           display: inline-block;
@@ -129,7 +122,6 @@
             width: 50%;
           }
         }
-      }
     }
   }
 } 
