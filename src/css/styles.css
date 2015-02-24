@@ -10466,7 +10466,7 @@ h2,
 }
 .map-container .info #log {
   height: 56px;
-  overflow: hidden;
+  overflow: scroll;
   text-transform: none;
   color: #999999;
   padding: 0;
@@ -10487,29 +10487,48 @@ h2,
 }
 .map-container .info #log span {
   display: inline-block;
+  padding-left: 5px;
+}
+.map-container .info #log span:before {
+  font-family: "FontAwesome";
+  font-weight: normal;
+  line-height: 12px;
+  width: 12px;
+  text-align: center;
+  margin-right: 2px;
 }
 .map-container .info #log span.log-action {
   background: #3f9c35;
   color: #fff;
   width: 17%;
 }
-.map-container .info #log span.log-action i {
-  padding-left: 5px;
+.map-container .info #log span.log-action:before {
+  content: none;
 }
 .map-container .info #log span.log-time {
   width: 15%;
 }
+.map-container .info #log span.log-time:before {
+  content: "\f017";
+}
 .map-container .info #log span.log-id {
   width: 15%;
+}
+.map-container .info #log span.log-id:before {
+  content: "\f10c";
 }
 .map-container .info #log span.log-location {
   width: 50%;
 }
+.map-container .info #log span.log-location:before {
+  content: "\f041";
+}
 .map {
   background-image: url(../img/map.png);
   background-repeat: no-repeat;
-  background-size: 100%;
+  background-size: 100% auto;
   /* 2442x1448 */
+  background-position: center center;
   border: 1px solid #eeeeee;
 }
 .node {

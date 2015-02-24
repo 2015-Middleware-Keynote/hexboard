@@ -81,7 +81,7 @@
  
     #log {
       height: 56px;
-      overflow: hidden;
+      overflow: scroll;
       text-transform: none;
       color: @gray-light;
       padding: 0;
@@ -91,11 +91,10 @@
         line-height: 18px!important;
       } 
       .check-out {
-          .log-action{
-            background: @brand-danger!important;
-            }
+        .log-action{
+          background: @brand-danger!important;
+        }
       }
-      
         li{
           margin: 0;
           border-bottom: 1px solid @gray-lighter;
@@ -103,36 +102,55 @@
           }
         span{
           display: inline-block;
-          &.log-action{
-            background: @brand-success;
-            color: #fff;
-//            text-align: center;
-            width: 17%;
-            i{
-              padding-left: 5px;
+          padding-left: 5px;
+            &:before {
+              font-family: @icon-font-name-fa;
+              font-weight: normal;
+//              content: @fa-var-clock-o;
+              line-height: @font-size-base;
+              width: @font-size-base;
+              text-align: center;
+              margin-right: 2px;
+            }
+
+            &.log-action{
+              background: @brand-success;
+              color: #fff;
+              width: 17%;
+              &:before{
+                content: none;
+              }
+            }
+            &.log-time{
+              width: 15%;
+              &:before{
+                content: @fa-var-clock-o;
+              }
+            }
+            &.log-id{
+              width: 15%;
+              &:before{
+                content: @fa-var-circle-o;
+              }
+            }
+            &.log-location{
+              width: 50%;
+              &:before{
+                content: @fa-var-map-marker;
+              }
             }
           }
-          &.log-time{
-            width: 15%;
-          }
-          &.log-id{
-            width: 15%;
-          }
-          &.log-location{
-            width: 50%;
-          }
         }
-    }
-  }
-} 
+      }
+    } 
 
 .map {
   background-image: url(../img/map.png);
   background-repeat: no-repeat;
-  background-size: 100%; /* 2442x1448 */
+  background-size: 100% auto; /* 2442x1448 */
+  background-position: center center;
   border: 1px solid @gray-lighter;
 }
-
 
 .node {
   fill: #ccc;

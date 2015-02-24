@@ -201,9 +201,9 @@ var d3demo = d3demo || {};
   var checkInElement = (function() {
     var html = '<li class="check-out">'
       + '<span class="log-action"><i class="fa fa-sign-out"></i> Check-out</span>'
-      + '<span class="log-time"><i class="fa fa-clock-o"></i></span>'
-      + '<span class="log-id"><i class="fa fa-dot-circle-o"></i></span>'
-      + '<span class="log-location"><i class="fa fa-map-marker"></i></span>'
+      + '<span class="log-time"></span>'
+      + '<span class="log-id"></span>'
+      + '<span class="log-location"></span>'
     + '</li>';
     var documentFragment = document.createDocumentFragment();
     var element = document.createElement('div');
@@ -215,9 +215,9 @@ var d3demo = d3demo || {};
   var checkOutElement = (function() {
     var html = '<li class="check-in">'
       + '<span class="log-action"><i class="fa fa-sign-in"></i> Check-in</span>'
-      + '<span class="log-time"><i class="fa fa-clock-o"></i></span>'
-      + '<span class="log-id"><i class="fa fa-dot-circle-o"></i></span>'
-      + '<span class="log-location"><i class="fa fa-map-marker"></i></span>'
+      + '<span class="log-time"></span>'
+      + '<span class="log-id"></span>'
+      + '<span class="log-location"></span>'
     + '</li>';
     var documentFragment = document.createDocumentFragment();
     var element = document.createElement('div');
@@ -227,8 +227,8 @@ var d3demo = d3demo || {};
   })();
 
   var createMessageElement = function(scan) {
-    // var baseNode = scan.type === 'check-in' ? checkInElement : checkOutElement;
-    var baseNode = checkOutElement;
+    var baseNode = scan.scanner.type === 'check-in' ? checkInElement : checkOutElement;
+    // var baseNode = checkOutElement;
     var element = baseNode.cloneNode(true);
     var li = element.childNodes[0];
     li.childNodes[1].textContent = formatTime(scan.timestamp);
