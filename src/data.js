@@ -4,6 +4,8 @@ var d3demo = d3demo || {};
 
 d3demo = (function dataSimulator(d3, Rx) {
   var scale = 1.4;
+  var mapContainer = document.querySelector('.map');
+  scale = mapContainer.offsetWidth / 960;
   var width = 960*scale
     , height = 570*scale;
 
