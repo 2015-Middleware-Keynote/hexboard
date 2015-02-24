@@ -10466,7 +10466,7 @@ h2,
 }
 .map-container .info #log {
   height: 56px;
-  overflow: scroll;
+  overflow-y: scroll;
   text-transform: none;
   color: #999999;
   padding: 0;
