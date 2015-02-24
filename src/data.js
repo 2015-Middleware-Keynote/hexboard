@@ -3,11 +3,14 @@
 var d3demo = d3demo || {};
 
 d3demo = (function dataSimulator(d3, Rx) {
-  var scale = 1.4;
-  var mapContainer = document.querySelector('.map');
-  scale = mapContainer.offsetWidth / 1949;
-  var width = 1949*scale
-    , height = 1389*scale;
+  var scale, width, height;
+  var calculateScale = function() {
+    var mapContainer = document.querySelector('.map');
+    scale =  mapContainer.offsetWidth / 1949;
+    width = 1949*scale;
+    height = 1389*scale;
+  }
+  calculateScale();
 
   var GENERAL_SESSIONS_ID = 1
     , ENTRANCE_ID = 0
@@ -46,8 +49,10 @@ d3demo = (function dataSimulator(d3, Rx) {
   };
 
   locations.forEach(function(location, index) {
-    location.x = location.x * scale;
-    location.y = location.y * scale;
+    location.x_i = location.x;
+    location.y_i = location.y;
+    location.x = location.x_i * scale;
+    location.y = location.y_i * scale;
     var checkin = {
       id: 2*index
     , type: 'check-in'
@@ -63,6 +68,16 @@ d3demo = (function dataSimulator(d3, Rx) {
     , 'check-out': checkout
     };
   });
+
+  window.onresize = function(event) {
+    calculateScale();
+    locations.forEach(function(location, index) {
+      location.x = location.x_i * scale;
+      location.y = location.y_i * scale;
+    });
+    var myEvent = new CustomEvent('mapresize', {detail: {scale: scale, width: width, height: height}});
+    document.dispatchEvent(myEvent);
+  }
 
   // Returns a random integer between min included) and max (excluded)
   var getRandom = function (min, max) {

@@ -20,15 +20,20 @@ var d3demo = d3demo || {};
     .attr('width', width)
     .attr('height', height);
 
+  document.addEventListener('mapresize', function(e) {
+    console.log(e.detail);
+    svg.attr('width', e.detail.width)
+       .attr('height', e.detail.height);
+  })
+
+
   // A function to initialize our visualization.
   var initForce = function() {
     // clear out the contents of the SVG container
     // makes it possible to restart the layout without refreshing the page
     svg.selectAll('*').remove();
 
-    foci = d3demo.locations.map(function(location) {
-      return {x: location.x, y: location.y};
-    });
+    foci = d3demo.locations;
 
     // define the data
     dataNodes = [];
