@@ -5,9 +5,9 @@ var d3demo = d3demo || {};
 d3demo = (function dataSimulator(d3, Rx) {
   var scale = 1.4;
   var mapContainer = document.querySelector('.map');
-  scale = mapContainer.offsetWidth / 960;
-  var width = 960*scale
-    , height = 570*scale;
+  scale = mapContainer.offsetWidth / 1949;
+  var width = 1949*scale
+    , height = 1389*scale;
 
   var GENERAL_SESSIONS_ID = 1
     , ENTRANCE_ID = 0
@@ -23,17 +23,17 @@ d3demo = (function dataSimulator(d3, Rx) {
   var EVENT_DATE = new Date('2015-06-23').getTime() + 7 * 60 * 60 * 1000;
 
   var locations = [
-    { id: 0, x: 165, y: 520, name: 'Entrance'}
-  , { id: 1, x: 140, y: 220, name: 'General Sessions'}
-  , { id: 2, x: 350, y: 100, name: 'Lunch 1'}
-  , { id: 3, x: 640, y: 100, name: 'Lunch 2'}
-  , { id: 4, x: 350, y: 250, name: 'Red Hat Booth 1'}
-  , { id: 5, x: 635, y: 245, name: 'Red Hat Booth 2'}
-  , { id: 6, x: 60,  y: 450, name: 'Room 200 DV Lounge and Hackathons'}
-  , { id: 7, x: 285, y: 465, name: 'Room 201 DEVNATION Track'}
-  , { id: 8, x: 355, y: 465, name: 'Room 202 DEVNATION Track'}
-  , { id: 9, x: 430, y: 465, name: 'Room 203 DEVNATION Track'}
-  , { id: 10, x: 500, y: 465, name: 'Room 204 DEVNATION Track'}
+    { id: 0, x: 370, y: 1270, name: 'Entrance'}
+  , { id: 1, x: 310, y: 510, name: 'General Sessions'}
+  , { id: 2, x: 860, y: 240, name: 'Lunch 1'}
+  , { id: 3, x: 1590, y: 210, name: 'Lunch 2'}
+  , { id: 4, x: 860, y: 600, name: 'Red Hat Booth 1'}
+  , { id: 5, x: 1570, y: 600, name: 'Red Hat Booth 2'}
+  , { id: 6, x: 90,  y: 1110, name: 'Room 200 DV Lounge and Hackathons'}
+  , { id: 7, x: 680, y: 1170, name: 'Room 201 DEVNATION Track'}
+  , { id: 8, x: 870, y: 1170, name: 'Room 202 DEVNATION Track'}
+  , { id: 9, x: 1070, y: 1170, name: 'Room 203 DEVNATION Track'}
+  , { id: 10, x: 1250, y: 1170, name: 'Room 204 DEVNATION Track'}
   ];
 
   var users = [];
