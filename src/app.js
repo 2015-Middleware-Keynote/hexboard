@@ -21,7 +21,6 @@ var d3demo = d3demo || {};
     .attr('height', height);
 
   document.addEventListener('mapresize', function(e) {
-    console.log(e.detail);
     svg.attr('width', e.detail.width)
        .attr('height', e.detail.height);
   })

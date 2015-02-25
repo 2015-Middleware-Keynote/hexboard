@@ -10528,8 +10528,13 @@ h2,
   background-repeat: no-repeat;
   background-size: 100% auto;
   /* 2442x1448 */
+  background-size: contain;
   background-position: center center;
   border: 1px solid #eeeeee;
+}
+.map svg {
+  display: block;
+  margin: auto;
 }
 .node {
   fill: #ccc;

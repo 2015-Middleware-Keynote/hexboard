@@ -148,8 +148,14 @@
   background-image: url(../img/map.png);
   background-repeat: no-repeat;
   background-size: 100% auto; /* 2442x1448 */
+  background-size: contain;
   background-position: center center;
   border: 1px solid @gray-lighter;
+}
+
+.map svg {
+  display: block;
+  margin: auto;
 }
 
 .node {

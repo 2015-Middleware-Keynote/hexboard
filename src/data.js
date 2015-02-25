@@ -9,6 +9,12 @@ d3demo = (function dataSimulator(d3, Rx) {
     scale =  mapContainer.offsetWidth / 1949;
     width = 1949*scale;
     height = 1389*scale;
+    var windowHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || height) - 100;
+    if (height > windowHeight) {
+      height = windowHeight;
+      scale = windowHeight / 1389;
+      width = 1949*scale;
+    }
   }
   calculateScale();
 
