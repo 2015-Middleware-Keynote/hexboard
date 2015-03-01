@@ -22,45 +22,106 @@
 // map ==========================================================
 
 .map-container{
-  margin: 20px 0 0 0;
+  .clearfix();
   position: relative;
+  clear: both;
+}
+
   .info{
-    .clearfix();
-    left: 10px;
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    &>div{
+    div{
       background: rgba(255,255,255,1);
-      box-shadow: 0 0 3px rgba(0,0,0,.5);
-      float: left;
-      margin-right: 1px;
       line-height: 20px;
       padding: 10px;
       text-transform: uppercase;
-      width: 15%;
-      span{
-        display: block;
+      border-bottom: 1px solid @gray-lighter;
+      h1{
         line-height: 35px;
         margin: 0;
       }
-      &:last-child{
-        background: none;
-        width: 50%;
-        padding: 0;
-        div{
-          background: rgba(255,255,255,1);
-          box-shadow: 0 0 3px rgba(0,0,0,.5);
-          padding: 10px;
-          width: 100%;
+    }
+
+
+    #log {
+      height: 250px;
+      overflow-y: scroll;
+//      text-transform: none;
+      color: @gray-light;
+      padding: 0;
+      margin: 0 0 0 0px;
+      .list-unstyled;
+      span {
+//        line-height: 18px!important;
+      }
+      .check-out {
+        .log-action{
+          background: @brand-danger!important;
         }
       }
+      li{
+        margin: 0;
+        border-bottom: 1px solid @gray-lighter;
+        line-height: 18px;
+        }
+      span{
+        display: inline-block;
+        padding-left: 5px;
+        vertical-align: top;
+          &:before {
+            font-family: @icon-font-name-fa;
+            font-weight: normal;
+//            content: @fa-var-clock-o;
+            line-height: @font-size-base;
+            width: @font-size-base;
+            text-align: center;
+            margin-right: 2px;
+          }
 
-    }
+          &.log-action{
+            background: @brand-success;
+            color: #fff;
+            width: 30%;
+            margin-bottom: 5px;
+            &:before{
+              content: none;
+            }
+          }
+          &.log-time{
+            background: @gray-lighter;
+            width: 70%;
+            margin-bottom: 5px;
+            &:before{
+              content: @fa-var-clock-o;
+            }
+          }
+          &.log-id{
+            width: 30%;
+            margin-bottom: 15px;
+            &:before{
+              content: @fa-var-circle-o;
+            }
+          }
+          &.log-location{
+            width: 70%;
+            margin-bottom: 15px;
+            &:before{
+              content: @fa-var-map-marker;
+            }
+          }
+          }
+        }
+      }
+    
+
 
     .userinfo {
       display:none;
-      margin: 1px 0 0 0;
+      position: absolute;
+      border: none;
+      top: 10px;
+      left: 10px;
+      background: #fff;
+      box-shadow: 0 0 5px rgba(0 ,0,0,.5);
+      padding: 10px;
       span{
         display: inline;
         line-height: normal;
@@ -79,78 +140,15 @@
       }
     }
 
-    #log {
-      height: 56px;
-      overflow-y: scroll;
-      text-transform: none;
-      color: @gray-light;
-      padding: 0;
-      margin: 0;
-      .list-unstyled;
-      span {
-        line-height: 18px!important;
-      }
-      .check-out {
-        .log-action{
-          background: @brand-danger!important;
-        }
-      }
-        li{
-          margin: 0;
-          border-bottom: 1px solid @gray-lighter;
-          line-height: 18px;
-          }
-        span{
-          display: inline-block;
-          padding-left: 5px;
-            &:before {
-              font-family: @icon-font-name-fa;
-              font-weight: normal;
-//              content: @fa-var-clock-o;
-              line-height: @font-size-base;
-              width: @font-size-base;
-              text-align: center;
-              margin-right: 2px;
-            }
 
-            &.log-action{
-              background: @brand-success;
-              color: #fff;
-              width: 17%;
-              &:before{
-                content: none;
-              }
-            }
-            &.log-time{
-              width: 15%;
-              &:before{
-                content: @fa-var-clock-o;
-              }
-            }
-            &.log-id{
-              width: 15%;
-              &:before{
-                content: @fa-var-circle-o;
-              }
-            }
-            &.log-location{
-              width: 50%;
-              &:before{
-                content: @fa-var-map-marker;
-              }
-            }
-          }
-        }
-      }
-    }
 
 .map {
+  float: left;
   background-image: url(../img/map.png);
   background-repeat: no-repeat;
-  background-size: 100% auto; /* 2442x1448 */
   background-size: contain;
-  background-position: center center;
-  border: 1px solid @gray-lighter;
+  background-position: left top;
+//  width: 900px;
 }
 
 .map svg {
