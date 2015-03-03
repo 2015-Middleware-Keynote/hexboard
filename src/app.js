@@ -142,6 +142,7 @@ var d3demo = d3demo || {};
       var currentIndex = findNodeById(dataNodes, dataNode.id);
       if (currentIndex >= 0 && dataNodes[currentIndex].exiting === true) {
         if (dataNodes[currentIndex].selected) {
+          unSelectNodes();
           d3.select('.userinfo').style({'display': 'none'});
         }
         dataNodes.splice(currentIndex, 1);
@@ -178,7 +179,19 @@ var d3demo = d3demo || {};
       .attr("cy", function(d) { return d.y; })
       .attr('r', function(d) { return d.present ? 8 : 2});
     nodes.exit().remove();
-  }
+  };
+
+  var selectNode = function() {
+    svg.select('.selected').classed({selected: false}).data().forEach(function(d) {
+      d.selected = false;
+    });
+  };
+
+  var unSelectNodes = function() {
+    svg.select('.selected').classed({selected: false}).data().forEach(function(d) {
+      d.selected = false;
+    });
+  };
 
   var reset = Rx.Observable.fromEvent(d3.select('#reset').node(), 'click')
     , pause = Rx.Observable.fromEvent(d3.select('#pause').node(), 'click')
@@ -321,12 +334,18 @@ var d3demo = d3demo || {};
   };
 
   nodeClick.filter(function(event) {
+    return event.target && event.target.nodeName !== 'circle';
+  })
+  .subscribe(function(event) {
+    unSelectNodes();
+    d3.select('.userinfo').style({'display': 'none'});
+  });
+
+  nodeClick.filter(function(event) {
     return event.target && event.target.nodeName === 'circle';
   })
   .subscribe(function(event) {
-    svg.select('.selected').classed({selected: false}).data().forEach(function(d) {
-      d.selected = false;
-    });
+    unSelectNodes();
     var node = d3.select(event.target);
     node.classed({selected: true}).data().forEach(function(d) {
       d.selected = true;
