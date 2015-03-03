@@ -10,7 +10,6 @@
   <script defer src="lib/rxjs/dist/rx.binding.js"></script>
   <script defer src="data.js"></script>
   <script defer src="app.js"></script>
-
   <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
   <script type="text/javascript" src="lib/patternfly/components/bootstrap/dist/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="lib/patternfly/dist/js/patternfly.min.js"></script>
@@ -35,22 +34,22 @@
       <ul class="nav navbar-nav navbar-utility">
         <li>
           <a href="#" id='play' title='Run the Force Layout'>
-            <i class='fa fa-play'></i>
+          <i class='fa fa-play'></i>
           </a>
         </li>
         <li>
           <a href="#" id='slow' title='Run the Force Layout'>
-            <i class='fa fa-step-forward'></i>
+          <i class='fa fa-step-forward'></i>
           </a>
         </li>
         <li>
           <a href="#" id='pause' title='Run the Force Layout'>
-            <i class='fa fa-pause'></i>
+          <i class='fa fa-pause'></i>
           </a>
         </li>
         <li>
           <a href="#" id='reset' title='Run the Force Layout'>
-            <i class='fa fa-undo'></i>
+          <i class='fa fa-undo'></i>
           </a>
         </li>
       </ul>
@@ -60,52 +59,49 @@
   </nav>
 
 
-
   <div class="map-container">
   
     <div class="map">
-    </div>
-    <!-- /map -->
+    </div><!-- /map -->
     
     <div class="legend">
-       <div class="legendInner">
-         <div class="arrowText">
-           <svg height="200" width="15">
-             <text x="-120" y="15" transform="rotate(-90)">Time</text>
-           </svg>
-         </div>
-         <div class="arrow">
-           <svg width="20" heigth="200" viewBox="0 0 20 200">
-             <defs>
-               <marker xmlns="http://www.w3.org/2000/svg" id="triangle" viewBox="0 0 10 10" refX="0" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" orient="auto">
-                 <path d="M 0 0 L 10 5 L 0 10 z"/>
-               </marker>
-             </defs>
-             <line x1="10" y1="200" x2="10" y2="10" marker-end="url(#triangle)" stroke="black" stroke-width="3px"/>
-           </svg>
-         </div>
-         <div class="scale"></div>
-       </div>
-     </div>
+      <div class="legendInner">
+        <div class="arrowText">
+          <svg height="200" width="15">
+            <text x="-120" y="15" transform="rotate(-90)">Time</text>
+          </svg>
+        </div>
+        <div class="arrow">
+          <svg width="20" heigth="200" viewBox="0 0 20 200">
+            <defs>
+              <marker xmlns="http://www.w3.org/2000/svg" id="triangle" viewBox="0 0 10 10" refX="0" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z"/>
+              </marker>
+            </defs>
+            <line x1="10" y1="200" x2="10" y2="10" marker-end="url(#triangle)" stroke="black" stroke-width="3px"/>
+          </svg>
+        </div>
+        <div class="scale"></div>
+      </div>
+    </div><!-- /legend-->
      
     <div class="userinfo">
-        <h2><span class="pficon pficon-user"></span> <span class="name_v"></span></h2>
-        <ul class="list-inline">
-          <li><strong><i class="fa fa-dot-circle-o"></i> ID:</strong> <span class="id_v"></span></li>
-          <li><strong><i class="fa fa-sign-in"></i> Check-in:</strong> <span class="checkin_v"></span></li>
-          <li><strong><i class="fa fa-sign-out"></i> Check-out:</strong> <span class="checkout_v"></span></li>
-        </ul>
-    </div><!-- userinfo-->
+      <h2><span class="pficon pficon-user"></span> <span class="name_v"></span></h2>
+      <ul class="list-inline">
+        <li><strong><i class="fa fa-dot-circle-o"></i> ID:</strong> <span class="id_v"></span></li>
+        <li><strong><i class="fa fa-sign-in"></i> Check-in:</strong> <span class="checkin_v"></span></li>
+        <li><strong><i class="fa fa-sign-out"></i> Check-out:</strong> <span class="checkout_v"></span></li>
+      </ul>
+    </div><!-- /userinfo-->
 
     <div class="info">
-            
       <div>
         <h1 id="time"></h1>
         <strong>
           <i class="fa fa-clock-o"></i>
           Time
         </strong>
-      </div><!-- time -->
+      </div><!-- /time -->
 
       <div>
         <h1 id="interval"></h1>
@@ -113,7 +109,7 @@
           <i class="fa fa-bookmark"></i>
           Events
         </strong>
-      </div><!-- events -->
+      </div><!-- /events -->
 
       <div>
         <h1 id="nodeCount"></h1>
@@ -121,47 +117,16 @@
           <i class="fa fa-dot-circle-o"></i>
           Nodes
         </strong>
-      </div><!-- nodes -->
+      </div><!-- /nodes -->
 
       <div>
         <ul id="log" style="height:250px">
         </ul>
-      </div><!-- log -->
+      </div><!-- /log -->
       
     </div><!-- /info -->
  
   </div><!-- /map-container-->
-
-
-
-
-<!--
-  <div class="footer">
-
-    <div class="news">
-      <h3>What's new:</h3>
-      <ul>
-        <li class="new">Patternfly style with a responsive layout
-        <li>Performance improvements to maintain a framerate of 60 fps with upto 200 scans per "minute"
-        <li>Changed the random event stream to mimic a conference
-          <ul>
-            <li>Conference runds from 08:00 to 18:00
-            <li>Traffic surges on the hour
-            <li>Migration to keynotes at 10:00 and 14:00
-            <li>Migration to lunch at 12:00
-            <li>Migration to exit start leaving at 17:00
-          </ul>
-        </li>
-        <li>Added a weighting function, making user check-ins more likely at some locations
-        <li>Added a heat-map indicating how long ago a node checked-in
-        <li>Click a node and look at it's details to the right of the map
-        <li>Play, Pause, Step, Restart buttons work
-        <li>Node movements are now based of a stream of user check-in/check-out events
-      </ul>
-    </div>
-  </div>
--->
-
 
 </body>
 

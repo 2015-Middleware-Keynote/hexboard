@@ -1,7 +1,7 @@
 // @import "../lib/patternfly/less/patternfly.less";
 
 
-// Bootstrap
+// Bootstrap ==========================================================
 
 // Core variables and mixins
 @import "../lib/patternfly/components/bootstrap/less/variables.less";
@@ -55,15 +55,15 @@
 
 
 
-/* PatternFly */
+// PatternFly ========================================================== 
 
 /* Bootstrap 3 */
 // @import "../components/bootstrap/less/bootstrap.less";
 
-/* Font Awesome */
+// Font Awesome */
 @import "../lib/patternfly/components/font-awesome/less/font-awesome.less";
 
-/* Bootstrap-Combobox */
+// Bootstrap-Combobox */
 // @import "../components/bootstrap-combobox/less/combobox.less";
 
 /* Bootstrap-Select */
@@ -105,6 +105,8 @@
 @import "../lib/patternfly/less/type.less";
 
 
+// Sorts variables paths
+
 @fa-font-path:      "../lib/patternfly/components/font-awesome/fonts/";
 @font-path:         "../lib/patternfly/dist/fonts";
 @icon-font-path:    "../lib/patternfly/components/bootstrap/fonts/";
@@ -124,7 +126,7 @@
  }
 
 
-// map ==========================================================
+// map container ==========================================================
 
 .map-container{
   .clearfix();
@@ -132,127 +134,120 @@
   clear: both;
 }
 
-  .info{
-    div{
-      background: rgba(255,255,255,1);
-      line-height: 20px;
-      padding: 10px;
-      text-transform: uppercase;
-      border-bottom: 1px solid @sidebar-pf-border-color;
-      &:last-child{
-        background: @sidebar-pf-bg;
-      }
-      h1{
-        line-height: 35px;
-        margin: 0;
+.info{
+  
+  div{
+    background: rgba(255,255,255,1);
+    border-bottom: 1px solid @sidebar-pf-border-color;
+    line-height: 20px;
+    padding: 10px;
+    text-transform: uppercase;
+    &:last-child{
+      background: @sidebar-pf-bg;
+    }
+    h1{
+      line-height: 35px;
+      margin: 0;
+    }
+  }
+
+  #log {
+    min-height: 250px;
+    overflow-y: scroll;
+    color: @gray-dark;
+    padding: 0px;
+    margin: 0px;
+    .list-unstyled;
+    .check-out {
+      .log-action{
+        background: @brand-danger!important;
       }
     }
-
-    #log {
-      min-height: 250px;
-      overflow-y: scroll;
-      color: @gray-dark;
-      padding: 0px;
-      margin: 0px;
-      .list-unstyled;
-//      span {
-//        line-height: 18px!important;
-//      }
-      .check-out {
-        .log-action{
-          background: @brand-danger!important;
+    li{
+      margin: 0;
+      border-bottom: 1px solid @gray-lighter;
+      box-shadow: 0 -4px 5px rgba(0,0,0,.15);
+      line-height: 18px;
+      &:hover{
+        background: rgba(0,0,0,.1);
         }
-      }
-      li{
-        margin: 0;
-        border-bottom: 1px solid @gray-lighter;
-        box-shadow: 0 -4px 5px rgba(0,0,0,.15);
-        line-height: 18px;
-        &:hover{
-          background: rgba(0,0,0,.1);
-          }
-        }
+      }//li
       span{
-        display: inline-block;
-        padding-left: 5px;
-        vertical-align: top;
-          &:before {
-            font-family: @icon-font-name-fa;
-            font-weight: normal;
-//            content: @fa-var-clock-o;
-            line-height: @font-size-base;
-            width: @font-size-base;
-            text-align: center;
-            margin-right: 2px;
-          }
-
-          &.log-action{
-            background: @brand-success;
-            color: #fff;
-            width: 35%;
-            margin-bottom: 5px;
-            &:before{
-              content: none;
-            }
-          }
-          &.log-time{
-            background: @alert-success-bg;
-                  color: @gray-light;
-
-//            color: @alert-success-text;
-            width: 65%;
-            margin-bottom: 5px;
-            &:before{
-              content: @fa-var-clock-o;
-            }
-          }
-          &.log-id{
-            width: 35%;
-            margin-bottom: 15px;
-            &:before{
-              content: @fa-var-circle-o;
-            }
-          }
-          &.log-location{
-            width: 65%;
-            margin-bottom: 15px;
-            &:before{
-              content: @fa-var-map-marker;
-            }
-          }
-          }
+      display: inline-block;
+      padding-left: 5px;
+      vertical-align: top;
+        &:before {
+          font-family: @icon-font-name-fa;
+          font-weight: normal;
+          line-height: @font-size-base;
+          width: @font-size-base;
+          text-align: center;
+          margin-right: 2px;
+        }
+      &.log-action{
+        background: @brand-success;
+        color: #fff;
+        width: 35%;
+        margin-bottom: 5px;
+        &:before{
+          content: none;
         }
       }
+      &.log-time{
+        background: @alert-success-bg;
+        color: @gray-light;
+        width: 65%;
+        margin-bottom: 5px;
+        &:before{
+          content: @fa-var-clock-o;
+        }
+      }
+      &.log-id{
+        width: 35%;
+        margin-bottom: 15px;
+        &:before{
+          content: @fa-var-circle-o;
+        }
+      }
+      &.log-location{
+        width: 65%;
+        margin-bottom: 15px;
+        &:before{
+          content: @fa-var-map-marker;
+        }
+      }
+    }//span
+  }//log
+}// info
     
 
 
-    .userinfo {
-      display:none;
-      position: absolute;
-      border: none;
-      top: 10px;
-      left: 10px;
-      background: #fff;
-      box-shadow: 0 0 5px rgba(0 ,0,0,.5);
-      padding: 10px;
-      span{
-        display: inline;
-        line-height: normal;
-      }
-      h2{
-        line-height: 35px;
-        margin: 0;
-        text-transform: none;
-      }
-      ul{
-        margin: 0;
-        li{
-          line-height: 20px;
-          margin-right: 8px;
-        }
-      }
+.userinfo {
+  display:none;
+  position: absolute;
+  border: none;
+  top: 10px;
+  left: 10px;
+  background: #fff;
+  box-shadow: 0 0 5px rgba(0 ,0,0,.5);
+  padding: 10px;
+  span{
+    display: inline;
+    line-height: normal;
+  }
+  h2{
+    line-height: 35px;
+    margin: 0;
+    text-transform: none;
+  }
+  ul{
+    margin: 0;
+    li{
+      line-height: 20px;
+      margin-right: 8px;
     }
-
+  }
+}// user info
 
 
 .map {
@@ -262,7 +257,6 @@
   background-size: contain;
   background-position: left top;
   margin-right: 10px;
-//  width: 900px;
 }
 
 .map svg {
@@ -288,41 +282,41 @@
 
 
 
-  .legend {
-    display: block;
-    vertical-align: bottom;
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-  }
+.legend {
+  display: block;
+  vertical-align: bottom;
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+}
 
-  .legendInner {
-    width: 70px;
-    margin-bottom: 20px;
-  }
+.legendInner {
+  width: 70px;
+  margin-bottom: 20px;
+}
 
- .arrowText {
-   display:inline-block;
- }
+.arrowText {
+  display:inline-block;
+}
 
- .arrow {
-   display:inline-block;
- }
+.arrow {
+  display:inline-block;
+}
 
- .scale {
-   width: 20px;
-   height: 200px;
-   display: inline-block;
-   background-image: linear-gradient(to bottom,
-     hsl(0, 70%, 50%)
-   , hsl(30, 70%, 50%)
-   , hsl(60, 70%, 50%)
-   , hsl(90, 70%, 50%)
-   , hsl(120, 70%, 50%)
-   , hsl(150, 70%, 50%)
-   , hsl(180, 70%, 50%)
-   , hsl(210, 70%, 50%)
-   , hsl(240, 70%, 50%)
-   , hsl(270, 70%, 50%)
-   );
- }
+.scale {
+  width: 20px;
+  height: 200px;
+  display: inline-block;
+  background-image: linear-gradient(to bottom,
+    hsl(0, 70%, 50%)
+  , hsl(30, 70%, 50%)
+  , hsl(60, 70%, 50%)
+  , hsl(90, 70%, 50%)
+  , hsl(120, 70%, 50%)
+  , hsl(150, 70%, 50%)
+  , hsl(180, 70%, 50%)
+  , hsl(210, 70%, 50%)
+  , hsl(240, 70%, 50%)
+  , hsl(270, 70%, 50%)
+  );
+}

@@ -2173,9 +2173,7 @@ input[type="button"].btn-block {
     display: none !important;
   }
 }
-/* PatternFly */
 /* Bootstrap 3 */
-/* Font Awesome */
 /*!
  *  Font Awesome 4.2.0 by @davegandy - http://fontawesome.io - @fontawesome
  *  License - http://fontawesome.io/license (Font: SIL OFL 1.1, CSS: MIT License)
@@ -3848,7 +3846,6 @@ input[type="button"].btn-block {
 .fa-meanpath:before {
   content: "\f20c";
 }
-/* Bootstrap-Combobox */
 /* Bootstrap-Select */
 /* PatternFly overrides and new stuff */
 /* PatternFly specific */
@@ -4807,10 +4804,10 @@ h2,
 }
 .info div {
   background: #ffffff;
+  border-bottom: 1px solid #d0d0d0;
   line-height: 20px;
   padding: 10px;
   text-transform: uppercase;
-  border-bottom: 1px solid #d0d0d0;
 }
 .info div:last-child {
   background: #fafafa;
