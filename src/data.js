@@ -34,13 +34,6 @@ d3demo.random = (function dataSimulator(d3, Rx) {
     });
   };
 
-  var resetUsers = function() {
-    users.forEach(function(user) {
-      user._lastScanner = user._scanner = null;
-    })
-  };
-
-
   var locationWeights = [4, 0, 0, 0, 30, 80, 30, 20, 50, 50, 35];
   var getLocationWeight = function(location, minutes) {
     if (location.id === GENERAL_SESSIONS_ID && KEYNOTE_1_START_MINUTES - 10 <= minutes && minutes <= KEYNOTE_1_START_MINUTES + 10) {
@@ -76,22 +69,35 @@ d3demo.random = (function dataSimulator(d3, Rx) {
     return randomLocation;
   };
 
-  var pickRandomScanner = function (user, minutes) {
-    var userLeft = (user._scanner && user._scanner.type === 'check-out' && user._scanner.location.id === ENTRANCE_ID);
-    user._lastScanner = userLeft ? null : user._scanner;
-    var arrived = !! user._lastScanner
-    var checkedIn = arrived && user._lastScanner.type === 'check-in';
-    var atEntrance = arrived && user._lastScanner.location.id === ENTRANCE_ID;
+  var previousScans = {};
+
+  var createRandomScan = function (user, minutes) {
+    var lastScan = previousScans[user.id];
+    var userLeft = lastScan && lastScan.location.id === ENTRANCE_ID && lastScan.type === 'check-out';
+    var present = lastScan && !userLeft
+    var checkedIn = present && lastScan.type === 'check-in';
+    var atEntrance = present && lastScan.location.id === ENTRANCE_ID;
+
+    var scan;
     if (checkedIn && ! atEntrance) {
-      user._scanner = user._scanner.location.scanners['check-out'];
+      scan = {
+        user: user
+      , location: lastScan.location
+      , type: 'check-out'
+      }
     } else {
       var location = getRandomLocation(minutes);
-      if (location.id == ENTRANCE_ID && (arrived || minutes > END_MINUTES - 60)) {
-        user._scanner = location.scanners['check-out'];
-      } else {
-        user._scanner = location.scanners['check-in'];
+      var type = (location.id == ENTRANCE_ID && (present || minutes > END_MINUTES - 60))
+        ? 'check-out'
+        : 'check-in';
+      scan = {
+        user: user
+      , location: location
+      , type: type
       }
     }
+    previousScans[user.id] = scan;
+    return scan;
   }
 
   var pauser = new Rx.Subject();
@@ -130,27 +136,22 @@ d3demo.random = (function dataSimulator(d3, Rx) {
   };
 
   var randomScans = counter.flatMap(function(tick) {
-    var events = [];
+    var scans = [];
     var rush = (tick.minutes + 5) % 60;
     if (rush > 30) { rush = 60 - rush};
     var numEvents = rush < 10 ? 100 - rush : getRandomInt(0,3); // simulate a rush
     for (var n = 0; n < numEvents; n++) {
       var user = users[getRandomInt(0, users.length)];
-      pickRandomScanner(user, tick.minutes);
+      var scan = createRandomScan(user, tick.minutes);
       var eventTimeOffest = getRandomInt(0, 60).toFixed(4);
-      var event = {
-        user: user
-      , _minutes: tick.minutes
-      , timestamp: tick.timestamp + eventTimeOffest * 1000
-      , scanner: user._scanner
-      }
-      events.push(event);
+      scan.timestamp = tick.timestamp + eventTimeOffest * 1000
+      scans.push(scan);
     };
-    if (events.length) {
+    if (scans.length) {
       var binTime = tick.timestamp;
-      eventLog[binTime] = events;
+      eventLog[binTime] = scans;
     }
-    return intervalFromEvents(events);
+    return intervalFromEvents(scans);
   }).pausable(pauser).publish();
 
   randomScans.subscribe(function() {}, function(error) {console.log(error.stack);}, function() {
@@ -168,7 +169,7 @@ d3demo.random = (function dataSimulator(d3, Rx) {
   );
 
   var playbackRandom = function(cb) {
-    resetUsers();
+    previousScans = {};
     cb(playbackClock, randomScans);
     pauser.onNext(false);
     counter.connect();

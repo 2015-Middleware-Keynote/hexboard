@@ -18,24 +18,6 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   , { id: 10, x_i: 1250, y_i: 1170, name: 'Room 204 DEVNATION Track'}
   ];
 
-  // create check-in/check-out scanners for each location
-  locations.forEach(function(location, index) {
-    var checkin = {
-      id: 2*index
-    , type: 'check-in'
-    , location: location
-    };
-    var checkout = {
-      id: 2*index +1
-    , type: 'check-out'
-    , location: location
-    };
-    location['scanners'] = {
-      'check-in': checkin
-    , 'check-out': checkout
-    };
-  });
-
   // Dynamically size the map and other elements to fill the screen
   var sizeMap = function(event) {
     var mapContainer = document.querySelector('.map');

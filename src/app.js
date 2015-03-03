@@ -102,7 +102,7 @@ var d3demo = d3demo || {};
       x: d3demo.random.getRandomInt(foci[0].x - 50, foci[0].x + 50),
       y: d3demo.random.getRandomInt(height, height + 50),
       focus: arrival._focus,
-      present: arrival.scanner.type === 'check-in',
+      present: arrival.type === 'check-in',
       user: arrival.user,
       checkInTime: arrival.timestamp,
       checkInTimeInternal: new Date().getTime()
@@ -230,13 +230,13 @@ var d3demo = d3demo || {};
   })();
 
   var createMessageElement = function(scan) {
-    var baseNode = scan.scanner.type === 'check-in' ? checkInElement : checkOutElement;
+    var baseNode = scan.type === 'check-in' ? checkInElement : checkOutElement;
     // var baseNode = checkOutElement;
     var element = baseNode.cloneNode(true);
     var li = element.childNodes[0];
     li.childNodes[1].textContent = formatTime(scan.timestamp);
     li.childNodes[2].textContent = 'User ' + scan.user.id;
-    li.childNodes[3].textContent = scan.scanner.location.name;
+    li.childNodes[3].textContent = scan.location.name;
     return element;
   }
 
@@ -258,8 +258,6 @@ var d3demo = d3demo || {};
     source.subscribe(function(scan) {
       document.getElementById('interval').textContent = count++;
       document.getElementById('nodeCount').textContent = dataNodes.length;
-      // var message = formatTime(scan.timestamp) + ': User '+ scan.user.id + ' ' + scan.scanner.type + ' at ' + scan.scanner.location.name;
-      // console.log(message);
       spans.push(createMessageElement(scan));
       if (!scrolling) {
         scrolling = true;
@@ -279,21 +277,21 @@ var d3demo = d3demo || {};
 
     var indexedScans = source.map(function(scan) {
       scan._index = findNodeById(dataNodes, scan.user.id);
-      scan._focus = scan.scanner.location.id;
+      scan._focus = scan.location.id;
       return scan;
     })
 
     indexedScans.subscribe(function(scan) {
       if (scan._index < 0) {
-        if (! (scan.scanner.type === 'check-out' && scan.scanner.location.id === 0)) {
+        if (! (scan.type === 'check-out' && scan.location.id === 0)) {
           // ignore checkouts at the entrance if we are already not present
           addNode(scan);
         }
       } else {
-        if (scan.scanner.type === 'check-in') {
+        if (scan.type === 'check-in') {
           moveNode(scan);
         } else {
-          if (scan.scanner.location.id !== 0) {
+          if (scan.location.id !== 0) {
             checkoutNode(scan);
           } else {
             removeNode(scan);
