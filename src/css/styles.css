@@ -4810,16 +4810,19 @@ h2,
   line-height: 20px;
   padding: 10px;
   text-transform: uppercase;
-  border-bottom: 1px solid #eeeeee;
+  border-bottom: 1px solid #d0d0d0;
+}
+.info div:last-child {
+  background: #fafafa;
 }
 .info div h1 {
   line-height: 35px;
   margin: 0;
 }
 .info #log {
-  height: 250px;
+  min-height: 250px;
   overflow-y: scroll;
-  color: #999999;
+  color: #333333;
   padding: 0px;
   margin: 0px;
   padding-left: 0;
@@ -4831,7 +4834,11 @@ h2,
 .info #log li {
   margin: 0;
   border-bottom: 1px solid #eeeeee;
+  box-shadow: 0 -4px 5px rgba(0, 0, 0, 0.15);
   line-height: 18px;
+}
+.info #log li:hover {
+  background: rgba(0, 0, 0, 0.1);
 }
 .info #log span {
   display: inline-block;
@@ -4856,7 +4863,8 @@ h2,
   content: none;
 }
 .info #log span.log-time {
-  background: #eeeeee;
+  background: #ffffff;
+  color: #999999;
   width: 65%;
   margin-bottom: 5px;
 }
