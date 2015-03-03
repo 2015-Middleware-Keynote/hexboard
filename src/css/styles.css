@@ -4831,7 +4831,7 @@ h2,
 .info #log li {
   margin: 0;
   border-bottom: 1px solid #eeeeee;
-  box-shadow: 0 -4px 5px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 -3px 3px rgba(0, 0, 0, 0.15);
   line-height: 18px;
 }
 .info #log li:hover {
@@ -4860,7 +4860,7 @@ h2,
   content: none;
 }
 .info #log span.log-time {
-  background: #ffffff;
+  background: rgba(0, 0, 0, 0.05);
   color: #999999;
   width: 65%;
   margin-bottom: 5px;
@@ -4891,6 +4891,10 @@ h2,
   background: #fff;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
   padding: 10px;
+  width: 40%;
+}
+.userinfo p {
+  margin: 0;
 }
 .userinfo span {
   display: inline;
@@ -4903,10 +4907,12 @@ h2,
 }
 .userinfo ul {
   margin: 0;
+  width: 100%;
 }
 .userinfo ul li {
   line-height: 20px;
   margin-right: 8px;
+  padding: 0 10px 0 0;
 }
 .map {
   float: left;
