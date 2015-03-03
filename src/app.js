@@ -45,7 +45,9 @@ var d3demo = d3demo || {};
         .gravity(0)
         .friction(0.83)
         .charge(function(d) {
-          return d.present ? -14 : -2;
+          return d.selected
+            ? d.present ? -100 : -40
+            : d.present ? -14 : -2;
         });
 
     nodes = svg.selectAll('.node')
@@ -69,7 +71,11 @@ var d3demo = d3demo || {};
 
     nodes.attr("cx", function(d) { return d.x; })
          .attr("cy", function(d) { return d.y; })
-         .attr('r', function(d) { return d.present ? 8 : 3})
+         .attr('r', function(d) {
+           return d.selected
+             ? d.present ? 20 : 14
+             : d.present ? 8 : 3;
+          })
          .style('fill', function(d) {
            if (d.present) {
              return getColor(now - d.checkInTimeInternal);
@@ -118,6 +124,9 @@ var d3demo = d3demo || {};
     dataNode.checkInTime = movement.timestamp;
     dataNode.checkInTimeInternal = new Date().getTime();
     dataNode.checkOutTime = null;
+    if (dataNode.selected) {
+      updateUserInfoPanel(dataNode);
+    }
   };
 
   var removeNode = function(departure) {
@@ -132,6 +141,9 @@ var d3demo = d3demo || {};
     setTimeout(function() {
       var currentIndex = findNodeById(dataNodes, dataNode.id);
       if (currentIndex >= 0 && dataNodes[currentIndex].exiting === true) {
+        if (dataNodes[currentIndex].selected) {
+          d3.select('.userinfo').style({'display': 'none'});
+        }
         dataNodes.splice(currentIndex, 1);
         force.start();
         renderNodes();
@@ -147,6 +159,9 @@ var d3demo = d3demo || {};
     dataNode.exiting = false;
     dataNode.checkOutTime = checkout.timestamp;
     dataNode.checkOutTimeInternal = new Date().getTime();
+    if (dataNode.selected) {
+      updateUserInfoPanel(dataNode);
+    }
   };
 
   var renderNodes = function() {
@@ -309,9 +324,13 @@ var d3demo = d3demo || {};
     return event.target && event.target.nodeName === 'circle';
   })
   .subscribe(function(event) {
-    svg.select('.selected').classed({selected: false});
+    svg.select('.selected').classed({selected: false}).data().forEach(function(d) {
+      d.selected = false;
+    });
     var node = d3.select(event.target);
-    node.classed({selected: true});
+    node.classed({selected: true}).data().forEach(function(d) {
+      d.selected = true;
+    });;
     var data = node.data()[0];
     updateUserInfoPanel(data);
   });
@@ -324,6 +343,7 @@ var d3demo = d3demo || {};
     div.select('.name_v').text(data.user.name);
     div.select('.checkin_v').text(formatTime(data.checkInTime));
     div.select('.checkout_v').text(formatTime(data.checkOutTime));
+    div.select('.location_v').text(d3demo.layout.locations[data.focus].name);
   }
 
   var formatTime = function(time) {
