@@ -2,25 +2,7 @@
 
 var d3demo = d3demo || {};
 
-d3demo = (function dataSimulator(d3, Rx) {
-  var scale, width, height;
-
-  var sizeMap = function(event) {
-    var mapContainer = document.querySelector('.map');
-    var windowHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || height);
-    height = windowHeight - 40;
-    scale = height / 1389;
-    width = 1949*scale;
-
-    mapContainer.style.height = height + 'px';
-    mapContainer.style.width = width + 'px';
-
-    var logContainer = document.getElementById('log');
-    var logContainerHeight = windowHeight - 292;
-    logContainer.style.height = logContainerHeight + 'px';
-  }
-  sizeMap();
-
+d3demo.random = (function dataSimulator(d3, Rx) {
   var GENERAL_SESSIONS_ID = 1
     , ENTRANCE_ID = 0
     , LUNCH1_ID = 2
@@ -34,60 +16,6 @@ d3demo = (function dataSimulator(d3, Rx) {
 
   var EVENT_DATE = new Date('2015-06-23').getTime() + 7 * 60 * 60 * 1000;
 
-  var locations = [
-    { id: 0, x: 370, y: 1270, name: 'Entrance'}
-  , { id: 1, x: 310, y: 510, name: 'General Sessions'}
-  , { id: 2, x: 860, y: 240, name: 'Lunch 1'}
-  , { id: 3, x: 1590, y: 210, name: 'Lunch 2'}
-  , { id: 4, x: 860, y: 600, name: 'Red Hat Booth 1'}
-  , { id: 5, x: 1570, y: 600, name: 'Red Hat Booth 2'}
-  , { id: 6, x: 90,  y: 1110, name: 'Room 200 DV Lounge and Hackathons'}
-  , { id: 7, x: 680, y: 1170, name: 'Room 201 DEVNATION Track'}
-  , { id: 8, x: 870, y: 1170, name: 'Room 202 DEVNATION Track'}
-  , { id: 9, x: 1070, y: 1170, name: 'Room 203 DEVNATION Track'}
-  , { id: 10, x: 1250, y: 1170, name: 'Room 204 DEVNATION Track'}
-  ];
-
-  var users = [];
-
-  for (var i = 0; i < 200; i++) {
-    users.push({
-      id: i
-    , name: 'Firstname' + i + ' Lastname' + i
-    });
-  };
-
-  locations.forEach(function(location, index) {
-    location.x_i = location.x;
-    location.y_i = location.y;
-    location.x = location.x_i * scale;
-    location.y = location.y_i * scale;
-    var checkin = {
-      id: 2*index
-    , type: 'check-in'
-    , location: location
-    };
-    var checkout = {
-      id: 2*index +1
-    , type: 'check-out'
-    , location: location
-    };
-    location['scanners'] = {
-      'check-in': checkin
-    , 'check-out': checkout
-    };
-  });
-
-  window.onresize = function(event) {
-    sizeMap();
-    locations.forEach(function(location, index) {
-      location.x = location.x_i * scale;
-      location.y = location.y_i * scale;
-    });
-    var myEvent = new CustomEvent('mapresize', {detail: {scale: scale, width: width, height: height}});
-    document.dispatchEvent(myEvent);
-  }
-
   // Returns a random integer between min included) and max (excluded)
   var getRandom = function (min, max) {
     return Math.random() * (max - min) + min;
@@ -96,6 +24,22 @@ d3demo = (function dataSimulator(d3, Rx) {
   var getRandomInt = function (min, max) {
     return Math.floor(getRandom(min,max));
   };
+
+  var users = [];
+  // initialize the users
+  for (var i = 0; i < 200; i++) {
+    users.push({
+      id: i
+    , name: 'Firstname' + i + ' Lastname' + i
+    });
+  };
+
+  var resetUsers = function() {
+    users.forEach(function(user) {
+      user._lastScanner = user._scanner = null;
+    })
+  };
+
 
   var locationWeights = [4, 0, 0, 0, 30, 80, 30, 20, 50, 50, 35];
   var getLocationWeight = function(location, minutes) {
@@ -115,17 +59,17 @@ d3demo = (function dataSimulator(d3, Rx) {
   }
 
   var getRandomLocation = function(minutes) {
-    var totalWeight = locations.reduce(function (sumSoFar, location, index, array) {
+    var totalWeight = d3demo.layout.locations.reduce(function (sumSoFar, location, index, array) {
       return sumSoFar + getLocationWeight(location, minutes);
     }, 0);
     var random = getRandom(0, totalWeight)
       , sum = 0
       , randomLocation;
-    for (var i = 0; i < locations.length; i++) {
-      var location = locations[i];
+    for (var i = 0; i < d3demo.layout.locations.length; i++) {
+      var location = d3demo.layout.locations[i];
       sum += getLocationWeight(location, minutes);
       if (random < sum) {
-        randomLocation = locations[i];
+        randomLocation = d3demo.layout.locations[i];
         break;
       }
     }
@@ -149,12 +93,6 @@ d3demo = (function dataSimulator(d3, Rx) {
       }
     }
   }
-
-  var resetUsers = function() {
-    users.forEach(function(user) {
-      user._lastScanner = user._scanner = null;
-    })
-  };
 
   var pauser = new Rx.Subject();
 
@@ -215,7 +153,7 @@ d3demo = (function dataSimulator(d3, Rx) {
     return intervalFromEvents(events);
   }).pausable(pauser).publish();
 
-  randomScans.subscribe(function() {}, function(error) {console.log(error)}, function() {
+  randomScans.subscribe(function() {}, function(error) {console.log(error.stack);}, function() {
       eventLog.startTimestamp = EVENT_DATE;
       console.log(JSON.stringify(eventLog, function(key, value) {
         if (key === 'location') {
@@ -230,6 +168,7 @@ d3demo = (function dataSimulator(d3, Rx) {
   );
 
   var playbackRandom = function(cb) {
+    resetUsers();
     cb(playbackClock, randomScans);
     pauser.onNext(false);
     counter.connect();
@@ -252,7 +191,7 @@ d3demo = (function dataSimulator(d3, Rx) {
         var events = json[tick.timestamp];
         if (events) {
           events.forEach(function(event) {
-            event.scanner.location = locations[event.scanner.location];
+            event.scanner.location = d3demo.layout.locations[event.scanner.location];
           })
         }
         return intervalFromEvents(events);
@@ -305,12 +244,8 @@ d3demo = (function dataSimulator(d3, Rx) {
   }
 
   return {
-    width: width
-  , height: height
-  , locations: locations
-  , eventTimeStamp: EVENT_DATE + START_MINUTES * 60 * 1000
+    eventTimeStamp: EVENT_DATE + START_MINUTES * 60 * 1000
   , pauser: pauser
-  , resetUsers: resetUsers
   , getRandomInt: getRandomInt
   , playback: playbackRandom
   // , playback: playbackScans

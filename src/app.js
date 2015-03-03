@@ -4,8 +4,8 @@ var d3demo = d3demo || {};
 
 (function d3andRxDemo(d3, Rx) {
   // init
-  var width = d3demo.width
-    , height = d3demo.height;
+  var width = d3demo.layout.width
+    , height = d3demo.layout.height;
 
   var debugging = false;
 
@@ -32,7 +32,7 @@ var d3demo = d3demo || {};
     // makes it possible to restart the layout without refreshing the page
     svg.selectAll('*').remove();
 
-    foci = d3demo.locations;
+    foci = d3demo.layout.locations;
 
     // define the data
     dataNodes = [];
@@ -99,8 +99,8 @@ var d3demo = d3demo || {};
   var addNode = function(arrival) {
     var newNode = {
       id: arrival.user.id,
-      x: d3demo.getRandomInt(d3demo.locations[0].x - 50, d3demo.locations[0].x + 50),
-      y: d3demo.getRandomInt(height, height + 50),
+      x: d3demo.random.getRandomInt(foci[0].x - 50, foci[0].x + 50),
+      y: d3demo.random.getRandomInt(height, height + 50),
       focus: arrival._focus,
       present: arrival.scanner.type === 'check-in',
       user: arrival.user,
@@ -172,7 +172,7 @@ var d3demo = d3demo || {};
     , nodeClick = Rx.Observable.fromEvent(d3.select('.map').node(), 'click')
     ;
 
-  var pauser = d3demo.pauser;
+  var pauser = d3demo.random.pauser;
   var stop = Rx.Observable.merge(reset);
 
   play.subscribe(function() {
@@ -198,8 +198,7 @@ var d3demo = d3demo || {};
       force.stop();
     }
     initForce();
-    d3demo.resetUsers();
-    run();
+    d3demo.random.playback(run);
   });
 
   var checkInElement = (function() {
@@ -344,5 +343,5 @@ var d3demo = d3demo || {};
   }
 
   initForce();
-  d3demo.playback(run);
+  d3demo.random.playback(run);
 })(d3, Rx);
