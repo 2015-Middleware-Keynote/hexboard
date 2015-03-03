@@ -4,19 +4,18 @@ var d3demo = d3demo || {};
 
 d3demo = (function dataSimulator(d3, Rx) {
   var scale, width, height;
-  var calculateScale = function() {
+
+  var sizeMap = function(event) {
     var mapContainer = document.querySelector('.map');
-    scale =  mapContainer.offsetWidth / 1949;
+    var windowHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || height);
+    height = windowHeight - 40;
+    scale = height / 1389;
     width = 1949*scale;
-    height = 1389*scale;
-    var windowHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || height) - 100;
-    if (height > windowHeight) {
-      height = windowHeight;
-      scale = windowHeight / 1389;
-      width = 1949*scale;
-    }
+
+    mapContainer.style.height = height + 'px';
+    mapContainer.style.width = width + 'px';
   }
-  calculateScale();
+  sizeMap();
 
   var GENERAL_SESSIONS_ID = 1
     , ENTRANCE_ID = 0
@@ -76,7 +75,7 @@ d3demo = (function dataSimulator(d3, Rx) {
   });
 
   window.onresize = function(event) {
-    calculateScale();
+    sizeMap();
     locations.forEach(function(location, index) {
       location.x = location.x_i * scale;
       location.y = location.y_i * scale;
