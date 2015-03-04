@@ -154,19 +154,19 @@ d3demo.random = (function dataSimulator(d3, Rx) {
     return intervalFromEvents(scans);
   }).pausable(pauser).publish();
 
-  randomScans.subscribe(function() {}, function(error) {console.log(error.stack);}, function() {
-      eventLog.startTimestamp = EVENT_DATE;
-      console.log(JSON.stringify(eventLog, function(key, value) {
-        if (key === 'location') {
-          return value.id;
-        } else if (key[0] == '_') {
-          return undefined;
-        }
-        return value;
-      }, 2));
-      analyzePlaybackData(eventLog);
-    }
-  );
+  // randomScans.subscribe(function() {}, function(error) {console.log(error.stack);}, function() {
+  //     eventLog.startTimestamp = EVENT_DATE;
+  //     console.log(JSON.stringify(eventLog, function(key, value) {
+  //       if (key === 'location') {
+  //         return value.id;
+  //       } else if (key[0] == '_') {
+  //         return undefined;
+  //       }
+  //       return value;
+  //     }, 2));
+  //     analyzePlaybackData(eventLog);
+  //   }
+  // );
 
   var playbackRandom = function(cb) {
     previousScans = {};
