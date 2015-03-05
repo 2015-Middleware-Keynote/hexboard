@@ -4956,6 +4956,7 @@ h2,
 }
 .arrow {
   display: inline-block;
+  padding-right: 4px;
 }
 .scale {
   width: 10px;
