@@ -4943,12 +4943,13 @@ h2,
   display: block;
   vertical-align: bottom;
   position: absolute;
-  bottom: 20px;
-  left: 20px;
+  bottom: 10px;
+  left: 10px;
+  background: #ffffff;
+  padding: 5px;
 }
 .legendInner {
-  width: 70px;
-  margin-bottom: 20px;
+  width: 50px;
 }
 .arrowText {
   display: inline-block;
@@ -4957,8 +4958,8 @@ h2,
   display: inline-block;
 }
 .scale {
-  width: 20px;
-  height: 200px;
+  width: 10px;
+  height: 150px;
   display: inline-block;
   background-image: linear-gradient(to bottom, #d92626, #d98026, #d9d926, #80d926, #26d926, #26d980, #26d9d9, #267fd9, #2626d9, #7f26d9);
 }
