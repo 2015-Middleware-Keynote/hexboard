@@ -25,7 +25,6 @@ var d3demo = d3demo || {};
        .attr('height', e.detail.height);
   })
 
-
   // A function to initialize our visualization.
   var initForce = function() {
     // clear out the contents of the SVG container
@@ -36,6 +35,22 @@ var d3demo = d3demo || {};
 
     // define the data
     dataNodes = [];
+    d3demo.random.users.forEach(function(user) {
+      var x = d3demo.random.getRandomInt(foci[0].x - 10, foci[0].x + 10)
+        , y = d3demo.random.getRandomInt(height+50, height + 300);
+      // x = 200, y= 200;
+      var newNode = {
+        id: user.id,
+        x: x,
+        y: y,
+        x_i: x,
+        y_i: y,
+        focus: -1,
+        present: false,
+        user: user
+      }
+      dataNodes[user.id] = newNode;
+    })
 
     //create a force layout object and define its properties
     force = d3.layout.force()
@@ -45,15 +60,21 @@ var d3demo = d3demo || {};
         .gravity(0)
         .friction(0.83)
         .charge(function(d) {
-          return d.selected
-            ? d.present ? -100 : -40
-            : d.present ? -14 : -2;
+          return d.focus === -1
+            ? 0
+            : d.selected
+              ? d.present ? -100 : -40
+              : d.present ? -14 : -2;
         });
 
-    nodes = svg.selectAll('.node')
+    nodes = svg.selectAll('circle')
         .data(dataNodes, function(datum, index) {
-          datum.id;
-        });
+          return datum.id;
+        })
+        .enter().append("circle")
+          .attr("cx", function(d) { return d.x; })
+          .attr("cy", function(d) { return d.y; })
+          .attr('r', function(d) { return d.present ? 8 : 2});
 
     force.on('tick', stepForce);
   };
@@ -61,13 +82,21 @@ var d3demo = d3demo || {};
   var stepForce = function(event) {
     var stepSize = .1;
     var k = stepSize * event.alpha;
-     // Push nodes toward their designated focus.
-    dataNodes.forEach(function(d, i) {
-      d.y += (foci[d.focus].y - d.y) * k;
-      d.x += (foci[d.focus].x - d.x) * k;
-    });
-
+    // Push nodes toward their designated focus.
     var now = new Date().getTime();
+    dataNodes.forEach(function(d, i) {
+      if (d.exiting) {
+        if (now - d.checkOutTimeInternal > 1000) {
+          d.exiting = false;
+          d.present = false;
+          d.focus = -1;
+        }
+      }
+      var x = d.focus === -1 ? d.x_i : foci[d.focus].x
+        , y = d.focus === -1 ? d.y_i : foci[d.focus].y
+      d.y += (y - d.y) * k;
+      d.x += (x - d.x) * k;
+    });
 
     nodes.attr("cx", function(d) { return d.x; })
          .attr("cy", function(d) { return d.y; })
@@ -82,6 +111,9 @@ var d3demo = d3demo || {};
            } else {
              return getColor(d.checkOutTimeInternal - d.checkInTimeInternal);
            }
+         })
+         .classed('node', function(d) {
+           return d.focus !== -1;
          });
   };
 
@@ -91,36 +123,11 @@ var d3demo = d3demo || {};
     return color;
   };
 
-  var findNodeById = function(nodeList, id) {
-    var index = -1;
-    for (var i = 0; i < nodeList.length; i++) {
-      if (id === nodeList[i].id) {
-        index = i;
-        break;
-      }
-    }
-    return index;
-  };
-
-  var addNode = function(arrival) {
-    var newNode = {
-      id: arrival.user.id,
-      x: d3demo.random.getRandomInt(foci[0].x - 50, foci[0].x + 50),
-      y: d3demo.random.getRandomInt(height, height + 50),
-      focus: arrival._focus,
-      present: arrival.type === 'check-in',
-      user: arrival.user,
-      checkInTime: arrival.timestamp,
-      checkInTimeInternal: new Date().getTime()
-    }
-    dataNodes.push(newNode);
-  };
-
-  var moveNode = function(movement) {
-    var dataNode = dataNodes[movement._index];
+  var checkinNode = function(movement) {
+    var dataNode = dataNodes[movement.user.id];
     dataNode.present = true;
     dataNode.exiting = false;
-    dataNode.focus = movement._focus;
+    dataNode.focus = movement.location.id;
     dataNode.checkInTime = movement.timestamp;
     dataNode.checkInTimeInternal = new Date().getTime();
     dataNode.checkOutTime = null;
@@ -129,33 +136,8 @@ var d3demo = d3demo || {};
     }
   };
 
-  var removeNode = function(departure) {
-    var dataNode = dataNodes[departure._index];
-    if (dataNode.exiting) {
-      debugging && console.log('Node already exiting, ignoring secondary exit call:' + departure.user.id);
-      return;
-    }
-    dataNode.focus = 0;
-    dataNode.present = true;
-    dataNode.exiting = true;
-    setTimeout(function() {
-      var currentIndex = findNodeById(dataNodes, dataNode.id);
-      if (currentIndex >= 0 && dataNodes[currentIndex].exiting === true) {
-        if (dataNodes[currentIndex].selected) {
-          unSelectNodes();
-          d3.select('.userinfo').style({'display': 'none'});
-        }
-        dataNodes.splice(currentIndex, 1);
-        force.start();
-        renderNodes();
-      } else {
-        debugging && console.log('Node no longer available: ' + departure.user.id);
-      }
-    }, 1200);
-  };
-
   var checkoutNode = function(checkout) {
-    var dataNode = dataNodes[checkout._index];
+    var dataNode = dataNodes[checkout.user.id];
     dataNode.present = false;
     dataNode.exiting = false;
     dataNode.checkOutTime = checkout.timestamp;
@@ -165,20 +147,19 @@ var d3demo = d3demo || {};
     }
   };
 
-  var renderNodes = function() {
-    try {
-      nodes = nodes.data(dataNodes, function(datum, index) {
-        return datum.id;
-      });
-    } catch(e) {
-      debugging && console.log(e);
+  var removeNode = function(departure) {
+    var dataNode = dataNodes[departure.user.id];
+    if (dataNode.focus < 0) { // already removed
+      return;
     }
-    nodes.enter().append("circle")
-      .attr("class", 'node' )
-      .attr("cx", function(d) { return d.x; })
-      .attr("cy", function(d) { return d.y; })
-      .attr('r', function(d) { return d.present ? 8 : 2});
-    nodes.exit().remove();
+    if (dataNode.selected) {
+      unSelectNodes();
+      d3.select('.userinfo').style({'display': 'none'});
+    }
+    dataNode.present = true;
+    dataNode.exiting = true;
+    dataNode.checkOutTimeInternal = new Date().getTime();
+    dataNode.focus = 0;
   };
 
   var selectNode = function() {
@@ -259,13 +240,39 @@ var d3demo = d3demo || {};
 
   var createMessageElement = function(scan) {
     var baseNode = scan.type === 'check-in' ? checkInElement : checkOutElement;
-    // var baseNode = checkOutElement;
     var element = baseNode.cloneNode(true);
     var li = element.childNodes[0];
     li.childNodes[1].textContent = formatTime(scan.timestamp);
     li.childNodes[2].textContent = 'User ' + scan.user.id;
     li.childNodes[3].textContent = scan.location.name;
     return element;
+  }
+
+  var logTracker = {
+    count: 0,
+    scrolling: false,
+    spans: [],
+    log: document.getElementById('log')
+  }
+  var logScan = function(scan) {
+    document.getElementById('interval').textContent = logTracker.count++;
+    document.getElementById('nodeCount').textContent = svg.selectAll('.node')[0].length;
+    if (logTracker.spans.length < 50) {
+      logTracker.spans.push(createMessageElement(scan));
+    }
+    if (!logTracker.scrolling) {
+      logTracker.scrolling = true;
+      setTimeout(function() {
+        logTracker.spans.forEach(function(addSpan) {
+          logTracker.log.insertBefore(addSpan, logTracker.log.firstChild);
+          if (logTracker.log.childNodes.length > 50) {
+            logTracker.log.removeChild(log.lastChild);
+          }
+        });
+        logTracker.spans = [];
+        logTracker.scrolling = false;
+      }, 100);
+    }
   }
 
   var run = function(clock, source) {
@@ -279,55 +286,18 @@ var d3demo = d3demo || {};
       document.getElementById('time').textContent = formatTime(time.timestamp);
     });
 
-    var count = 0;
-    var scrolling = false;
-    var spans = [];
-    var log = document.getElementById('log');
     source.subscribe(function(scan) {
-      document.getElementById('interval').textContent = count++;
-      document.getElementById('nodeCount').textContent = dataNodes.length;
-      spans.push(createMessageElement(scan));
-      if (!scrolling) {
-        scrolling = true;
-        setTimeout(function() {
-          // log.scrollTop = log.scrollHeight;
-          spans.forEach(function(addSpan) {
-            log.insertBefore(addSpan, log.firstChild);
-            if (log.childNodes.length > 50) {
-              log.removeChild(log.lastChild);
-            }
-          });
-          spans = [];
-          scrolling = false;
-        }, 100);
-      }
-    }, errorHandler);
-
-    var indexedScans = source.map(function(scan) {
-      scan._index = findNodeById(dataNodes, scan.user.id);
-      scan._focus = scan.location.id;
-      return scan;
-    })
-
-    indexedScans.subscribe(function(scan) {
-      if (scan._index < 0) {
-        if (! (scan.type === 'check-out' && scan.location.id === 0)) {
-          // ignore checkouts at the entrance if we are already not present
-          addNode(scan);
-        }
+      logScan(scan);
+      if (scan.type === 'check-in') {
+        checkinNode(scan);
       } else {
-        if (scan.type === 'check-in') {
-          moveNode(scan);
+        if (scan.location.id !== 0) {
+          checkoutNode(scan);
         } else {
-          if (scan.location.id !== 0) {
-            checkoutNode(scan);
-          } else {
-            removeNode(scan);
-          }
+          removeNode(scan);
         }
       }
       force.start();
-      renderNodes();
     }, errorHandler);
 
     force.start();

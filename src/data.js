@@ -246,6 +246,7 @@ d3demo.random = (function dataSimulator(d3, Rx) {
 
   return {
     eventTimeStamp: EVENT_DATE + START_MINUTES * 60 * 1000
+  , users: users
   , pauser: pauser
   , getRandomInt: getRandomInt
   , playback: playbackRandom
