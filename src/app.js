@@ -153,8 +153,7 @@ var d3demo = d3demo || {};
       return;
     }
     if (dataNode.selected) {
-      unSelectNodes();
-      d3.select('.userinfo').style({'display': 'none'});
+      updateUserInfoPanel(dataNode);
     }
     dataNode.present = true;
     dataNode.exiting = true;
@@ -162,15 +161,26 @@ var d3demo = d3demo || {};
     dataNode.focus = 0;
   };
 
-  var selectNode = function() {
-    svg.select('.selected').classed({selected: false}).data().forEach(function(d) {
-      d.selected = false;
+  var selectNode = function(node) {
+    node.data().forEach(function(d) {
+      d.selected = true;
+    });;
+    d3.timer(function() {
+      node.classed('selected', function(d) { return d.selected; });
+      return true;
     });
+    var data = node.datum();
+    updateUserInfoPanel(data);
   };
 
   var unSelectNodes = function() {
-    svg.select('.selected').classed({selected: false}).data().forEach(function(d) {
+    var nodes = svg.select('.selected');
+    nodes.data().forEach(function(d) {
       d.selected = false;
+    });
+    d3.timer(function() {
+      nodes.classed('selected', function(d) { return d.selected; });
+      return true;
     });
   };
 
@@ -255,14 +265,19 @@ var d3demo = d3demo || {};
     log: document.getElementById('log')
   }
   var logScan = function(scan) {
-    document.getElementById('interval').textContent = logTracker.count++;
-    document.getElementById('nodeCount').textContent = svg.selectAll('.node')[0].length;
+    d3.timer(function() {
+      document.getElementById('interval').textContent = logTracker.count++;
+      document.getElementById('nodeCount').textContent = dataNodes.filter(function(d) {
+        return d.focus !== -1;
+      }).length;
+      return true;
+    });
     if (logTracker.spans.length < 50) {
       logTracker.spans.push(createMessageElement(scan));
     }
     if (!logTracker.scrolling) {
       logTracker.scrolling = true;
-      setTimeout(function() {
+      d3.timer(function() {
         logTracker.spans.forEach(function(addSpan) {
           logTracker.log.insertBefore(addSpan, logTracker.log.firstChild);
           if (logTracker.log.childNodes.length > 50) {
@@ -271,6 +286,7 @@ var d3demo = d3demo || {};
         });
         logTracker.spans = [];
         logTracker.scrolling = false;
+        return true;
       }, 100);
     }
   }
@@ -283,7 +299,10 @@ var d3demo = d3demo || {};
 
     // logging
     clock.subscribe(function(time) {
-      document.getElementById('time').textContent = formatTime(time.timestamp);
+      d3.timer(function() {
+        document.getElementById('time').textContent = formatTime(time.timestamp);
+        return true;
+      });
     });
 
     source.subscribe(function(scan) {
@@ -308,7 +327,7 @@ var d3demo = d3demo || {};
   })
   .subscribe(function(event) {
     unSelectNodes();
-    d3.select('.userinfo').style({'display': 'none'});
+    hideUserInfoPanel();
   });
 
   nodeClick.filter(function(event) {
@@ -317,23 +336,30 @@ var d3demo = d3demo || {};
   .subscribe(function(event) {
     unSelectNodes();
     var node = d3.select(event.target);
-    node.classed({selected: true}).data().forEach(function(d) {
-      d.selected = true;
-    });;
-    var data = node.data()[0];
-    updateUserInfoPanel(data);
+    selectNode(node);
   });
 
   var updateUserInfoPanel = function(data) {
-    var div = d3.select('.userinfo');
-    div.style({'display': 'block'});
-    debugging && console.log(data);
-    div.select('.id_v').text(data.user.id);
-    div.select('.name_v').text(data.user.name);
-    div.select('.checkin_v').text(formatTime(data.checkInTime));
-    div.select('.checkout_v').text(formatTime(data.checkOutTime));
-    div.select('.location_v').text(d3demo.layout.locations[data.focus].name);
-  }
+    d3.timer(function() {
+      var div = d3.select('.userinfo');
+      div.style({'display': 'block'});
+      debugging && console.log(data);
+      div.select('.id_v').text(data.user.id);
+      div.select('.name_v').text(data.user.name);
+      div.select('.checkin_v').text(formatTime(data.checkInTime));
+      div.select('.checkout_v').text(formatTime(data.checkOutTime));
+      div.select('.location_v').text(d3demo.layout.locations[data.focus].name);
+      return true;
+    });
+  };
+
+  var hideUserInfoPanel = function() {
+    d3.timer(function() {
+      var div = d3.select('.userinfo');
+      div.style({'display': 'none'});
+      return true;
+    });
+  };
 
   var formatTime = function(time) {
     if (!time) {
