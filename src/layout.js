@@ -35,7 +35,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     mapContainer.style.width = width + 'px';
 
     var logContainer = document.getElementById('log');
-    var logContainerHeight = windowHeight - 292;
+    var logContainerHeight = windowHeight - 368;
     logContainer.style.height = logContainerHeight + 'px';
 
     var legend = document.querySelector('.legend');

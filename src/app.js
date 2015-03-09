@@ -161,25 +161,26 @@ var d3demo = d3demo || {};
     dataNode.focus = 0;
   };
 
-  var selectNode = function(node) {
-    node.data().forEach(function(d) {
+  var selectNodes = function(selectedNodes) {
+    console.log('data', selectedNodes.data());
+    selectedNodes.data().forEach(function(d) {
       d.selected = true;
-    });;
+    });
     d3.timer(function() {
-      node.classed('selected', function(d) { return d.selected; });
+      selectedNodes.classed('selected', function(d) { return d.selected; });
       return true;
     });
-    var data = node.datum();
+    var data = selectedNodes.data()[0];
     updateUserInfoPanel(data);
   };
 
   var unSelectNodes = function() {
-    var nodes = svg.select('.selected');
-    nodes.data().forEach(function(d) {
+    var selectedNodes = svg.selectAll('.selected');
+    selectedNodes.data().forEach(function(d) {
       d.selected = false;
     });
     d3.timer(function() {
-      nodes.classed('selected', function(d) { return d.selected; });
+      selectedNodes.classed('selected', function(d) { return d.selected; });
       return true;
     });
   };
@@ -189,6 +190,7 @@ var d3demo = d3demo || {};
     , play = Rx.Observable.fromEvent(d3.select('#play').node(), 'click')
     , slow = Rx.Observable.fromEvent(d3.select('#slow').node(), 'click')
     , nodeClick = Rx.Observable.fromEvent(d3.select('.map').node(), 'click')
+    , filter = Rx.Observable.fromEvent(d3.select('#filter').node(), 'keyup')
     ;
 
   var pauser = d3demo.random.pauser;
@@ -336,7 +338,7 @@ var d3demo = d3demo || {};
   .subscribe(function(event) {
     unSelectNodes();
     var node = d3.select(event.target);
-    selectNode(node);
+    selectNodes(node);
   });
 
   var updateUserInfoPanel = function(data) {
@@ -360,6 +362,21 @@ var d3demo = d3demo || {};
       return true;
     });
   };
+
+  filter.subscribe(function(event) {
+    var input = d3.select('#filter').node();
+    var filterValue = input.value;
+    unSelectNodes();
+    if (filterValue.length === 0) {
+      return;
+    }
+    var selectedNodes = nodes.filter(function(d) {
+      return d.user.name.toLowerCase().indexOf(filterValue.toLowerCase()) > -1;
+    });
+    if (selectedNodes[0].length > 0) {
+      selectNodes(selectedNodes);
+    }
+  });
 
   var formatTime = function(time) {
     if (!time) {
