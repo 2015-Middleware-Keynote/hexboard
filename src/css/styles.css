@@ -4882,11 +4882,25 @@ h2,
 .info #log span.log-location:before {
   content: "\f041";
 }
+.user-filter {
+  background: red;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #fff;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  width: 390px;
+}
+.user-filter input {
+  width: 345px!important;
+  margin-left: 5px;
+}
 .userinfo {
   display: none;
   position: absolute;
   border: none;
-  top: 10px;
+  top: 60px;
   left: 10px;
   background: #fff;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);

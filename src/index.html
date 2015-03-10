@@ -82,6 +82,16 @@
       </div>
     </div><!-- /legend-->
 
+    <form class="form-inline user-filter">
+      <div class="form-group">
+        <label for="filter">
+          <i class="fa fa-filter"></i>
+          <span class="sr-only">Filter</span>
+        </label>
+        <input type="text" id="filter" class="form-control" placeholder="Filter Nodes">
+      </div>
+    </form>
+
     <div class="userinfo">
       <h2><span class="pficon pficon-user"></span> <span class="name_v"></span></h2>
       <ul class="list-inline">
@@ -115,18 +125,8 @@
           Nodes
         </strong>
       </div><!-- /nodes -->
-      <div class="form-inline">
-        <h1>
-          <input type="text" id="filter" class="form-control" placeholder="Filter Nodes"></input>
-        </h1>
-        <strong>
-          <i class="fa fa-dot-circle-o"></i>
-          Filter
-        </strong>
-      </div><!-- /nodes -->
-
       <div>
-        <ul id="log" style="height:250px">
+        <ul id="log" style="height:200px">
         </ul>
       </div><!-- /log -->
 
