@@ -162,7 +162,6 @@ var d3demo = d3demo || {};
   };
 
   var selectNodes = function(selectedNodes) {
-    console.log('data', selectedNodes.data());
     selectedNodes.data().forEach(function(d) {
       d.selected = true;
     });
@@ -170,8 +169,12 @@ var d3demo = d3demo || {};
       selectedNodes.classed('selected', function(d) { return d.selected; });
       return true;
     });
-    var data = selectedNodes.data()[0];
-    updateUserInfoPanel(data);
+    if (selectedNodes[0].length === 1) {
+      var data = selectedNodes.datum();
+      updateUserInfoPanel(data);
+    } else {
+      hideUserInfoPanel();
+    }
   };
 
   var unSelectNodes = function() {
@@ -342,7 +345,17 @@ var d3demo = d3demo || {};
   });
 
   var updateUserInfoPanel = function(data) {
+    var selectedDataNodes = dataNodes.filter(function(d) {
+      return d.selected;
+    });
+    if (selectedDataNodes.length > 1) {
+      return;
+    }
     d3.timer(function() {
+      if (data.focus < 0) {
+        hideUserInfoPanel();
+        return;
+      }
       var div = d3.select('.userinfo');
       div.style({'display': 'block'});
       debugging && console.log(data);
