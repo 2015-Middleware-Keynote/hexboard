@@ -224,16 +224,23 @@
 // user filter ========================
 
 .user-filter{
-  background: #fff;
-  box-shadow: 0 0 5px rgba(0 ,0,0,.5);
   left: 10px;
-  padding: 10px;
+//  padding: 10px;
   position: absolute;
   top: 10px;
-  width: 390px;
-  input{
+  label{
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    color: @gray-light;
+  }
+  input[type="text"]{
+  margin: 0!important;
+    background: #fff;
     margin-left: 5px;
-    width: 345px!important;
+    width: 390px!important;
+//      width: 345px;
+    box-shadow: 0 0 5px rgba(0 ,0,0,.5);
   }
 }
 
@@ -242,12 +249,13 @@
   display:none;
   position: absolute;
   border: none;
-  top: 60px;
+  top: 46px;
   left: 10px;
   background: #fff;
   box-shadow: 0 0 5px rgba(0 ,0,0,.5);
-  padding: 10px;
+  padding: 6px 10px;
   width: 390px;
+  border: 1px solid @gray-light;
 //  text-transform: uppercase;
   p{
     margin: 0;

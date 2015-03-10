@@ -4883,29 +4883,34 @@ h2,
   content: "\f041";
 }
 .user-filter {
-  background: red;
+  left: 10px;
   position: absolute;
   top: 10px;
-  left: 10px;
-  background: #fff;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-  padding: 10px;
-  width: 390px;
 }
-.user-filter input {
-  width: 345px!important;
+.user-filter label {
+  position: absolute;
+  right: 10px;
+  top: 5px;
+  color: #999999;
+}
+.user-filter input[type="text"] {
+  margin: 0!important;
+  background: #fff;
   margin-left: 5px;
+  width: 390px!important;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
 .userinfo {
   display: none;
   position: absolute;
   border: none;
-  top: 60px;
+  top: 46px;
   left: 10px;
   background: #fff;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-  padding: 10px;
+  padding: 6px 10px;
   width: 390px;
+  border: 1px solid #999999;
 }
 .userinfo p {
   margin: 0;
