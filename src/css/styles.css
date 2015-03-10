@@ -5087,11 +5087,21 @@ h2,
   width: 390px!important;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
+.combobox-container ul {
+  padding: 0;
+  width: 390px;
+}
+.combobox-container ul li {
+  border-bottom: 1px solid #eeeeee;
+}
+.combobox-container ul li a {
+  padding-left: 10px;
+}
 .userinfo {
   display: none;
   position: absolute;
   border: none;
-  top: 46px;
+  top: 45px;
   left: 10px;
   background: #fff;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
