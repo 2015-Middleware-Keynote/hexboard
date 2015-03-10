@@ -5132,10 +5132,12 @@ h2,
 }
 .map {
   float: left;
-  background-image: url(../img/map.png);
+  background-image: url(../img/map_new.png);
+  /* 2393 x 2004 */
   background-repeat: no-repeat;
   background-size: contain;
   background-position: left top;
+  background-color: #eeeeee;
   margin-right: 10px;
 }
 .map svg {
