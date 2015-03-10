@@ -23,7 +23,7 @@
 // Components
 // @import "component-animations.less";
 // @import "glyphicons.less";
-// @import "dropdowns.less";
+ @import "../lib/patternfly/components/bootstrap/less/dropdowns.less";
 // @import "button-groups.less";
 // @import "input-groups.less";
  @import "../lib/patternfly/components/bootstrap/less/navs.less";
@@ -244,12 +244,25 @@
   }
 }
 
+.combobox-container{
+  ul{
+    padding: 0;
+    width: 390px;
+    li{
+      border-bottom: 1px solid @gray-lighter;
+      a{
+        padding-left: 10px;
+      }
+    }
+  }
+}
+
 // user info ==========================
 .userinfo {
   display:none;
   position: absolute;
   border: none;
-  top: 46px;
+  top: 45px;
   left: 10px;
   background: #fff;
   box-shadow: 0 0 5px rgba(0 ,0,0,.5);

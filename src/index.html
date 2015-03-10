@@ -82,15 +82,22 @@
       </div>
     </div><!-- /legend-->
 
-    <form class="form-inline user-filter">
+    <div class="form-inline user-filter">
       <div class="form-group">
         <label for="filter">
           <i class="fa fa-search fa-lg"></i>
           <span class="sr-only">Filter</span>
         </label>
-        <input type="text" id="filter" class="form-control input-lg" placeholder="Filter Nodes">
+        <div class="combobox-container">
+          <input type="text" id="filter" class="combobox input-lg form-control" placeholder="Filter Nodes" autocomplete="off">
+          <ul class="typeahead typeahead-long dropdown-menu">
+            <li><a href="#">Something</a></li>
+            <li><a href="#">Something</a></li>
+            <li><a href="#">Something</a></li>
+          </ul>
+        </div>
       </div>
-    </form>
+    </div>
 
     <div class="userinfo">
       <h2><span class="pficon pficon-user"></span> <span class="name_v"></span></h2>
