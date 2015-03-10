@@ -381,6 +381,7 @@ var d3demo = d3demo || {};
     var filterValue = input.value;
     unSelectNodes();
     if (filterValue.length === 0) {
+      hideUserInfoPanel();
       return;
     }
     var selectedNodes = nodes.filter(function(d) {

@@ -30,7 +30,7 @@ d3demo.random = (function dataSimulator(d3, Rx) {
   for (var i = 0; i < 200; i++) {
     users.push({
       id: i
-    , name: 'Firstname' + i + ' Lastname' + i
+    , name: i === 13 ? 'Burr Sutter' : 'Firstname' + i + ' Lastname' + i
     });
   };
 
