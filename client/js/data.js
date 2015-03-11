@@ -19,14 +19,16 @@ d3demo.random = (function dataSimulator(d3, Rx) {
 
   var playbackSocket = function(cb) {
     var scans = Rx.DOM.fromWebSocket(
-      'ws://localhost:9000'
+      // 'ws://127.8.195.129:8000'
+      'ws://localhost:8000'
     ).map(function(json) {
       return JSON.parse(json.data);
     }).filter(function(data) {
       return data.type === 'scan';
     }).map(function(data) {
       return data.data;
-    }).share();
+    })
+    .share();
 
     var counter = Rx.Observable.interval(50)  // determines the playback rate
       .map(function(n) {
@@ -39,27 +41,28 @@ d3demo.random = (function dataSimulator(d3, Rx) {
       })
       .takeWhile(function(tick) {
         return tick.minutes <= END_MINUTES;
-    }).share();
+    }).delay(200).share();
 
     var clock = counter.filter(function(tick) { // reduce the counter to 5 minute increments
       return tick.timestamp % 300000 === 0;
     });
 
-    var oldMinutes = 0;
-    var bufferedScans = scans.buffer(function() {
-      return scans.filter(function(scan) {
-        var delta = scan.timestamp - EVENT_DATE;
-        var minutes = Math.floor(delta / 30000.0);
+    var oldMinutes = -1;
+    var bufferedScans = scans.buffer(scans.filter(function(scan) {
+        var millis = scan.timestamp - EVENT_DATE;
+        var minutes = Math.floor(millis / 60000.0);
         if (minutes > oldMinutes) {
-          oldMinutes = minutes;
+          oldMinutes = (oldMinutes === -1) ? minutes : oldMinutes + 1;
           var myEvent = new CustomEvent('bufferincrement', {detail: {minutes: minutes}});
           document.dispatchEvent(myEvent);
           return true;
         } else {
           return false;
         }
-      });
-    })
+    })).filter(function(scan) {
+      scan.length ===0 && console.log(scan.length);
+      return true;
+    });
 
     var timedScans = Rx.Observable.zip(counter, bufferedScans, function(tick, scans) {
       return scans;

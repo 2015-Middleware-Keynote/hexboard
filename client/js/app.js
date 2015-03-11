@@ -314,7 +314,7 @@ var d3demo = d3demo || {};
     clock.subscribe(function(time) {
       d3.timer(function() {
         document.getElementById('time').textContent = formatTime(time.timestamp);
-        progressPlayback.style.width = ((time.minutes - d3demo.random.START_MINUTES )/ d3demo.random.END_MINUTES * 100) + '%';
+        progressPlayback.style.width = (100 * (time.minutes - d3demo.random.START_MINUTES )/ (d3demo.random.END_MINUTES - d3demo.random.START_MINUTES )) + '%';
         return true;
       });
     });
@@ -516,7 +516,8 @@ var d3demo = d3demo || {};
   };
 
   document.addEventListener('bufferincrement', function(e) {
-    progressBuffer.style.width = ((e.detail.minutes - d3demo.random.START_MINUTES )/ d3demo.random.END_MINUTES * 100) + '%';
+    // console.log(d3demo.random.START_MINUTES, d3demo.random.END_MINUTES, e.detail.minutes);
+    progressBuffer.style.width = (100 * (e.detail.minutes - d3demo.random.START_MINUTES ) / (d3demo.random.END_MINUTES - d3demo.random.START_MINUTES)) + '%';
   });
 
   initForce();
