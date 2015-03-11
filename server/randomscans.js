@@ -113,7 +113,7 @@ var createRandomScan = function (user, minutes) {
   return scan;
 }
 
-var counter = Rx.Observable.interval(50)
+var counter = Rx.Observable.interval(25)
   .map(function(n) {
     var minutes = START_MINUTES + n; // increment in 1 minute increments
     return {
@@ -125,10 +125,6 @@ var counter = Rx.Observable.interval(50)
   .takeWhile(function(tick) {
     return tick.minutes <= END_MINUTES;
     // return tick.minutes <= START_MINUTES + 20;
-  });
-
-var playbackClock = counter.filter(function(tick) {
-    return tick.timestamp % 300000 === 0;
   });
 
 var eventLog = {};
@@ -164,13 +160,13 @@ var randomScans = counter.flatMap(function(tick) {
   return intervalFromEvents(scans);
 });
 
-var playbackRandom = function(cb) {
+var reset = function() {
   previousScans = {};
-  cb(playbackClock, randomScans);
 };
 
 module.exports = {
     eventTimeStamp: EVENT_DATE + START_MINUTES * 60 * 1000
   , users: users
-  , playback: playbackRandom
+  , reset: reset
+  , scans: randomScans
 }

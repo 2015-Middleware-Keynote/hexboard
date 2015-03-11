@@ -18,30 +18,54 @@ d3demo.random = (function dataSimulator(d3, Rx) {
   };
 
   var playbackSocket = function(cb) {
-    var rxSocket = Rx.DOM.fromWebSocket(
+    var scans = Rx.DOM.fromWebSocket(
       'ws://localhost:9000'
     ).map(function(json) {
       return JSON.parse(json.data);
-    }).share();
-
-    // rxSocket.subscribe(function(tick) {
-    //   console.log(tick);
-    // })
-
-    var clock = rxSocket.filter(function(data) {
-      return data.type === 'tick';
-    }).map(function(data) {
-      return data.data;
-    });
-
-
-    var scans = rxSocket.filter(function(data) {
+    }).filter(function(data) {
       return data.type === 'scan';
     }).map(function(data) {
       return data.data;
+    }).share();
+
+    var counter = Rx.Observable.interval(50)  // determines the playback rate
+      .map(function(n) {
+        var minutes = START_MINUTES + n; // increment in 1 minute increments
+        return {
+          n: n
+        , minutes: minutes
+        , timestamp: EVENT_DATE + minutes * 60 * 1000 // timestamp in ms
+        }
+      })
+      .takeWhile(function(tick) {
+        return tick.minutes <= END_MINUTES;
+    }).share();
+
+    var clock = counter.filter(function(tick) { // reduce the counter to 5 minute increments
+      return tick.timestamp % 300000 === 0;
     });
 
-    cb(clock, scans);
+    var oldMinutes = 0;
+    var bufferedScans = scans.buffer(function() {
+      return scans.filter(function(scan) {
+        var delta = scan.timestamp - EVENT_DATE;
+        var minutes = Math.floor(delta / 30000.0);
+        if (minutes > oldMinutes) {
+          oldMinutes = minutes;
+          return true;
+        } else {
+          return false;
+        }
+      });
+    })
+
+    var timedScans = Rx.Observable.zip(counter, bufferedScans, function(tick, scans) {
+      return scans;
+    }).flatMap(function(scans) {
+      return scans;
+    });
+
+    cb(clock, timedScans);
   }
 
   return {
