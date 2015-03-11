@@ -34,6 +34,8 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     mapContainer.style.height = height + 'px';
     mapContainer.style.width = width + 'px';
 
+    document.querySelector('.progress').style.width = width - 100 + 'px';
+
     var logContainer = document.getElementById('log');
     var logContainerHeight = windowHeight - 292;
     logContainer.style.height = logContainerHeight + 'px';

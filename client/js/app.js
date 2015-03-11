@@ -297,6 +297,13 @@ var d3demo = d3demo || {};
     }
   }
 
+  var progressPlayback, progressBuffer;
+  (function() {
+    var progress = d3.select('.progress');
+    progressPlayback = progress.select('.playback').node();
+    progressBuffer = progress.select('.buffer').node();
+  })()
+
   var run = function(clock, source) {
     // a shared error handler
     var errorHandler = function (err) {
@@ -307,6 +314,7 @@ var d3demo = d3demo || {};
     clock.subscribe(function(time) {
       d3.timer(function() {
         document.getElementById('time').textContent = formatTime(time.timestamp);
+        progressPlayback.style.width = ((time.minutes - d3demo.random.START_MINUTES )/ d3demo.random.END_MINUTES * 100) + '%';
         return true;
       });
     });
@@ -506,6 +514,10 @@ var d3demo = d3demo || {};
   var getRandomInt = function (min, max) {
     return Math.floor(Math.random() * (max - min) + min);
   };
+
+  document.addEventListener('bufferincrement', function(e) {
+    progressBuffer.style.width = ((e.detail.minutes - d3demo.random.START_MINUTES )/ d3demo.random.END_MINUTES * 100) + '%';
+  });
 
   initForce();
   d3demo.random.playback(run);

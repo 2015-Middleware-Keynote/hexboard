@@ -52,6 +52,8 @@ d3demo.random = (function dataSimulator(d3, Rx) {
         var minutes = Math.floor(delta / 30000.0);
         if (minutes > oldMinutes) {
           oldMinutes = minutes;
+          var myEvent = new CustomEvent('bufferincrement', {detail: {minutes: minutes}});
+          document.dispatchEvent(myEvent);
           return true;
         } else {
           return false;
@@ -70,6 +72,8 @@ d3demo.random = (function dataSimulator(d3, Rx) {
 
   return {
     eventTimeStamp: EVENT_DATE + START_MINUTES * 60 * 1000
+  , START_MINUTES: START_MINUTES
+  , END_MINUTES: END_MINUTES
   , users: users
   , playback: playbackSocket
   }

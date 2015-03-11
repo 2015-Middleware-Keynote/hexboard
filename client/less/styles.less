@@ -36,7 +36,7 @@
 // @import "jumbotron.less";
 // @import "thumbnails.less";
 // @import "alerts.less";
-// @import "progress-bars.less";
+@import "../lib/patternfly/components/bootstrap/less/progress-bars.less";
 // @import "media.less";
 // @import "list-group.less";
 // @import "panels.less";
@@ -324,6 +324,25 @@
   stroke:rgba(0,0,0,.5);
   stroke-width: 5px;
 }
+
+.progress {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  width: 800px;
+}
+
+ .progress-bar {
+   position: absolute;
+ }
+
+ .buffer {
+   z-index: 10;
+   background-color: green;
+ }
+ .playback {
+   z-index: 20;
+ }
 
 .legend {
   display: block;
