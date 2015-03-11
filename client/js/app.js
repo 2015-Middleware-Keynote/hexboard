@@ -36,8 +36,8 @@ var d3demo = d3demo || {};
     // define the data
     dataNodes = [];
     d3demo.random.users.forEach(function(user) {
-      var x = d3demo.random.getRandomInt(foci[0].x - 10, foci[0].x + 10)
-        , y = d3demo.random.getRandomInt(height+50, height + 300);
+      var x = getRandomInt(foci[0].x - 10, foci[0].x + 10)
+        , y = getRandomInt(height+50, height + 300);
       // x = 200, y= 200;
       var newNode = {
         id: user.id,
@@ -501,6 +501,11 @@ var d3demo = d3demo || {};
     var formattedTime = hours + ':' + minutes.substr(minutes.length-2) + ':' + seconds.substr(seconds.length-2);
     return formattedTime;
   }
+
+  // Returns a random integer between min included) and max (excluded)
+  var getRandomInt = function (min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
+  };
 
   initForce();
   d3demo.random.playback(run);

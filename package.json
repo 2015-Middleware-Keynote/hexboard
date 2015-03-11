@@ -14,5 +14,12 @@
     "gulp-less": "^3.0.0",
     "gulp-plumber": "^0.6.6",
     "open": "0.0.5"
+  },
+  "dependencies": {
+    "gulp-nodemon": "^1.0.5",
+    "gulp-util": "^3.0.4",
+    "open": "0.0.5",
+    "rx": "^2.4.1",
+    "ws": "^0.7.1"
   }
 }
