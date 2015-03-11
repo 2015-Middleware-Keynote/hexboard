@@ -244,12 +244,40 @@ d3demo.random = (function dataSimulator(d3, Rx) {
     console.log('Number of intervals with "n" events:', numEventsPerInterval)
   }
 
+  var playbackSocket = function(cb) {
+    var rxSocket = Rx.DOM.fromWebSocket(
+      'ws://localhost:9000'
+    ).map(function(json) {
+      return JSON.parse(json.data);
+    }).share();
+
+    // rxSocket.subscribe(function(tick) {
+    //   console.log(tick);
+    // })
+
+    var clock = rxSocket.filter(function(data) {
+      return data.type === 'tick';
+    }).map(function(data) {
+      return data.data;
+    });
+
+
+    var scans = rxSocket.filter(function(data) {
+      return data.type === 'scan';
+    }).map(function(data) {
+      return data.data;
+    });
+
+    cb(clock, scans);
+  }
+
   return {
     eventTimeStamp: EVENT_DATE + START_MINUTES * 60 * 1000
   , users: users
   , pauser: pauser
   , getRandomInt: getRandomInt
   , playback: playbackRandom
+  // , playback: playbackSocket
   // , playback: playbackScans
   }
 })(d3, Rx);
