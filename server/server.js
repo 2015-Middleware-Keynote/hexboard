@@ -1,7 +1,7 @@
 var WebSocketServer = require('ws').Server
   , wss = new WebSocketServer({
       host: process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0'
-    , port: 8000 
+    , port: process.env.OPENSHIFT_NODEJS_PORT || 8000 
     })
   , Rx = require('rx')
   , data = require('./randomscans');
