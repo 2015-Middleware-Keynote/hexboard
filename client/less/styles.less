@@ -95,7 +95,7 @@
 // @import "pagination.less";
 // @import "panels.less";
 // @import "popovers.less";
-// @import "progress-bars.less";
+ @import "../lib/patternfly/less/progress-bars.less";
 // @import "search.less";
 // @import "sidebar.less";
 // @import "spinner.less";
@@ -294,6 +294,8 @@
 }// user info
 
 
+// map ==========================
+
 .map {
   float: left;
   background-image: url(../img/map_new.png);/* 2393 x 2004 */
@@ -325,11 +327,15 @@
   stroke-width: 5px;
 }
 
+// progress bar ==========================
+@progress-xs: @line-height-computed - 16;
+
 .progress {
   position: absolute;
-  bottom: 10px;
-  left: 10px;
-  width: 800px;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: auto!important;
 }
 
  .progress-bar {
@@ -343,6 +349,9 @@
  .playback {
    z-index: 20;
  }
+
+
+// legend ==========================
 
 .legend {
   display: block;
