@@ -304,7 +304,7 @@ var d3demo = d3demo || {};
     progressBuffer = progress.select('.buffer').node();
   })()
 
-  var run = function(clock, source) {
+  var run = function(clock, source, bufferProgress) {
     // a shared error handler
     var errorHandler = function (err) {
       console.log(err.stack);
@@ -317,6 +317,10 @@ var d3demo = d3demo || {};
         progressPlayback.style.width = (100 * (time.minutes - d3demo.random.START_MINUTES )/ (d3demo.random.END_MINUTES - d3demo.random.START_MINUTES )) + '%';
         return true;
       });
+    });
+
+    bufferProgress.subscribe(function(minutes) {
+      progressBuffer.style.width = (100 * (minutes - d3demo.random.START_MINUTES ) / (d3demo.random.END_MINUTES - d3demo.random.START_MINUTES)) + '%';
     });
 
     source.subscribe(function(scan) {
@@ -514,11 +518,6 @@ var d3demo = d3demo || {};
   var getRandomInt = function (min, max) {
     return Math.floor(Math.random() * (max - min) + min);
   };
-
-  document.addEventListener('bufferincrement', function(e) {
-    // console.log(d3demo.random.START_MINUTES, d3demo.random.END_MINUTES, e.detail.minutes);
-    progressBuffer.style.width = (100 * (e.detail.minutes - d3demo.random.START_MINUTES ) / (d3demo.random.END_MINUTES - d3demo.random.START_MINUTES)) + '%';
-  });
 
   initForce();
   d3demo.random.playback(run);
