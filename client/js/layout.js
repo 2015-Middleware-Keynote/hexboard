@@ -34,10 +34,10 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     mapContainer.style.height = height + 'px';
     mapContainer.style.width = width + 'px';
 
-    document.querySelector('.progress').style.width = width - 100 + 'px';
+//    document.querySelector('.progress').style.width = width - 100 + 'px';
 
     var logContainer = document.getElementById('log');
-    var logContainerHeight = windowHeight - 292;
+    var logContainerHeight = windowHeight - 234;
     logContainer.style.height = logContainerHeight + 'px';
 
     var legend = document.querySelector('.legend');
