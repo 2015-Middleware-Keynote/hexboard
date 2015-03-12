@@ -5148,6 +5148,25 @@ h2,
 .navbar-pf .navbar-utility li.dropdown > .dropdown-toggle .pficon-user {
   top: 12px;
 }
+.map-container {
+  position: relative;
+}
+.map-container:before,
+.map-container:after {
+  content: " ";
+  display: table;
+}
+.map-container:after {
+  clear: both;
+}
+.map-container:before,
+.map-container:after {
+  content: " ";
+  display: table;
+}
+.map-container:after {
+  clear: both;
+}
 .info div {
   background: #ffffff;
   border-bottom: 1px solid #d0d0d0;
