@@ -2,6 +2,7 @@
   "name": "d3rx-demo",
   "version": "0.0.1",
   "description": "A D3/Rx.JS example",
+  "repository": "https://github.com/bleathem/locationforcelayout",
   "main": "server/server.js",
   "scripts": {
     "start": "supervisor server/server.js",
