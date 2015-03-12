@@ -5059,8 +5059,8 @@ label {
   margin-bottom: 14px;
 }
 .progress.progress-xs {
-  height: 4px;
-  margin-bottom: 4px;
+  height: 6px;
+  margin-bottom: 6px;
 }
 td > .progress:first-child:last-child {
   margin-bottom: 0;
@@ -5097,7 +5097,7 @@ td > .progress:first-child:last-child {
   line-height: 14px;
 }
 .progress-xs .progress-bar {
-  line-height: 4px;
+  line-height: 6px;
 }
 .progress-description {
   margin-bottom: 10px;
@@ -5181,6 +5181,13 @@ h2,
 .info div h1 {
   line-height: 35px;
   margin: 0;
+  margin-left: 10px;
+  display: inline-block;
+}
+.info div strong {
+  padding-left: 10px;
+  display: inline-block;
+  width: 70px;
 }
 .info #log {
   min-height: 250px;
@@ -5195,9 +5202,9 @@ h2,
   background: #cc0000 !important;
 }
 .info #log li {
-  margin: 0;
-  border-bottom: 1px solid #eeeeee;
-  box-shadow: 0 -3px 3px rgba(0, 0, 0, 0.15);
+  margin: 0 0 0 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 0 -2px 0px rgba(0, 0, 0, 0.1);
   line-height: 18px;
 }
 .info #log li:hover {
@@ -5316,8 +5323,7 @@ h2,
   background-repeat: no-repeat;
   background-size: contain;
   background-position: left top;
-  background-color: #eeeeee;
-  margin-right: 10px;
+  background-color: #eae6dd;
 }
 .map svg {
   display: block;
@@ -5337,18 +5343,16 @@ h2,
   stroke-width: 5px;
 }
 .progress {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  margin: 0!important;
   width: auto!important;
 }
 .progress-bar {
   position: absolute;
+  height: 6px;
 }
 .buffer {
   z-index: 10;
-  background-color: green;
+  background-color: #aeeaff;
 }
 .playback {
   z-index: 20;

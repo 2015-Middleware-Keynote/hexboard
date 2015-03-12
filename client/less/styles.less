@@ -135,7 +135,6 @@
 }
 
 .info{
-
   div{
     background: rgba(255,255,255,1);
     border-bottom: 1px solid @sidebar-pf-border-color;
@@ -148,6 +147,13 @@
     h1{
       line-height: 35px;
       margin: 0;
+      margin-left: 10px;
+      display: inline-block;
+    }
+    strong{
+      padding-left: 10px;
+      display: inline-block;
+      width: 70px;
     }
   }
 
@@ -164,9 +170,9 @@
       }
     }
     li{
-      margin: 0;
-      border-bottom: 1px solid @gray-lighter;
-      box-shadow: 0 -3px 3px rgba(0,0,0,.15);
+      margin: 0 0 0 10px;
+      border-bottom: 1px solid rgba(0,0,0,.2);
+      box-shadow: 0 -2px 0px rgba(0,0,0,.1);
       line-height: 18px;
       &:hover{
         background: rgba(0,0,0,.1);
@@ -302,8 +308,8 @@
   background-repeat: no-repeat;
   background-size: contain;
   background-position: left top;
-  background-color: @gray-lighter;
-  margin-right: 10px;
+  background-color: #eae6dd; // @gray-lighter
+//  margin-right: 10px;
 }
 
 .map svg {
@@ -328,23 +334,22 @@
 }
 
 // progress bar ==========================
-@progress-xs: @line-height-computed - 16;
+// @progress-xs: @line-height-computed - 16;
 
 .progress {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  margin: 0!important;
   width: auto!important;
+//  margin-left: -10px;
 }
 
  .progress-bar {
    position: absolute;
+   height: @progress-xs;
  }
 
  .buffer {
    z-index: 10;
-   background-color: green;
+   background-color: lighten( @brand-primary, 40%);
  }
  .playback {
    z-index: 20;

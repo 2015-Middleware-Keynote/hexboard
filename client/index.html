@@ -57,14 +57,6 @@
     </div>
   </nav>
 
-    <div class="progress progress-xs">
-      <div class="progress-bar playback" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
-        <span class="sr-only">60% complete</span>
-      </div>
-      <div class="progress-bar buffer" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
-        <span class="sr-only">60% complete</span>
-      </div>
-    </div>
 
 
   <div class="map-container">
@@ -111,6 +103,7 @@
       </div>
     </div>
 
+
     <div class="userinfo">
       <h2><span class="pficon pficon-user"></span> <span class="name_v"></span></h2>
       <ul class="list-inline">
@@ -121,30 +114,37 @@
       <p><strong><i class="fa fa-map-marker"></i> Location:</strong> <span class="location_v"></span></p>
     </div><!-- /userinfo-->
 
+    <div class="progress progress-xs">
+      <div class="progress-bar playback" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+      </div>
+      <div class="progress-bar buffer" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+      </div>
+    </div>
+
     <div class="info">
+
       <div>
-        <h1 id="time">7:50:00</h1>
         <strong>
           <i class="fa fa-clock-o"></i>
           Time
         </strong>
+        <h1 id="time">7:50:00</h1>
       </div><!-- /time -->
-
       <div>
-        <h1 id="interval">0</h1>
         <strong>
           <i class="fa fa-bookmark"></i>
           Events
         </strong>
+        <h1 id="interval">0</h1>
       </div><!-- /events -->
       <div>
-        <h1 id="nodeCount">0</h1>
         <strong>
           <i class="fa fa-dot-circle-o"></i>
           Nodes
         </strong>
+        <h1 id="nodeCount">0</h1>
       </div><!-- /nodes -->
-      <div>
+      <div >
         <ul id="log" style="height:200px">
         </ul>
       </div><!-- /log -->
