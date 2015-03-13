@@ -293,33 +293,10 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
     force.start();
   }, errorHandler);
 
-  var reset = Rx.Observable.fromEvent(d3.select('#reset').node(), 'click')
-    , pause = Rx.Observable.fromEvent(d3.select('#pause').node(), 'click')
-    , play = Rx.Observable.fromEvent(d3.select('#play').node(), 'click')
-    , slow = Rx.Observable.fromEvent(d3.select('#slow').node(), 'click')
-    , nodeClick = Rx.Observable.fromEvent(d3.select('.map').node(), 'click')
+  var nodeClick = Rx.Observable.fromEvent(d3.select('.map').node(), 'click')
     , filter = Rx.Observable.fromEvent(d3.select('#filter').node(), 'keyup')
     , typeaheadClick = Rx.Observable.fromEvent(d3.select('.typeahead').node(), 'click')
     ;
-
-  var pauser = d3demo.playback.pauser;
-  var stop = Rx.Observable.merge(reset);
-
-  play.subscribe(function() {
-    pauser.onNext(true);
-  });
-
-  slow.subscribe(function() {
-    pauser.onNext(true);
-  })
-
-  pause.subscribe(function() {
-    pauser.onNext(false);
-  });
-
-  reset.subscribe(function() {
-    pauser.onNext(false);
-  });
 
   nodeClick.filter(function(event) {
     return event.target && event.target.nodeName !== 'circle';
@@ -514,6 +491,10 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
     scans.subscribeOnError(errorHandler);
     buffer.subscribeOnError(errorHandler);
     clock.subscribeOnError(errorHandler);
+
+    Rx.Observable.timer(1000).subscribe(function() {
+      d3demo.playback.resume();
+    })
   }
 
   return {

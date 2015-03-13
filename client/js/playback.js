@@ -29,33 +29,34 @@ d3demo.playback = (function dataSimulator(d3, Rx) {
   })
   .share();
 
+  var pauser = new Rx.Subject();
+  var minutes = START_MINUTES;
   var counter = Rx.Observable.interval(50)  // determines the playback rate
     .map(function(n) {
-      var minutes = START_MINUTES + n; // increment in 1 minute increments
       return {
         n: n
-      , minutes: minutes
+      , minutes: minutes++ // increment in 1 minute increments
       , timestamp: EVENT_DATE + minutes * 60 * 1000 // timestamp in ms
       }
     })
     .takeWhile(function(tick) {
       return tick.minutes <= END_MINUTES;
-  }).delay(1500).share();
+  }).pausable(pauser).publish();
 
   var clock = counter.filter(function(tick) { // reduce the counter to 5 minute increments
     return tick.timestamp % 300000 === 0;
   });
 
-  var oldMinutes;
+  var bufferMinutes;
   var bufferProgress = scans.flatMap(function(scan) {
     var minutes = Math.floor((scan.timestamp - EVENT_DATE) / 60000.0);
-    !oldMinutes && (oldMinutes = minutes);
-    if (minutes === oldMinutes) {
+    !bufferMinutes && (bufferMinutes = minutes);
+    if (minutes === bufferMinutes) {
       return Rx.Observable.empty(); // don't trigger on same minute
     } else {
-      var gap = minutes - oldMinutes;
-      var sequence = gap === 1 ? [minutes] : Rx.Observable.range(oldMinutes + 1, gap); // trigger on empty minutes
-      oldMinutes = minutes;
+      var gap = minutes - bufferMinutes;
+      var sequence = gap === 1 ? [minutes] : Rx.Observable.range(bufferMinutes + 1, gap); // trigger on empty minutes
+      bufferMinutes = minutes;
       return sequence;
     }
   }).share();
@@ -69,7 +70,25 @@ d3demo.playback = (function dataSimulator(d3, Rx) {
   });
 
   var init = function() {
-    oldMinutes = null;
+    bufferMinutes = null;
+    minutes = START_MINUTES;
+    counter.connect();
+    pauser.onNext(false);
+  };
+
+  var pause = function() {
+    pauser.onNext(false);
+  }
+
+  var resume = function() {
+    pauser.onNext(true);
+  }
+
+  var step = function() {
+    pauser.onNext(true);
+    counter.take(1).subscribe(function() {
+      pauser.onNext(false);
+    });
   }
 
   return {
@@ -77,9 +96,12 @@ d3demo.playback = (function dataSimulator(d3, Rx) {
   , START_MINUTES: START_MINUTES
   , END_MINUTES: END_MINUTES
   , users: users
-  , clockProgress: clock
-  , scans: timedScans
-  , bufferProgress: bufferProgress
   , init: init
+  , pause: pause
+  , resume: resume
+  , step: step
+  , clockProgress: clock
+  , bufferProgress: bufferProgress
+  , scans: timedScans
   }
 })(d3, Rx);
