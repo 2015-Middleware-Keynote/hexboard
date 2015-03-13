@@ -57,13 +57,13 @@ d3demo.controls = (function controls(d3, Rx) {
         d3demo.visualisation.hideUserInfoPanel();
         return;
       }
-      var selectedNodes = d3demo.visualisation.getNodesByName(filterValue);
+      var selectedNodes = d3demo.forcemap.getNodesByName(filterValue);
       populateComboBox(selectedNodes.data());
       if (selectedNodes[0].length > 0) {
         d3demo.visualisation.selectNodes(selectedNodes);
       }
     }
-  });
+  }, null, errorHandler);
 
   var populateComboBox = function(data) {
     d3.timer(function() {
@@ -89,7 +89,7 @@ d3demo.controls = (function controls(d3, Rx) {
   };
 
   var selectOptionById = function(id) {
-    var node = d3demo.visualisation.getNodeById(id);
+    var node = d3demo.forcemap.getNodeById(id);
     hideComboBox();
     d3demo.visualisation.unSelectNodes();
     d3demo.visualisation.selectNodes(node);
@@ -109,7 +109,7 @@ d3demo.controls = (function controls(d3, Rx) {
     var link = d3.select(event.target);
     var id = link.node().dataset.userid;
     selectOptionById(id);
-  });
+  }, null, errorHandler);
 
   var moveActiveOption  = function(event) {
     var typeahead = d3.select('.typeahead');
@@ -147,6 +147,10 @@ d3demo.controls = (function controls(d3, Rx) {
         return true;
       });
     }
+  };
+
+  var errorHandler = function (err) {
+    console.log(err.stack);
   };
 
   return {
