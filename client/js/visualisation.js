@@ -25,6 +25,11 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
        .attr('height', e.detail.height);
   })
 
+  // Returns a random integer between min included) and max (excluded)
+  var getRandomInt = function (min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
+  };
+
   // A function to initialize our visualization.
   var initForce = function() {
     // clear out the contents of the SVG container
@@ -117,6 +122,18 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
          });
   };
 
+  var getNodeById = function(id) {
+    return nodes.filter(function(d) {
+      return d.user.id == id;
+    });
+  };
+
+  var getNodesByName = function(str) {
+    return nodes.filter(function(d) {
+      return d.user.name.toLowerCase().indexOf(str.toLowerCase()) > -1;
+    });
+  }
+
   var getColor = function(temp) {
     var hue = 270/(temp/1000 + 1);
     var color = 'hsl(' + [Math.floor(hue), '70%', '50%'] + ')'
@@ -184,6 +201,38 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
     });
     d3.timer(function() {
       selectedNodes.classed('selected', function(d) { return d.selected; });
+      return true;
+    });
+  };
+
+  var updateUserInfoPanel = function(data) {
+    var selectedDataNodes = dataNodes.filter(function(d) {
+      return d.selected;
+    });
+    if (selectedDataNodes.length > 1) {
+      return;
+    }
+    d3.timer(function() {
+      if (data.focus < 0) {
+        hideUserInfoPanel();
+        return;
+      }
+      var div = d3.select('.userinfo');
+      div.style({'display': 'block'});
+      debugging && console.log(data);
+      div.select('.id_v').text(data.user.id);
+      div.select('.name_v').text(data.user.name);
+      div.select('.checkin_v').text(formatTime(data.checkInTime));
+      div.select('.checkout_v').text(formatTime(data.checkOutTime));
+      div.select('.location_v').text(d3demo.layout.locations[data.focus].name);
+      return true;
+    });
+  };
+
+  var hideUserInfoPanel = function() {
+    d3.timer(function() {
+      var div = d3.select('.userinfo');
+      div.style({'display': 'none'});
       return true;
     });
   };
@@ -259,24 +308,22 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
     }
   }
 
-  var progressPlayback, progressBuffer;
-  (function() {
-    var progress = d3.select('.progress');
-    progressPlayback = progress.select('.playback').node();
-    progressBuffer = progress.select('.buffer').node();
-  })()
+  var progress = {
+        playback: d3.select('.progress .playback').node()
+      , buffer: d3.select('.progress .buffer').node()
+  };
 
   // logging
   var clock = d3demo.playback.clockProgress.tap(function(time) {
     d3.timer(function() {
       document.getElementById('time').textContent = formatTime(time.timestamp);
-      progressPlayback.style.width = (100 * (time.minutes - d3demo.playback.START_MINUTES )/ (d3demo.playback.END_MINUTES - d3demo.playback.START_MINUTES )) + '%';
+      progress.playback.style.width = (100 * (time.minutes - d3demo.playback.START_MINUTES )/ (d3demo.playback.END_MINUTES - d3demo.playback.START_MINUTES )) + '%';
       return true;
     });
   });
 
   var buffer = d3demo.playback.bufferProgress.tap(function(minutes) {
-    progressBuffer.style.width = (100 * (minutes - d3demo.playback.START_MINUTES ) / (d3demo.playback.END_MINUTES - d3demo.playback.START_MINUTES)) + '%';
+    progress.buffer.style.width = (100 * (minutes - d3demo.playback.START_MINUTES ) / (d3demo.playback.END_MINUTES - d3demo.playback.START_MINUTES)) + '%';
   });
 
   var scans = d3demo.playback.scans.tap(function(scan) {
@@ -293,171 +340,6 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
     force.start();
   }, errorHandler);
 
-  var nodeClick = Rx.Observable.fromEvent(d3.select('.map').node(), 'click')
-    , filter = Rx.Observable.fromEvent(d3.select('#filter').node(), 'keyup')
-    , typeaheadClick = Rx.Observable.fromEvent(d3.select('.typeahead').node(), 'click')
-    ;
-
-  nodeClick.filter(function(event) {
-    return event.target && event.target.nodeName !== 'circle';
-  })
-  .subscribe(function(event) {
-    unSelectNodes();
-    hideUserInfoPanel();
-    hideComboBox();
-  });
-
-  nodeClick.filter(function(event) {
-    return event.target && event.target.nodeName === 'circle';
-  })
-  .subscribe(function(event) {
-    unSelectNodes();
-    hideComboBox();
-    var node = d3.select(event.target);
-    selectNodes(node);
-  });
-
-  var updateUserInfoPanel = function(data) {
-    var selectedDataNodes = dataNodes.filter(function(d) {
-      return d.selected;
-    });
-    if (selectedDataNodes.length > 1) {
-      return;
-    }
-    d3.timer(function() {
-      if (data.focus < 0) {
-        hideUserInfoPanel();
-        return;
-      }
-      var div = d3.select('.userinfo');
-      div.style({'display': 'block'});
-      debugging && console.log(data);
-      div.select('.id_v').text(data.user.id);
-      div.select('.name_v').text(data.user.name);
-      div.select('.checkin_v').text(formatTime(data.checkInTime));
-      div.select('.checkout_v').text(formatTime(data.checkOutTime));
-      div.select('.location_v').text(d3demo.layout.locations[data.focus].name);
-      return true;
-    });
-  };
-
-  var hideUserInfoPanel = function() {
-    d3.timer(function() {
-      var div = d3.select('.userinfo');
-      div.style({'display': 'none'});
-      return true;
-    });
-  };
-
-  filter.subscribe(function(event) {
-    if ([13, 38, 40].indexOf(event.keyCode) > -1) {
-      moveActiveOption(event);
-      return false;
-    } else {
-      var input = d3.select('#filter').node();
-      var filterValue = input.value;
-      unSelectNodes();
-      if (filterValue.length === 0) {
-        hideUserInfoPanel();
-        return;
-      }
-      var selectedNodes = nodes.filter(function(d) {
-        return d.user.name.toLowerCase().indexOf(filterValue.toLowerCase()) > -1;
-      });
-      populateComboBox(selectedNodes.data());
-      if (selectedNodes[0].length > 0) {
-        selectNodes(selectedNodes);
-      }
-    }
-  });
-
-  var populateComboBox = function(data) {
-    d3.timer(function() {
-      var typeahead = d3.select('.typeahead').style({'display': 'block'}).node();
-      while (typeahead.firstChild) {
-        typeahead.removeChild(typeahead.firstChild);
-      };
-      if (data.length <= 1) {
-        console.log(data.length);
-        var typeahead = d3.select('.typeahead').style({'display': 'none'}).node;
-      } else {
-        data.forEach(function(d) {
-          var option = document.createElement('li');
-          var link = document.createElement('a');
-          link.href="#";
-          link.textContent = d.user.name;
-          link.dataset.userid = d.user.id;
-          option.appendChild(link);
-          typeahead.insertBefore(option, typeahead.firstChild);
-        })
-      };
-      return true;
-    });
-  };
-
-  var selectOptionById = function(id) {
-    var node = nodes.filter(function(d) {
-      return d.user.id == id;
-    });
-    hideComboBox();
-    unSelectNodes();
-    selectNodes(node);
-  };
-
-  var hideComboBox = function() {
-    d3.timer(function() {
-      var typeahead = d3.select('.typeahead').style({'display': 'none'}).node;
-      while (typeahead.firstChild) {
-        typeahead.removeChild(typeahead.firstChild);
-      };
-      return true;
-    });
-  };
-
-  typeaheadClick.subscribe(function(event) {
-    var link = d3.select(event.target);
-    var id = link.node().dataset.userid;
-    selectOptionById(id);
-  });
-
-  var moveActiveOption  = function(event) {
-    var typeahead = d3.select('.typeahead');
-    var activeOption = typeahead.select('.active').node();
-    typeahead = typeahead.node();
-    if (activeOption) {
-      activeOption.className = '';
-    }
-    var nextOption;
-    switch (event.keyCode) {
-      case 38: // down
-        nextOption = activeOption ? activeOption.previousSibling : typeahead.lastChild;
-        break;
-      case 40: // up
-        nextOption = activeOption ? activeOption.nextSibling : typeahead.firstChild;
-        break;
-      case 13:
-        if (activeOption) {
-          var id = activeOption.firstChild.dataset.userid;
-          selectOptionById(id);
-        }
-        event.preventDefault();
-        break;
-    }
-    if (nextOption) {
-      nextOption.className = 'active';
-      d3.timer(function() {
-        var boxHeight = (Math.floor(typeahead.offsetHeight / typeahead.firstChild.offsetHeight) - 1) * typeahead.firstChild.offsetHeight;
-        var scrollDelta = nextOption.offsetTop - typeahead.scrollTop;
-        if (scrollDelta < 0) {
-          typeahead.scrollTop = nextOption.offsetTop - boxHeight;
-        } else if (scrollDelta > boxHeight) {
-          typeahead.scrollTop = nextOption.offsetTop;
-        }
-        return true;
-      });
-    }
-  };
-
   var formatTime = function(time) {
     if (!time) {
       return "";
@@ -471,11 +353,6 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
     var formattedTime = hours + ':' + minutes.substr(minutes.length-2) + ':' + seconds.substr(seconds.length-2);
     return formattedTime;
   }
-
-  // Returns a random integer between min included) and max (excluded)
-  var getRandomInt = function (min, max) {
-    return Math.floor(Math.random() * (max - min) + min);
-  };
 
   var errorHandler = function (err) {
     console.log(err.stack);
@@ -500,5 +377,10 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
   return {
     init: init
   , start: start
+  , unSelectNodes: unSelectNodes
+  , selectNodes: selectNodes
+  , getNodeById: getNodeById
+  , getNodesByName: getNodesByName
+  , hideUserInfoPanel: hideUserInfoPanel
   }
 })(d3, Rx);
