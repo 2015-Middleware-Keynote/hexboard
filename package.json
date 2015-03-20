@@ -6,7 +6,7 @@
   "main": "server/server.js",
   "scripts": {
     "start": "./node_modules/gulp/bin/gulp.js docker",
-    "prestart": "./node_modules/bower/bin/bower install",
+    "prestart": "./node_modules/bower/bin/bower --allow-root install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Brian Leathem",
