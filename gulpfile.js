@@ -7,4 +7,4 @@ require('./tasks/server.js')(gulp, opts);
 
 gulp.task('default', ['serve', 'less', 'connect', 'watch']);
 
-gulp.task('docker', ['serve', 'less']);
+gulp.task('docker', ['serve']);
