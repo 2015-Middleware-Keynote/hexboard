@@ -5,7 +5,7 @@
   "repository": "https://github.com/bleathem/locationforcelayout",
   "scripts": {
     "prepublish": "HOME=$OPENSHIFT_REPO_DIR ./node_modules/gulp/bin/gulp.js bower",
-    "start": "./node_modules/gulp/bin/gulp.js docker",
+    "start": "NODE_ENV='production' ./node_modules/gulp/bin/gulp.js docker",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "main": "server/server.js",
@@ -19,6 +19,8 @@
     "gulp-livereload": "^3.8.0",
     "gulp-mocha": "^2.0.0",
     "gulp-plumber": "^0.6.6",
+    "gulp-rename": "^1.2.0",
+    "gulp-template": "^3.0.0",
     "open": "0.0.5",
     "should": "^5.2.0",
     "supertest": "^0.15.0"

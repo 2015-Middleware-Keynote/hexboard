@@ -10,6 +10,6 @@ require('./tasks/server.js')(gulp, opts);
 require('./tasks/test-backend.js')(gulp, opts);
 require('./tasks/watch.js')(gulp, opts);
 
-gulp.task('default', ['serve', 'less', 'watch-client']);
+gulp.task('default', ['serve', 'config', 'less', 'watch-client']);
 
-gulp.task('docker', ['serve']);
+gulp.task('docker', ['serve', 'config']);
