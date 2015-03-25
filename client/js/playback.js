@@ -18,8 +18,8 @@ d3demo.playback = (function dataSimulator(d3, Rx) {
   };
 
   var scans = Rx.DOM.fromWebSocket(
-    // 'ws://beaconlocation-bleathemredhat.rhcloud.com:8000'
-    'ws://localhost:8080'
+    'ws://beaconlocation-bleathemredhat.rhcloud.com:8000'
+    // 'ws://localhost:8080'
   ).map(function(json) {
     return JSON.parse(json.data);
   }).filter(function(data) {
