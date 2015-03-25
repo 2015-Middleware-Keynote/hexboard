@@ -13,4 +13,7 @@ module.exports = exports = {
   getAll: function(req, res, next) {
     res.json(users);
   }
+, getUser: function(req, res, next) {
+    res.json(users[req.params.id]);
+  }
 };
