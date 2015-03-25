@@ -38,10 +38,10 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
 
     var logContainer = document.getElementById('log');
     var logContainerHeight = windowHeight - 234;
-    logContainer.style.height = logContainerHeight + 'px';
+    logContainer && (logContainer.style.height = logContainerHeight + 'px');
 
     var legend = document.querySelector('.legend');
-    legend.style.left = width -70 + 'px';
+    legend && (legend.style.left = width -70 + 'px');
   }
   sizeMap();
 

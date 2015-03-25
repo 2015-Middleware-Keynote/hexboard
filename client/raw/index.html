@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Force Layout Example 6</title>
+  <link rel="stylesheet" type="text/css" href="../css/styles.css">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <script defer src="../lib/d3/d3.js"></script>
+  <script defer src="../lib/rxjs/dist/rx.lite.js"></script>
+  <script defer src="../lib/rxjs/dist/rx.aggregates.js"></script>
+  <script defer src="../lib/rxjs/dist/rx.binding.js"></script>
+  <script defer src="../lib/rxjs/dist/rx.coincidence.js"></script>
+  <script defer src="../lib/rx-dom/dist/rx.dom.js "></script>
+  <script defer src="../js/layout.js"></script>
+  <script defer src="js/raw.js"></script>
+</head>
+
+<body>
+  <nav class="navbar navbar-default navbar-pf" role="navigation">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">
+        <img src="../img/brand.png" alt="brand" width="270" height="10">
+      </a>
+    </div>
+
+    <div class="collapse navbar-collapse navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-utility">
+        <li>
+          <a href="#" id='play' title='Run the Force Layout'>
+          <i class='fa fa-play'></i>
+          </a>
+        </li>
+        <li>
+          <a href="#" id='step' title='Increment by one minute'>
+          <i class='fa fa-step-forward'></i>
+          </a>
+        </li>
+        <li>
+          <a href="#" id='pause' title='Run the Force Layout'>
+          <i class='fa fa-pause'></i>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="collapse navbar-collapse navbar-collapse-1">
+    </div>
+  </nav>
+
+  <div class="map-container">
+
+    <div class="map">
+    </div><!-- /map -->
+
+  </div><!-- /map-container-->
+
+</body>
+
+</html>
