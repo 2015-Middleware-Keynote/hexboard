@@ -12,4 +12,4 @@ require('./tasks/watch.js')(gulp, opts);
 
 gulp.task('default', ['serve', 'less', 'watch-client']);
 
-gulp.task('docker', ['serve', 'bower']);
+gulp.task('docker', ['serve']);
