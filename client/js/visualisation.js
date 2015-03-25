@@ -96,7 +96,7 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
     });
   };
 
-  var checkInElement = (function() {
+  var checkOutElement = (function() {
     var html = '<li class="check-out">'
       + '<span class="log-action"><i class="fa fa-sign-out"></i> Check-out</span>'
       + '<span class="log-time"></span>'
@@ -110,7 +110,7 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
     return documentFragment;
   })();
 
-  var checkOutElement = (function() {
+  var checkInElement = (function() {
     var html = '<li class="check-in">'
       + '<span class="log-action"><i class="fa fa-sign-in"></i> Check-in</span>'
       + '<span class="log-time"></span>'
