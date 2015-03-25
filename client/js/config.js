@@ -2,8 +2,8 @@
 
 var d3demo = d3demo || {};
 
-d3demo.controls = {
+d3demo.config = {
     backend: {
-      ws: ws://ec2.bleathem.ca:8080
+      ws: 'ws://localhost:8080'
     }
 };

@@ -2,8 +2,8 @@
 
 var d3demo = d3demo || {};
 
-d3demo.controls = {
+d3demo.config = {
     backend: {
-      ws: <%= backend_ws %>
+      ws: '<%= backend_ws %>'
     }
 };
