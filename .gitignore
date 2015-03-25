@@ -2,3 +2,4 @@ node_modules/
 **/lib
 www/
 .sass-cache
+client/js/config.js
