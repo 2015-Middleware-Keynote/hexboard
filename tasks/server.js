@@ -21,14 +21,14 @@ module.exports = function(gulp, opts) {
       })
       .on('start', function() {
         if (started) {
-          // gutil.log('...nodemon start, reloading lr');
-          // livereload.changed('*', opts.lr);
+          gutil.log('...nodemon start, reloading lr');
+          livereload.changed('*', opts.lr);
         } else {
           gutil.log('...nodemon start');
           started = true;
-          // setTimeout(function() {
-          //     open('http://' + opts.frontend.hostname + ':' + opts.frontend.port);
-          //   }, 500);
+          setTimeout(function() {
+              open('http://' + opts.frontend.hostname + ':' + opts.frontend.port);
+            }, 500);
         }
       });
   });

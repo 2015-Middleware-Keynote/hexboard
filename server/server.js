@@ -1,10 +1,18 @@
-var WebSocketServer = require('ws').Server
-  , wss = new WebSocketServer({
-      host: process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0'
-    , port: process.env.OPENSHIFT_NODEJS_PORT || 8000 
-    })
+var app   = require('./main/app.js')
+  , http = require('http')
+  , port  = app.get('port')
+  , ip = app.get('base url')
+  , log   = 'Listening on ' + ip + ':' + port
+  , WebSocketServer = require('ws').Server
   , Rx = require('rx')
-  , data = require('./randomscans');
+  , data = require('./randomscans')
+  ;
+
+var server = http.createServer(app);
+server.listen(port, ip);
+console.log(log);
+
+var wss = new WebSocketServer({server: server});
 
 wss.on('connection', function connection(ws) {
   console.log('connection');

@@ -14,14 +14,22 @@
     "gulp": "^3.8.11",
     "gulp-connect": "^2.2.0",
     "gulp-less": "^3.0.0",
+    "gulp-livereload": "^3.8.0",
+    "gulp-mocha": "^2.0.0",
     "gulp-plumber": "^0.6.6",
-    "open": "0.0.5"
+    "open": "0.0.5",
+    "should": "^5.2.0",
+    "supertest": "^0.15.0"
   },
   "dependencies": {
+    "body-parser": "^1.12.2",
+    "express": "^4.12.3",
     "gulp-nodemon": "^1.0.5",
     "gulp-util": "^3.0.4",
+    "morgan": "^1.5.2",
     "open": "0.0.5",
     "rx": "^2.4.1",
+    "underscore": "^1.8.2",
     "ws": "^0.7.1"
   }
 }
