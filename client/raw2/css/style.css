@@ -1,0 +1,25 @@
+body {
+  margin: 0;
+  min-width: 960px;
+}
+
+rect {
+  fill: none;
+  pointer-events: all;
+}
+
+circle {
+  fill: none;
+  stroke-width: 2.5px;
+}
+
+.node {
+    fill: #ccc;
+    stroke: #fff;
+    stroke-width: 2px;
+}
+
+.anchorNode text {
+  font-family: Arial;
+  font-size: 30px;
+}

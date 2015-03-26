@@ -31,8 +31,10 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
       location.y = location.y_i * scale;
     });
 
-    mapContainer.style.height = height + 'px';
-    mapContainer.style.width = width + 'px';
+    if (mapContainer) {
+      mapContainer.style.height = height + 'px';
+      mapContainer.style.width = width + 'px';
+    };
 
 //    document.querySelector('.progress').style.width = width - 100 + 'px';
 

@@ -7,8 +7,6 @@ d3demo.forcemap = (function visualisation(d3, Rx) {
   var width = d3demo.layout.width
     , height = d3demo.layout.height;
 
-  var animationStep = 400;
-
   var force = null
     , nodes = null
     , dataNodes
