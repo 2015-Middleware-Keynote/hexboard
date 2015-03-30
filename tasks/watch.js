@@ -11,10 +11,15 @@ module.exports = function(gulp, opts) {
     gutil.log('Livereload tiny-lr started listeining on port:' + opts.lrPort);
   });
 
-  gulp.task('watch-client', ['livereload-start'], function() {
-    var scriptSource = 'client/**/*.*';
+  gulp.task('watch-client', ['livereload-start', 'watch-less'], function() {
+    var scriptSource = 'client/**/*.{html,js,css}';
     gulp.watch(scriptSource, function(event) {
       livereload.changed(event.path, opts.lr);
     });
-  })
+  });
+
+  gulp.task('watch-less', function() {
+    var scriptSource = gulp.src([]);
+    gulp.watch('client/**/*.less', ['less']);
+  });
 };
