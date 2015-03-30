@@ -5327,15 +5327,18 @@ h2,
 }
 .map-inset {
   background: #fff;
-  border: 1px dotted #222;
-  border-radius: 80px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid #222;
+  border-left: 1px solid #222;
+  border-radius: 0 0 0 0px;
+  box-shadow: -15px 15px 0px rgba(0, 0, 0, 0.5);
   position: absolute;
-  right: 10px;
+  right: 0px;
   width: 160px;
   height: 160px;
   text-align: center;
-  top: 10px;
+  top: 0px;
+  text-transform: uppercase;
+  font-size: 10px;
 }
 .map svg {
   display: block;
