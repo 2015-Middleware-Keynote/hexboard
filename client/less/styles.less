@@ -308,9 +308,20 @@
   background-repeat: no-repeat;
   background-size: contain;
   background-position: left top;
-  background-color: #eae6dd; // @gray-lighter
+  background-color: #eae6dd;
+  position: relative;
+}
 
-//  margin-right: 10px;
+.map-inset{
+  background: #fff;
+  border: 1px dotted #222;
+  border-radius: 80px;
+  box-shadow: 0 0 10px rgba(0,0,0,.5);
+  position: absolute;
+  right: 10px;
+  .square(160px);  
+  text-align: center;
+  top: 10px;
 }
 
 .map svg {
@@ -333,6 +344,8 @@
   stroke:rgba(0,0,0,.5);
   stroke-width: 5px;
 }
+
+
 
 // progress bar ==========================
 
