@@ -12,6 +12,7 @@ var locations = [
 , { id: 8, x_i: 870, y_i: 1170, name: 'Room 202 DEVNATION Track'}
 , { id: 9, x_i: 1070, y_i: 1170, name: 'Room 203 DEVNATION Track'}
 , { id: 10, x_i: 1250, y_i: 1170, name: 'Room 204 DEVNATION Track'}
+, { id: 11, x_i: 1800, y_i: 150, name: 'Ballroom A 3rd floor'}
 ];
 
 module.exports = exports = {
@@ -21,4 +22,5 @@ module.exports = exports = {
 , getLocation: function(req, res, next) {
     res.json(locations[req.params.id]);
   }
+, locations: locations
 };

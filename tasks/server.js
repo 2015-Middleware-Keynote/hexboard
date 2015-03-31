@@ -2,7 +2,7 @@
 
 var nodemon = require('gulp-nodemon')
   , open    = require('open')
-  // , livereload = require('gulp-livereload')
+  , livereload = require('gulp-livereload')
   , gutil      = require('gulp-util')
   ;
 

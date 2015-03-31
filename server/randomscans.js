@@ -1,20 +1,8 @@
 'use strict';
 
-var Rx = require('rx');
-
-var locations = [
-  { id: 0, name: 'Entrance'}
-, { id: 1, name: 'General Sessions'}
-, { id: 2, name: 'Lunch 1'}
-, { id: 3, name: 'Lunch 2'}
-, { id: 4, name: 'Red Hat Booth 1'}
-, { id: 5, name: 'Red Hat Booth 2'}
-, { id: 6, name: 'Room 200 DV Lounge and Hackathons'}
-, { id: 7, name: 'Room 201 DEVNATION Track'}
-, { id: 8, name: 'Room 202 DEVNATION Track'}
-, { id: 9, name: 'Room 203 DEVNATION Track'}
-, { id: 10, name: 'Room 204 DEVNATION Track'}
-];
+var Rx = require('rx')
+  , locations = require('./api/location/location_controllers').locations
+  ;
 
 var GENERAL_SESSIONS_ID = 1
   , ENTRANCE_ID = 0
@@ -47,7 +35,7 @@ for (var i = 0; i < 200; i++) {
   });
 };
 
-var locationWeights = [4, 0, 0, 0, 30, 80, 30, 20, 50, 50, 35];
+var locationWeights = [4, 0, 0, 0, 30, 80, 30, 20, 50, 50, 35, 35];
 var getLocationWeight = function(location, minutes) {
   if (location.id === GENERAL_SESSIONS_ID && KEYNOTE_1_START_MINUTES - 10 <= minutes && minutes <= KEYNOTE_1_START_MINUTES + 10) {
     return 6000;
