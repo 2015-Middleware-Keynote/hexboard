@@ -19,6 +19,15 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   , { id: 11, x_i: 1800, y_i: 150, name: 'Ballroom A 3rd floor'}
   ];
 
+  var users = [];
+  // initialize the users
+  for (var i = 0; i < 200; i++) {
+    users.push({
+      id: i
+    , name: i === 13 ? 'Burr Sutter' : 'Firstname' + i + ' Lastname' + i
+    });
+  };
+
   // Dynamically size the map and other elements to fill the screen
   var sizeMap = function(event) {
     var mapContainer = document.querySelector('.map');
@@ -59,5 +68,6 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     width: width
   , height: height
   , locations: locations
+  , users: users
   }
 })(d3, Rx);

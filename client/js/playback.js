@@ -6,16 +6,8 @@ d3demo.playback = (function dataSimulator(d3, Rx) {
   var START_MINUTES = 7*60 + 50
     , END_MINUTES = 18*60;
 
-  var EVENT_DATE = new Date('2015-06-23').getTime() + 7 * 60 * 60 * 1000;
-
-  var users = [];
-  // initialize the users
-  for (var i = 0; i < 200; i++) {
-    users.push({
-      id: i
-    , name: i === 13 ? 'Burr Sutter' : 'Firstname' + i + ' Lastname' + i
-    });
-  };
+  // var EVENT_DATE = new Date('2015-06-23').getTime() + 7 * 60 * 60 * 1000;
+  var EVENT_DATE = new Date('2015-03-11').getTime();
 
   var scans = Rx.DOM.fromWebSocket(d3demo.config.backend.ws)
   .map(function(json) {
@@ -93,7 +85,6 @@ d3demo.playback = (function dataSimulator(d3, Rx) {
     eventTimeStamp: EVENT_DATE + START_MINUTES * 60 * 1000
   , START_MINUTES: START_MINUTES
   , END_MINUTES: END_MINUTES
-  , users: users
   , init: init
   , pause: pause
   , resume: resume

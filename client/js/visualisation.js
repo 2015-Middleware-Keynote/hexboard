@@ -170,32 +170,40 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
       , buffer: d3.select('.progress .buffer').node()
   };
 
-  // logging
-  var clock = d3demo.playback.clockProgress.tap(function(time) {
-    d3.timer(function() {
-      document.getElementById('time').textContent = formatTime(time.timestamp);
-      progress.playback.style.width = (100 * (time.minutes - d3demo.playback.START_MINUTES )/ (d3demo.playback.END_MINUTES - d3demo.playback.START_MINUTES )) + '%';
-      return true;
-    });
-  });
+  var clock, buffer, scans;
+  var tap = function(scansStream, clockStream, bufferStream) {
 
-  var buffer = d3demo.playback.bufferProgress.tap(function(minutes) {
-    progress.buffer.style.width = (100 * (minutes - d3demo.playback.START_MINUTES ) / (d3demo.playback.END_MINUTES - d3demo.playback.START_MINUTES)) + '%';
-  });
+    if (clockStream) {
+      clock = clockStream.tap(function(time) {
+        d3.timer(function() {
+          document.getElementById('time').textContent = formatTime(time.timestamp);
+          progress.playback.style.width = (100 * (time.minutes - d3demo.playback.START_MINUTES )/ (d3demo.playback.END_MINUTES - d3demo.playback.START_MINUTES )) + '%';
+          return true;
+        });
+      });
+    };
 
-  var scans = d3demo.playback.scans.tap(function(scan) {
-    logScan(scan);
-    if (scan.type === 'check-in') {
-      checkinNode(scan);
-    } else {
-      if (scan.location.id !== 0) {
-        checkoutNode(scan);
+    if (bufferStream) {
+      buffer = bufferStream.tap(function(minutes) {
+        progress.buffer.style.width = (100 * (minutes - d3demo.playback.START_MINUTES ) / (d3demo.playback.END_MINUTES - d3demo.playback.START_MINUTES)) + '%';
+      });
+    };
+
+    scans = scansStream.tap(function(scan) {
+      logScan(scan);
+      if (scan.type === 'check-in') {
+        checkinNode(scan);
       } else {
-        removeNode(scan);
+        if (scan.location.id !== 0) {
+          checkoutNode(scan);
+        } else {
+          removeNode(scan);
+        }
       }
-    }
-    d3demo.forcemap.start();
-  }, errorHandler);
+      d3demo.forcemap.start();
+    }, errorHandler);
+
+  };
 
   var formatTime = function(time) {
     if (!time) {
@@ -215,7 +223,8 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
     console.log(err.stack);
   };
 
-  var start = function() {
+  var playback = function() {
+    tap(d3demo.playback.scans, d3demo.playback.clockProgress, d3demo.playback.bufferProgress);
     d3demo.forcemap.start();
 
     scans.subscribeOnError(errorHandler);
@@ -225,10 +234,24 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
     Rx.Observable.timer(1000).subscribe(function() {
       d3demo.playback.resume();
     })
+  };
+
+  var live = function() {
+    console.log(d3demo);
+    tap(d3demo.stomp.scans);
+    d3demo.forcemap.start();
+
+    scans.subscribeOnError(errorHandler);
+  };
+
+  var start = function() {
+    // playback();
+    live();
   }
 
   return {
-    start: start
+    live: live
+  , playback: playback
   , unSelectNodes: unSelectNodes
   , selectNodes: selectNodes
   , hideUserInfoPanel: hideUserInfoPanel

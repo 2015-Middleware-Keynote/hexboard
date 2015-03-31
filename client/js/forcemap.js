@@ -42,7 +42,7 @@ d3demo.forcemap = (function visualisation(d3, Rx) {
 
     // define the data
     dataNodes = [];
-    d3demo.playback.users.forEach(function(user) {
+    d3demo.layout.users.forEach(function(user) {
       var x = getRandomInt(foci[0].x - 10, foci[0].x + 10)
         , y = getRandomInt(height+50, height + 300);
       // x = 200, y= 200;

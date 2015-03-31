@@ -7,7 +7,12 @@ var d3demo = d3demo || {};
     d3demo.playback.init();
     d3demo.forcemap.init();
 
-    d3demo.visualisation.start();
+    if (d3demo.live) {
+      d3demo.visualisation.live();
+    } else {
+      d3demo.visualisation.playback();
+    }
+
   };
 
   run();
