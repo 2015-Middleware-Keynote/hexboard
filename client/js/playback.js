@@ -9,7 +9,7 @@ d3demo.playback = (function dataSimulator(d3, Rx) {
   // var EVENT_DATE = new Date('2015-06-23').getTime() + 7 * 60 * 60 * 1000;
   var EVENT_DATE = new Date('2015-03-11').getTime();
 
-  var scans = Rx.DOM.fromWebSocket(d3demo.config.backend.ws)
+  var scans = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/random')
   .map(function(json) {
     return JSON.parse(json.data);
   }).filter(function(data) {

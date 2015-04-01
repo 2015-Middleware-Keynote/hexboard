@@ -237,7 +237,6 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
   };
 
   var live = function() {
-    console.log(d3demo);
     tap(d3demo.stomp.scans);
     d3demo.forcemap.start();
 
