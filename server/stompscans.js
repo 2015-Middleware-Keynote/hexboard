@@ -63,8 +63,17 @@ var live = Rx.Observable.create(function (observer) {
         case 'Room202':
           location = 8;
           break;
+        case 'Room203':
+          location = 9;
+          break;
         case 'Room204':
           location = 10;
+          break;
+        case 'Room205':
+          location = 11;
+          break;
+        case 'Room206':
+          location = 6;
           break;
         default:
           location = 0;
