@@ -23,15 +23,13 @@ hex = (function dataSimulator(d3, Rx) {
   }
 
   var hexagonsPerRow = 38;
-  var randomX = d3.random.normal(width / 2, 80),
-      randomY = d3.random.normal(height / 2, 80),
-      points = d3.range(1026).map(function(currentValue, index) {
+  var points = d3.range(1026).map(function(currentValue, index) {
         var x_i =  (index % hexagonsPerRow) + 1
           , y_i = (Math.floor(index / hexagonsPerRow)) + 1;
         if (y_i % 2 !== 0) {
           x_i = x_i + 0.5
         }
-        return {x: 31 * x_i, y: 27 * y_i};
+        return {x: 31 * x_i, y: 27 * y_i, stage: 0};
       });
 
   console.log(points.length);
@@ -65,25 +63,29 @@ hex = (function dataSimulator(d3, Rx) {
       .style("fill", function(d) { return color(2); });
 
   function particle(p) {
-    var p0 = {x: getRandomInt(1, width), y: getRandomInt(1, height)};
-    var s = 0.1;
+    var c = {x: width / 2, y: height / 2};
+    var p0 = {x: 2 * (p.x - c.x) + c.x, y: 2 * (p.y - c.y) + c.y};
+    var s = 0.15;
+    var dur = 800;
+    p.stage++;
+    var newColor = color(p.stage * 5);
     svg.insert("path")
       .attr("class", "hexagon")
       .attr("d", "m" + hexagon(18/s).join("l") + "z")
       .attr("transform", function(d) { return "translate(" + p0.x + "," + p0.y + ")"; })
-      .style("fill", function(d) { return color(20); })
+      .style("fill", function(d) { return newColor; })
       .style('fill-opacity', .2)
     .transition()
-      .duration(1000)
+      .duration(dur)
       .ease('quad-out')
       .attr('transform', 'matrix('+s+', 0, 0, '+s+', '+ p.x +', '+ p.y +')')
       .style('fill-opacity', 1)
       .remove();
     hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
       .transition()
-      .duration(1000)
+      .duration(dur)
       .ease('quad-in')
-      .style("fill", function(d) { return color(20); })
+      .style("fill", function(d) { return  newColor; })
   };
 
   // Returns a random integer between min included) and max (excluded)
@@ -91,7 +93,7 @@ hex = (function dataSimulator(d3, Rx) {
     return Math.floor(Math.random() * (max - min) + min);
   };
 
-  Rx.Observable.interval(25).map(function() {
+  Rx.Observable.interval(10).map(function() {
     var point = points[getRandomInt(0, points.length)];
     try {
       particle(point);
