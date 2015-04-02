@@ -32,6 +32,10 @@ var getUser = function(id) {
   return users[index];
 }
 
+var queue = process.env.NODE_ENV === 'production'
+            ? '/queue/replay_processed'
+            : '/queue/replay_processed_dev'
+
 var live = Rx.Observable.create(function (observer) {
   console.log(new Date());
   console.log('Connecting...');
@@ -52,8 +56,8 @@ var live = Rx.Observable.create(function (observer) {
 .retry()
 .flatMap(function(client) {
   return Rx.Observable.create(function (observer) {
-    console.log('Subscribing...');
-    client.subscribe('/queue/replay_processed', function(message) {
+    console.log('Subscribing to ' + queue + '...');
+    client.subscribe(queue, function(message) {
       message.ack();
       var location;
       switch(message.headers.location_id) {
