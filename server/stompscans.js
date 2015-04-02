@@ -90,6 +90,9 @@ var live = Rx.Observable.create(function (observer) {
       , type: 'check-in'
       , timestamp: message.headers.timestamp * 1000
       }
+      if (process.env.DEBUG) {
+        console.log('Event | user: ', event.user.name, 'location: ', event.location.name);
+      };
       observer.onNext(event);
       return function() {
         client.disconnect(function() {
