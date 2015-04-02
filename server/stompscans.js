@@ -103,7 +103,7 @@ var live = Rx.Observable.create(function (observer) {
     , {'ack': 'client'}
     )
   })
-});
+}).share();
 
 var subject = new Rx.Subject();
 live.subscribe(subject);
