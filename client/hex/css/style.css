@@ -1,3 +1,8 @@
+body {
+  margin: 0;
+  transform: transale3d(0,0,0);
+}
+
 .axis text {
   font: 10px sans-serif;
 }
