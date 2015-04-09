@@ -9,12 +9,12 @@ var nodemon = require('gulp-nodemon')
 var started = false;
 
 module.exports = function(gulp, opts) {
-  gulp.task('serve', function () {
+  gulp.task('node-start', function () {
     nodemon({
-      script: 'server/server.js',
-      ignore: ['**/node_modules/**/*.js'],
-      watch: ['server'],
-      nodeArgs: ['--debug']
+        script: 'server/server.js'
+      , ignore: ['**/node_modules/**/*.js']
+      , watch: ['server']
+      // , nodeArgs: ['--debug']
       })
       .on('restart', function () {
         gutil.log('...nodemon restart');

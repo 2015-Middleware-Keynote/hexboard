@@ -21,6 +21,7 @@
     "gulp-plumber": "^0.6.6",
     "gulp-rename": "^1.2.0",
     "gulp-template": "^3.0.0",
+    "node-inspector": "^0.9.2",
     "open": "0.0.5",
     "should": "^5.2.0",
     "supertest": "^0.15.0"
