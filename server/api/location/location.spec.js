@@ -13,7 +13,7 @@ describe('Rest API:', function () {
       request(app).get('/api/locations')
         .expect(200)
         .end(function (err, res) {
-          res.body.length.should.be.equal(11);
+          res.body.length.should.be.equal(12);
           res.body[0].name.should.be.equal('Entrance');
           done();
         });
