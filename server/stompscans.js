@@ -6,10 +6,6 @@ var Rx = require('rx')
   , WebSocket = require('ws')
   ;
 
-WebSocket.prototype.onerror = function(e) {
-    throw e
-};
-
 var idMap = {};
 var lastIndex = 0;
 
@@ -50,6 +46,7 @@ var live = Rx.Observable.create(function (observer) {
     console.log(frame.toString());
     observer.onNext(client);
   }, function(error) {
+    console.error(error);
     observer.onError(new Error(error));
   });
 })
