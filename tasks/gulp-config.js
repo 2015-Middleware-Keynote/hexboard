@@ -14,14 +14,10 @@ var opts = {
 , lrPort: 35729
 , frontend: {
     hostname: 'localhost'
-  , port: '9000'
+  , port: process.env.PORT || '9000'
   }
 , backend: {
-    ws: process.env.NODE_ENV === 'production'
-        ? process.env.OPENSHIFT_NODEJS_IP
-          ? 'ws://beaconlocation-bleathemredhat.rhcloud.com:8000'
-          : 'ws://ec2.bleathem.ca:8080'
-        : 'ws://localhost:9000'
+    ws: process.env.WS_HOST || 'ws://localhost:9000'
   }
 };
 

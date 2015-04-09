@@ -1,8 +1,11 @@
-var gulp = require('gulp');
+var gulp = require('gulp')
+  , env = require('node-env-file')
+  ;
 
-var opts = {};
+var envFile = process.env.NODE_ENV === 'production' ? 'production.env' : 'development.env';
+env(__dirname + '/env/' + envFile);
 
-var opts = require('./tasks/gulp-config.js')(gulp, {});;
+var opts = require('./tasks/gulp-config.js')(gulp, {});
 
 require('./tasks/bower.js')(gulp, opts);
 require('./tasks/styles.js')(gulp, opts);
