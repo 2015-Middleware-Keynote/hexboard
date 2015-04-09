@@ -10,6 +10,7 @@ var opts = {
     server: {
       specs: 'server/**/*.spec.js'
     }
+  , data: process.cwd() + '/data'
   }
 , lrPort: 35729
 , frontend: {

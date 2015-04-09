@@ -4,3 +4,4 @@ www/
 .sass-cache
 client/js/config.js
 .DS_Store
+data/
