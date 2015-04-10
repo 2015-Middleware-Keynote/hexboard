@@ -6,7 +6,6 @@ var morgan      = require('morgan')
  ,  mongoose    = require('mongoose')
  ;
 
-console.log('DB_URL', process.env.DB_URL);
 mongoose.connect(process.env.DB_URL || 'mongodb://localhost/beaconlocation');
 
 module.exports = exports = function (app, express, routers) {
