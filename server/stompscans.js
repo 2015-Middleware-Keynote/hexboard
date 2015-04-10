@@ -29,7 +29,7 @@ var getUser = function(id) {
 }
 
 var queue = process.env.NODE_ENV === 'production'
-            ? '/queue/replay_processed'
+            ? '/topic/replay_processed'
             : '/topic/replay_processed_dev';
 
 var live = Rx.Observable.create(function (observer) {
