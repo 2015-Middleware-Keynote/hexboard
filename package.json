@@ -4,7 +4,7 @@
   "description": "A D3/Rx.JS example",
   "repository": "https://github.com/bleathem/locationforcelayout",
   "scripts": {
-    "prepublish": "HOME=$OPENSHIFT_REPO_DIR ./node_modules/gulp/bin/gulp.js bower; NODE_ENV='production' ./node_modules/gulp/bin/gulp.js config",
+    "prepublish": "source ${OPENSHIFT_REPO_DIR}/env/production.env; HOME=$OPENSHIFT_REPO_DIR ./node_modules/gulp/bin/gulp.js bower; NODE_ENV='production' ./node_modules/gulp/bin/gulp.js config",
     "start": "NODE_ENV='production' ./node_modules/gulp/bin/gulp.js docker",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
