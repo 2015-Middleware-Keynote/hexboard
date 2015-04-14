@@ -37,7 +37,7 @@ var live = Rx.Observable.create(function (observer) {
   console.log(new Date());
   console.log('Connecting...');
   var client = Stomp.overWS('ws://52.10.252.216:61614', ['v12.stomp']);
-  client.heartbeat = {outgoing: 0, incoming: 0}; // a workaround for the failing heart-beat
+  // client.heartbeat = {outgoing: 0, incoming: 0}; // a workaround for the failing heart-beat
   client.debug = undefined;
   // client.debug = function(m) {
   //   console.log(new Date());
