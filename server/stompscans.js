@@ -50,7 +50,9 @@ var live = Rx.Observable.create(function (observer) {
     observer.onError(new Error(error));
   });
 })
-.retry()
+.retryWhen(function(errors) {
+  return errors.delay(2000);
+})
 .flatMap(function(client) {
   return Rx.Observable.create(function (observer) {
     console.log('Subscribing to ' + queue + '...');
