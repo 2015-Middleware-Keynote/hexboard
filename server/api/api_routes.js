@@ -9,7 +9,8 @@ module.exports = exports = function (router) {
   router.route('/users').get(userController.getAll);
   router.route('/user/:id').get(userController.getUser);
 
-  router.route('/scans/:beaconId').get(scanController.getScans);
+  router.route('/scan/:id').get(scanController.getScan);
+  router.route('/scans/:beaconId/:limit?').get(scanController.getScans);
 
   router.route('/locations').get(locationController.getAll);
   router.route('/location/:id').get(locationController.getLocation);

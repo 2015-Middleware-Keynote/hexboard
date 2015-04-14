@@ -8,6 +8,7 @@ var request = require('supertest')
   , Scan = require('./scan_model')
   , mongoose = require('mongoose')
   , should = require('should')
+  , _ = require('underscore')
   ;
 
 // mongoose.set('debug', true);
@@ -18,7 +19,7 @@ function clearDB(done) {
     });
   }
   return done();
-}
+};
 
 var testUser = {
   firstName: 'John'
@@ -43,9 +44,25 @@ var testScan = {
 , timestamp: now
 }
 
+var testScanId;
+
+function populateDb(done) {
+  var scans = [];
+  for (var i = 1; i < 100; i++) {
+    var loopScan = _.extend({}, testScan);
+    loopScan.timestamp = now + i;
+    scans.push(loopScan);
+  }
+  Scan.create(scans, function(err) {
+    done();
+  })
+};
+
 describe('DB Operations:', function() {
   before(function (done) {
-    return clearDB(done);
+    return clearDB(function() {
+      populateDb(done);
+    });
   });
   describe('scan', function() {
     it('create', function() {
@@ -57,13 +74,13 @@ describe('DB Operations:', function() {
         createdScan.created.getTime().should.be.greaterThan(now);
       });
     });
-    it('find', function() {
+    it('find all', function() {
       return Scan.find({
         beaconId: testScan.beaconId
       })
       .exec().then(function (scans) {
-        (scans).should.have.length(1);
-        var foundScan = scans[0];
+        (scans).should.have.length(100);
+        var foundScan = scans[99];
         foundScan.beaconId.should.equal(testScan.beaconId);
         foundScan.location.should.equal(testScan.location);
         foundScan.type.should.equal(testScan.type);
@@ -73,22 +90,61 @@ describe('DB Operations:', function() {
         throw new Error(reason);
       });
     });
+    it('find latest 10', function() {
+      return Scan.find({
+        beaconId: testScan.beaconId
+      }, null, {
+        skip: 0,
+        limit: 10,
+        sort:{
+          timestamp: -1 //Sort by Date Added DESC
+        }
+      })
+      .exec().then(function (scans) {
+        (scans).should.have.length(10);
+        scans[0].timestamp.getTime().should.equal(testScan.timestamp + 99);
+        scans[1].timestamp.getTime().should.equal(testScan.timestamp + 98);
+      }, function (reason) {
+        throw new Error(reason);
+      });
+    });
   });
 });
 
 describe('Rest API:', function () {
   describe('GET /scan', function () {
-    it('get a scan', function (done) {
+    it('get all scans', function (done) {
       request(app).get('/api/scans/[0,1]')
         .expect(200)
         .end(function (err, res) {
-          res.body.should.have.length(1);
-          var foundScan = res.body[0];
+          res.body.should.have.length(100);
+          var foundScan = res.body[99];
           foundScan.beaconId.should.equal(testScan.beaconId);
           foundScan.location.should.equal(testScan.location);
           foundScan.type.should.equal(testScan.type);
           new Date(foundScan.timestamp).getTime().should.equal(testScan.timestamp);
           new Date(foundScan.created).getTime().should.be.greaterThan(now);
+          done();
+        });
+    });
+    it('get 10 latest scans', function (done) {
+      request(app).get('/api/scans/[0,1]/10')
+        .expect(200)
+        .end(function (err, res) {
+          res.body.should.have.length(10);
+          var scans = res.body;
+          new Date(scans[0].timestamp).getTime().should.equal(testScan.timestamp + 99);
+          new Date(scans[1].timestamp).getTime().should.equal(testScan.timestamp + 98);
+          testScanId = scans[0]['_id']; // store the id for the next test :-P
+          done();
+        });
+    });
+    it('get scan by id', function (done) {
+      request(app).get('/api/scan/' + testScanId)
+        .expect(200)
+        .end(function (err, res) {
+          var scan = res.body;
+          new Date(scan.timestamp).getTime().should.equal(testScan.timestamp + 99);
           done();
         });
     });

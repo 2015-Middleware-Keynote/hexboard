@@ -35,7 +35,7 @@
     "node-env-file": "^0.1.7",
     "rx": "^2.4.1",
     "stompjs": "^2.3.3",
-    "underscore": "^1.8.2",
+    "underscore": "^1.8.3",
     "ws": "^0.7.1"
   }
 }

@@ -67,7 +67,8 @@ var saveScan = function(scan) {
   , timestamp: scan.timestamp
   }).then(function (createdScan) {
     // console.log('Saved scan for beacon: ', createdScan.beaconId);
-    process.stdout.write('.');
+    // process.stdout.write('.');
+    return;
   }, function(error) {
     console.log('Error saving scan: ', error);
   });
