@@ -1,0 +1,3 @@
+source ${OPENSHIFT_REPO_DIR}/env/production.env;
+HOME=$OPENSHIFT_REPO_DIR ./node_modules/gulp/bin/gulp.js bower;
+NODE_ENV='production' ./node_modules/gulp/bin/gulp.js config;
