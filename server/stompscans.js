@@ -2,6 +2,7 @@
 
 var Rx = require('rx')
   , locations = require('./api/location/location_controllers').locations
+  , locationHashMap = require('./api/location/location_controllers').locationHashMap
   , Stomp = require('stompjs')
   , WebSocket = require('ws')
   ;
@@ -61,31 +62,26 @@ var live = Rx.Observable.create(function (observer) {
       var location;
       switch(message.headers.location_id) {
         case 'Room201':
-          location = 7;
-          break;
         case 'Room202':
-          location = 8;
-          break;
         case 'Room203':
-          location = 9;
-          break;
         case 'Room204':
-          location = 10;
+          location = locationHashMap[message.headers.location_id];
           break;
         case 'Room205':
-          location = 11;
+          location = locationHashMap['Ballroom'];
           break;
         case 'Room206':
-          location = 6;
+          location = locationHashMap['Room200'];
           break;
         default:
-          location = 0;
+          location = locationHashMap['Entrance'];
       }
       var id = JSON.parse(message.headers.user_id);
       var user = id[0]*10 + id[1];
       var event = {
         user: getUser(id)
-      , location: locations[location]
+      , beaconId: message.headers.user_id
+      , location: location
       , type: 'check-in'
       , timestamp: message.headers.timestamp * 1000
       }

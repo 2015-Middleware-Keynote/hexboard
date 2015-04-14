@@ -7,6 +7,7 @@ var app   = require('./main/app.js')
   , Rx = require('rx')
   , data = require('./randomscans')
   , stomp = require('./stompscans')
+  , Scan = require('./api/scan/scan_model')
   ;
 
 var server = http.createServer(app);
@@ -58,7 +59,22 @@ wssLive.on('connection', function connection(wsLive) {
   console.log('Peer #' + id + ' connected to /live.');
 });
 
+var saveScan = function(scan) {
+  Scan.create({
+    beaconId: scan.beaconId
+  , location: scan.location.code
+  , type: scan.type
+  , timestamp: scan.timestamp
+  }).then(function (createdScan) {
+    // console.log('Saved scan for beacon: ', createdScan.beaconId);
+    process.stdout.write('.');
+  }, function(error) {
+    console.log('Error saving scan: ', error);
+  });
+}
+
 stomp.scans.subscribe(function(scan) {
   // console.log('user', scan.user.name, 'location', scan.location.name);
+  saveScan(scan);
   wssLive.broadcast(JSON.stringify({type: 'scan', data: scan}));
 });
