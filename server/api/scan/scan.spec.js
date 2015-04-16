@@ -132,7 +132,7 @@ describe('Rest API:', function () {
         });
     });
     it('get 10 latest scans', function (done) {
-      request(app).get('/api/scans/1/10')
+      request(app).get('/api/scans/1/limit/10')
         .expect(200)
         .end(function (err, res) {
           res.body.should.have.length(10);
