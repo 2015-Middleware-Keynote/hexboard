@@ -24,7 +24,7 @@ function clearDB(done) {
 var testUser = {
   firstName: 'John'
 , lastName: 'Doe'
-, beaconId: '[0,1]'
+, beaconId: '1'
 }
 
 var testLocation = {
@@ -38,7 +38,7 @@ var testLocation = {
 var now = new Date().getTime();
 
 var testScan = {
-  beaconId: '[0,1]'
+  beaconId: '1'
 , location: testLocation.code
 , type: 'check-in'
 , timestamp: now
@@ -77,6 +77,10 @@ describe('DB Operations:', function() {
     it('find all', function() {
       return Scan.find({
         beaconId: testScan.beaconId
+      }, null, {
+        sort:{
+          timestamp: -1 //Sort by timestamp DESC
+        }
       })
       .exec().then(function (scans) {
         (scans).should.have.length(100);
@@ -114,7 +118,7 @@ describe('DB Operations:', function() {
 describe('Rest API:', function () {
   describe('GET /scan', function () {
     it('get all scans', function (done) {
-      request(app).get('/api/scans/[0,1]')
+      request(app).get('/api/scans/1')
         .expect(200)
         .end(function (err, res) {
           res.body.should.have.length(100);
@@ -128,7 +132,7 @@ describe('Rest API:', function () {
         });
     });
     it('get 10 latest scans', function (done) {
-      request(app).get('/api/scans/[0,1]/10')
+      request(app).get('/api/scans/1/10')
         .expect(200)
         .end(function (err, res) {
           res.body.should.have.length(10);

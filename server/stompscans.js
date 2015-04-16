@@ -19,8 +19,7 @@ for (var i = 0; i < 200; i++) {
   });
 };
 
-var getUser = function(id) {
-  var idInt = id[0]*100000 + id[1];
+var getUser = function(idInt) {
   if (! (idInt in idMap)) {
     idMap[idInt] = lastIndex;
     lastIndex++;
