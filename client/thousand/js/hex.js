@@ -54,7 +54,7 @@ hex = (function dataSimulator(d3, Rx) {
         }
         var x = honeycomb.spacing.x * x_i;
         var y = honeycomb.spacing.y * y_i;
-        return {x: x, y: y, stage: 0};
+        return {id: index, x: x, y: y, stage: 0};
       });
 
   console.log(points.length);
@@ -70,6 +70,8 @@ hex = (function dataSimulator(d3, Rx) {
     .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
       ;
+
+  var defs = svg.append('defs');
 
   svg.append('clipPath')
       .attr('id', 'clip')
@@ -116,20 +118,83 @@ hex = (function dataSimulator(d3, Rx) {
       .style('fill', function(d) { return  newColor; })
   };
 
+  function image(img, p) {
+    var c = {x: width / 2, y: height / 2};
+    var perspective = 1.5
+      , duration = 1000
+      , scale = 0.2
+      , opacity = { initial: 0.01, final: 0.9};
+    var p0 = {x: perspective * (p.x - c.x) + c.x, y: perspective * (p.y - c.y) + c.y};
+    p.stage++;
+
+    var imgsize = (size * 2) / scale;
+    defs.append('pattern')
+      .attr('id', 'big_img' + p.id)
+      .attr('patternUnits', 'userSpaceOnUse')
+      .attr('width', imgsize)
+      .attr('height', imgsize)
+      .attr('x', imgsize/2)
+      .attr('y', imgsize/2)
+    .append('image')
+      .attr('xlink:href', 'doodles/' + img)
+      .attr('width', imgsize)
+      .attr('height', imgsize)
+      .attr('x', 0)
+      .attr('y', 0);
+
+    p.doodle = defs.append('pattern')
+      .attr('id', 'img' + p.id)
+      .attr('patternUnits', 'userSpaceOnUse')
+      .attr('width', size*2)
+      .attr('height', size*2)
+      .attr('x', size)
+      .attr('y', size)
+    .append('image')
+      .attr('xlink:href', 'doodles/' + img)
+      .attr('width', size*2)
+      .attr('height', size*2)
+      .attr('x', 0)
+      .attr('y', 0);
+
+    svg.insert('path')
+      .attr('class', 'hexagon')
+      .attr('d', 'm' + hexagon(size/scale).join('l') + 'z')
+      .attr('transform', function(d) { return 'translate(' + p0.x + ',' + p0.y + ')'; })
+      .attr('fill', 'url(#big_img' + p.id + ')')
+    .transition()
+      .duration(duration)
+      .ease('quad-out')
+      .attr('transform', 'matrix('+scale+', 0, 0, '+scale+', '+ p.x +', '+ p.y +')')
+      .style('fill-opacity', opacity.final)
+      .remove();
+    hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
+      .transition()
+      .duration(duration)
+      .ease('quad-in')
+      .style('fill', 'url(#img' + p.id + ')');
+  }
+
   // Returns a random integer between min included) and max (excluded)
   var getRandomInt = function (min, max) {
     return Math.floor(Math.random() * (max - min) + min);
   };
 
   var serverStageChanges = [];
+  var numStates = 7;
   points.forEach(function(point, index) {
     serverStageChanges[index] = [];
-    for (var i = 0; i < 7; i++ ) {
-      var interval = getRandomInt(2000, 3000);
+    for (var i = 0; i <= numStates; i++ ) {
+      var interval = i < numStates ? getRandomInt(2000, 3000) : getRandomInt(2000, 15000) ;
       var previousTime = i > 0 ? serverStageChanges[index][i - 1] : 0;
       serverStageChanges[index].push(previousTime + interval);
     };
   });
+
+  var images = ['box-cartone.png', 'cherries.png', 'fairy.png', 'johnny-automatic-skateboard.png', 'kick-scouter3.png', 'papaya.png', 'paratrooper.png', 'Segelyacht.png', 'TheStructorr-cherries.png', 'unicycle.png'];
+  var getRandomImage = function() {
+    var index = getRandomInt(0, images.length);
+    return images[index];
+  }
 
   var interval = 10;
   console.log('timer started');
@@ -142,7 +207,12 @@ hex = (function dataSimulator(d3, Rx) {
       if (stateChange[0] < time) {
         try {
           stateChange.shift();
-          particle(points[index]);
+          var point = points[index];
+          if (point.stage < numStates) {
+            particle(point);
+          } else {
+            image(getRandomImage(), point);
+          }
         } catch(error) {
           console.error(error.stack);
           throw error;
