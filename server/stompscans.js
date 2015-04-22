@@ -28,9 +28,7 @@ var getUser = function(idInt) {
   return users[index];
 }
 
-var queue = process.env.NODE_ENV === 'production'
-            ? '/topic/replay_processed'
-            : '/topic/replay_processed_dev';
+var queue = '/topic/replay_processed';
 
 var live = Rx.Observable.create(function (observer) {
   console.log(new Date());
