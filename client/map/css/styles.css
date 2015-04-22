@@ -2416,8 +2416,8 @@ input[type="button"].btn-block {
  * -------------------------- */
 @font-face {
   font-family: 'FontAwesome';
-  src: url('../lib/patternfly/components/font-awesome/fonts//fontawesome-webfont.eot?v=4.2.0');
-  src: url('../lib/patternfly/components/font-awesome/fonts//fontawesome-webfont.eot?#iefix&v=4.2.0') format('embedded-opentype'), url('../lib/patternfly/components/font-awesome/fonts//fontawesome-webfont.woff?v=4.2.0') format('woff'), url('../lib/patternfly/components/font-awesome/fonts//fontawesome-webfont.ttf?v=4.2.0') format('truetype'), url('../lib/patternfly/components/font-awesome/fonts//fontawesome-webfont.svg?v=4.2.0#fontawesomeregular') format('svg');
+  src: url('../../lib/patternfly/components/font-awesome/fonts//fontawesome-webfont.eot?v=4.2.0');
+  src: url('../../lib/patternfly/components/font-awesome/fonts//fontawesome-webfont.eot?#iefix&v=4.2.0') format('embedded-opentype'), url('../../lib/patternfly/components/font-awesome/fonts//fontawesome-webfont.woff?v=4.2.0') format('woff'), url('../../lib/patternfly/components/font-awesome/fonts//fontawesome-webfont.ttf?v=4.2.0') format('truetype'), url('../../lib/patternfly/components/font-awesome/fonts//fontawesome-webfont.svg?v=4.2.0#fontawesomeregular') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -4297,36 +4297,36 @@ fieldset[disabled] .btn-primary.active {
   font-family: 'Open Sans';
   font-style: normal;
   font-weight: 300;
-  src: url('../lib/patternfly/dist/fonts/OpenSans-Light-webfont.eot');
-  src: url('../lib/patternfly/dist/fonts/OpenSans-Light-webfont.eot?#iefix') format('embedded-opentype'), url('../lib/patternfly/dist/fonts/OpenSans-Light-webfont.woff') format('woff'), url('../lib/patternfly/dist/fonts/OpenSans-Light-webfont.ttf') format('truetype'), url('../lib/patternfly/dist/fonts/OpenSans-Light-webfont.svg#OpenSansLight') format('svg');
+  src: url('../../lib/patternfly/dist/fonts/OpenSans-Light-webfont.eot');
+  src: url('../../lib/patternfly/dist/fonts/OpenSans-Light-webfont.eot?#iefix') format('embedded-opentype'), url('../../lib/patternfly/dist/fonts/OpenSans-Light-webfont.woff') format('woff'), url('../../lib/patternfly/dist/fonts/OpenSans-Light-webfont.ttf') format('truetype'), url('../../lib/patternfly/dist/fonts/OpenSans-Light-webfont.svg#OpenSansLight') format('svg');
 }
 @font-face {
   font-family: 'Open Sans';
   font-style: normal;
   font-weight: 400;
-  src: url('../lib/patternfly/dist/fonts/OpenSans-Regular-webfont.eot');
-  src: url('../lib/patternfly/dist/fonts/OpenSans-Regular-webfont.eot?#iefix') format('embedded-opentype'), url('../lib/patternfly/dist/fonts/OpenSans-Regular-webfont.woff') format('woff'), url('../lib/patternfly/dist/fonts/OpenSans-Regular-webfont.ttf') format('truetype'), url('../lib/patternfly/dist/fonts/OpenSans-Regular-webfont.svg#OpenSansRegular') format('svg');
+  src: url('../../lib/patternfly/dist/fonts/OpenSans-Regular-webfont.eot');
+  src: url('../../lib/patternfly/dist/fonts/OpenSans-Regular-webfont.eot?#iefix') format('embedded-opentype'), url('../../lib/patternfly/dist/fonts/OpenSans-Regular-webfont.woff') format('woff'), url('../../lib/patternfly/dist/fonts/OpenSans-Regular-webfont.ttf') format('truetype'), url('../../lib/patternfly/dist/fonts/OpenSans-Regular-webfont.svg#OpenSansRegular') format('svg');
 }
 @font-face {
   font-family: 'Open Sans';
   font-style: normal;
   font-weight: 600;
-  src: url('../lib/patternfly/dist/fonts/OpenSans-Semibold-webfont.eot');
-  src: url('../lib/patternfly/dist/fonts/OpenSans-Semibold-webfont.eot?#iefix') format('embedded-opentype'), url('../lib/patternfly/dist/fonts/OpenSans-Semibold-webfont.woff') format('woff'), url('../lib/patternfly/dist/fonts/OpenSans-Semibold-webfont.ttf') format('truetype'), url('../lib/patternfly/dist/fonts/OpenSans-Semibold-webfont.svg#OpenSansSemibold') format('svg');
+  src: url('../../lib/patternfly/dist/fonts/OpenSans-Semibold-webfont.eot');
+  src: url('../../lib/patternfly/dist/fonts/OpenSans-Semibold-webfont.eot?#iefix') format('embedded-opentype'), url('../../lib/patternfly/dist/fonts/OpenSans-Semibold-webfont.woff') format('woff'), url('../../lib/patternfly/dist/fonts/OpenSans-Semibold-webfont.ttf') format('truetype'), url('../../lib/patternfly/dist/fonts/OpenSans-Semibold-webfont.svg#OpenSansSemibold') format('svg');
 }
 @font-face {
   font-family: 'Open Sans';
   font-style: normal;
   font-weight: 700;
-  src: url('../lib/patternfly/dist/fonts/OpenSans-Bold-webfont.eot');
-  src: url('../lib/patternfly/dist/fonts/OpenSans-Bold-webfont.eot?#iefix') format('embedded-opentype'), url('../lib/patternfly/dist/fonts/OpenSans-Bold-webfont.woff') format('woff'), url('../lib/patternfly/dist/fonts/OpenSans-Bold-webfont.ttf') format('truetype'), url('../lib/patternfly/dist/fonts/OpenSans-Bold-webfont.svg#OpenSansBold') format('svg');
+  src: url('../../lib/patternfly/dist/fonts/OpenSans-Bold-webfont.eot');
+  src: url('../../lib/patternfly/dist/fonts/OpenSans-Bold-webfont.eot?#iefix') format('embedded-opentype'), url('../../lib/patternfly/dist/fonts/OpenSans-Bold-webfont.woff') format('woff'), url('../../lib/patternfly/dist/fonts/OpenSans-Bold-webfont.ttf') format('truetype'), url('../../lib/patternfly/dist/fonts/OpenSans-Bold-webfont.svg#OpenSansBold') format('svg');
 }
 @font-face {
   font-family: 'Open Sans';
   font-style: normal;
   font-weight: 800;
-  src: url('../lib/patternfly/dist/fonts/OpenSans-ExtraBold-webfont.eot');
-  src: url('../lib/patternfly/dist/fonts/OpenSans-ExtraBold-webfont.eot?#iefix') format('embedded-opentype'), url('../lib/patternfly/dist/fonts/OpenSans-ExtraBold-webfont.woff') format('woff'), url('../lib/patternfly/dist/fonts/OpenSans-ExtraBold-webfont.ttf') format('truetype'), url('../lib/patternfly/dist/fonts/OpenSans-ExtraBold-webfont.svg#OpenSansExtrabold') format('svg');
+  src: url('../../lib/patternfly/dist/fonts/OpenSans-ExtraBold-webfont.eot');
+  src: url('../../lib/patternfly/dist/fonts/OpenSans-ExtraBold-webfont.eot?#iefix') format('embedded-opentype'), url('../../lib/patternfly/dist/fonts/OpenSans-ExtraBold-webfont.woff') format('woff'), url('../../lib/patternfly/dist/fonts/OpenSans-ExtraBold-webfont.ttf') format('truetype'), url('../../lib/patternfly/dist/fonts/OpenSans-ExtraBold-webfont.svg#OpenSansExtrabold') format('svg');
 }
 .form-control[disabled],
 .form-control[readonly],
@@ -4357,8 +4357,8 @@ label {
 }
 @font-face {
   font-family: 'PatternFlyIcons-webfont';
-  src: url('../lib/patternfly/dist/fonts/PatternFlyIcons-webfont.eot');
-  src: url('../lib/patternfly/dist/fonts/PatternFlyIcons-webfont.eot?#iefix') format('embedded-opentype'), url('../lib/patternfly/dist/fonts/PatternFlyIcons-webfont.ttf') format('truetype'), url('../lib/patternfly/dist/fonts/PatternFlyIcons-webfont.woff') format('woff'), url('../lib/patternfly/dist/fonts/PatternFlyIcons-webfont.svg#PatternFlyIcons-webfont') format('svg');
+  src: url('../../lib/patternfly/dist/fonts/PatternFlyIcons-webfont.eot');
+  src: url('../../lib/patternfly/dist/fonts/PatternFlyIcons-webfont.eot?#iefix') format('embedded-opentype'), url('../../lib/patternfly/dist/fonts/PatternFlyIcons-webfont.ttf') format('truetype'), url('../../lib/patternfly/dist/fonts/PatternFlyIcons-webfont.woff') format('woff'), url('../../lib/patternfly/dist/fonts/PatternFlyIcons-webfont.svg#PatternFlyIcons-webfont') format('svg');
   font-weight: normal;
   font-style: normal;
 }

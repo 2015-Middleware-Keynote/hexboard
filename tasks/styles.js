@@ -6,8 +6,9 @@ var less    = require('gulp-less')
 
 module.exports = function(gulp, opts) {
   // Compiles less on to /css
-  gulp.task('less', function () {
-    gulp.src('./client/less/**/*.less')
+  gulp.task('less', ['less-map']);
+  gulp.task('less-map', function () {
+    gulp.src('./client/map/less/**/*.less')
       .pipe(plumber({
           errorHandler: function (err) {
               console.log(err);
@@ -15,6 +16,6 @@ module.exports = function(gulp, opts) {
           }
       }))
       .pipe(less())
-      .pipe(gulp.dest('./client/css'));
+      .pipe(gulp.dest('./client/map/css'));
   });
 };

@@ -2,22 +2,8 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Force Layout Example 6</title>
-  <link rel="stylesheet" type="text/css" href="css/styles.css">
-  <script defer src="lib/d3/d3.js"></script>
-  <script defer src="lib/rxjs/dist/rx.lite.js"></script>
-  <script defer src="lib/rxjs/dist/rx.aggregates.js"></script>
-  <script defer src="lib/rxjs/dist/rx.binding.js"></script>
-  <script defer src="lib/rxjs/dist/rx.coincidence.js"></script>
-  <script defer src="lib/rx-dom/dist/rx.dom.js"></script>
-  <script defer src="js/config.js"></script>
-  <script defer src="js/layout.js"></script>
-  <script defer src="js/playback.js"></script>
-  <script defer src="js/stomp.js"></script>
-  <script defer src="js/forcemap.js"></script>
-  <script defer src="js/visualisation.js"></script>
-  <script defer src="js/controls.js"></script>
-  <script defer src="js/app.js"></script>
+  <title>Red Hat Summit Middleware Keynote Demos.</title>
+  <link rel="stylesheet" type="text/css" href="map/css/styles.css">
 </head>
 
 <body>
@@ -30,132 +16,27 @@
         <span class="icon-bar"></span>
       </button>
       <a class="navbar-brand" href="index.html">
-        <img src="img/brand.png" alt="brand" width="270" height="10">
+        <img src="/common/img/brand.png" alt="brand" width="270" height="10">
       </a>
     </div>
 
-    <div class="collapse navbar-collapse navbar-collapse-1">
-      <ul class="nav navbar-nav navbar-utility">
-        <li>
-          <a href="#" id='play' title='Run the Force Layout'>
-          <i class='fa fa-play'></i>
-          </a>
-        </li>
-        <li>
-          <a href="#" id='step' title='Increment by one minute'>
-          <i class='fa fa-step-forward'></i>
-          </a>
-        </li>
-        <li>
-          <a href="#" id='pause' title='Run the Force Layout'>
-          <i class='fa fa-pause'></i>
-          </a>
-        </li>
-      </ul>
-    </div>
-    <div class="collapse navbar-collapse navbar-collapse-1">
-    </div>
   </nav>
 
-  <div class="map-container">
-
-    <div class="map">
-    <div class="map-inset">
-         <strong>3rd floor</strong>
-    </div><!-- /map-inset -->
-    </div><!-- /map -->
-
-
-    <div class="legend">
-      <div class="legendInner">
-        <div class="arrowText">
-          <svg height="150" width="15">
-            <text x="-130" y="15" transform="rotate(-90)">Time since checkin</text>
-          </svg>
-        </div>
-        <div class="arrow">
-          <svg width="10" heigth="150" viewBox="0 0 10 150">
-            <defs>
-              <marker xmlns="http://www.w3.org/2000/svg" id="triangle" viewBox="0 0 10 10" refX="0" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" orient="auto">
-                <path d="M 0 0 L 10 5 L 0 10 z"/>
-              </marker>
-            </defs>
-            <line x1="5" y1="150" x2="5" y2="10" marker-end="url(#triangle)" stroke="black" stroke-width="3px"/>
-          </svg>
-        </div>
-        <div class="scale"></div>
-      </div>
-    </div><!-- /legend-->
-
-    <div class="form-inline user-filter">
-      <div class="form-group">
-        <label for="filter">
-          <i class="fa fa-search fa-lg"></i>
-          <span class="sr-only">Filter</span>
-        </label>
-        <div class="combobox-container">
-          <input type="text" id="filter" class="combobox input-lg form-control" placeholder="Filter Nodes" autocomplete="off">
-          <ul class="typeahead typeahead-long dropdown-menu">
-            <li><a href="#">Something</a></li>
-            <li><a href="#">Something</a></li>
-            <li><a href="#">Something</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-
-    <div class="userinfo">
-      <h2><span class="pficon pficon-user"></span> <span class="name_v"></span></h2>
-      <ul class="list-inline">
-        <li><strong><i class="fa fa-dot-circle-o"></i> ID:</strong> <span class="id_v"></span></li>
-        <li><strong><i class="fa fa-sign-in"></i> Check-in:</strong> <span class="checkin_v"></span></li>
-        <li><strong><i class="fa fa-sign-out"></i> Check-out:</strong> <span class="checkout_v"></span></li>
-      </ul>
-      <p><strong><i class="fa fa-map-marker"></i> Location:</strong> <span class="location_v"></span></p>
-    </div><!-- /userinfo-->
-
-    <div class="progress progress-xs">
-      <div class="progress-bar playback" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
-      </div>
-      <div class="progress-bar buffer" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
-      </div>
-    </div>
-
-
-    <div class="info">
-
-
-      <div>
-        <strong>
-          <i class="fa fa-clock-o"></i>
-          Time
-        </strong>
-        <h1 id="time">7:50:00</h1>
-      </div><!-- /time -->
-      <div>
-        <strong>
-          <i class="fa fa-bookmark"></i>
-          Events
-        </strong>
-        <h1 id="interval">0</h1>
-      </div><!-- /events -->
-      <div>
-        <strong>
-          <i class="fa fa-dot-circle-o"></i>
-          Nodes
-        </strong>
-        <h1 id="nodeCount">0</h1>
-      </div><!-- /nodes -->
-      <div >
-        <ul id="log">
+  <div>
+    Different visualisations:
+    <ul>
+      <li>Beacon location demo:
+        <ul>
+          <li><a href="/map/">A map representation of the live Spark-processed data.</a>
+          <li><a href="/map/playback.html">A playback of the previous days events.</a> (currently fed by random data)
+          <li><a href="/broker/">A visualisation of the activity on the JMS broker</a>
         </ul>
-      </div><!-- /log -->
-
-    </div><!-- /info -->
-
-  </div><!-- /map-container-->
-
+      <li>Thousand containers
+        <ul>
+          <li><a href="/thousand">A visualisation of the state changes of 1000 OpenShift-managed docker containers
+        </ul>
+    </ul>
+  </div>
 </body>
 
 </html>
