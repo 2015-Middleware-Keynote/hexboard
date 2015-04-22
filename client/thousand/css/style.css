@@ -18,3 +18,21 @@ body {
   stroke: #000;
   stroke-width: .5px;
 }
+
+.winner .hexagon {
+  stroke: steelblue;
+  stroke-width: 2px;
+}
+
+.winner text {
+  fill: steelblue;
+}
+
+#winners {
+  height: 60px;
+  width: 150px;
+  font-size: 20px;
+  position: absolute;
+  top: 10px;
+  left: 10px
+}

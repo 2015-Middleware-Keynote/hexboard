@@ -128,31 +128,44 @@ hex = (function dataSimulator(d3, Rx) {
     p.stage++;
 
     var imgsize = (size * 2) / scale;
-    defs.append('pattern')
+    var pattern = defs.append('pattern')
       .attr('id', 'big_img' + p.id)
       .attr('patternUnits', 'userSpaceOnUse')
       .attr('width', imgsize)
       .attr('height', imgsize)
       .attr('x', imgsize/2)
-      .attr('y', imgsize/2)
-    .append('image')
+      .attr('y', imgsize/2);
+    // pattern.append('rect')
+    //   .attr('width', imgsize)
+    //   .attr('height', imgsize)
+    //   .attr('x', 0)
+    //   .attr('y', 0)
+    //   .attr('fill', 'white');
+    pattern.append('image')
       .attr('xlink:href', 'doodles/' + img)
       .attr('width', imgsize)
       .attr('height', imgsize)
       .attr('x', 0)
       .attr('y', 0);
 
-    p.doodle = defs.append('pattern')
+    imgsize = size *2;
+    pattern = p.doodle = defs.append('pattern')
       .attr('id', 'img' + p.id)
       .attr('patternUnits', 'userSpaceOnUse')
-      .attr('width', size*2)
-      .attr('height', size*2)
-      .attr('x', size)
-      .attr('y', size)
-    .append('image')
+      .attr('width', imgsize)
+      .attr('height', imgsize)
+      .attr('x', imgsize/2)
+      .attr('y', imgsize/2);
+    pattern.append('rect')
+      .attr('width', imgsize)
+      .attr('height', imgsize)
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('fill', 'white');
+    pattern.append('image')
       .attr('xlink:href', 'doodles/' + img)
-      .attr('width', size*2)
-      .attr('height', size*2)
+      .attr('width', imgsize)
+      .attr('height', imgsize)
       .attr('x', 0)
       .attr('y', 0);
 
@@ -165,7 +178,6 @@ hex = (function dataSimulator(d3, Rx) {
       .duration(duration)
       .ease('quad-out')
       .attr('transform', 'matrix('+scale+', 0, 0, '+scale+', '+ p.x +', '+ p.y +')')
-      .style('fill-opacity', opacity.final)
       .remove();
     hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
       .transition()
@@ -195,6 +207,84 @@ hex = (function dataSimulator(d3, Rx) {
     var index = getRandomInt(0, images.length);
     return images[index];
   }
+
+  var pickWinners = function() {
+    var numWinners = 6;
+    var candidates = points.filter(function(point) {
+      return point.doodle;
+    });
+
+    var winners = d3.range(numWinners).map(function(currentValue, index) {
+      var index = getRandomInt(0, candidates.length);
+      return candidates.splice(index, 1)[0];
+    });
+
+    return winners;
+  };
+
+  Rx.Observable.fromEvent(d3.select('#winners').node(), 'click').subscribe(function() {
+    var winners = pickWinners();
+    var c = {x: width / 2, y: height / 2};
+    var perspective = 1.5
+      , duration = 1000
+      , scale = 0.2
+      , opacity = { initial: 0.01, final: 0.9};
+
+    var winnerSpots = d3.range(6).map(function(spot, index) {
+      return {
+        x: c.x + (index % 3 - 1) * honeycomb.dimensions.x/4,
+        y: c.y + (Math.floor(index / 3) * 2 - 1 - 0.3) * honeycomb.dimensions.y/4 // the 0.2 is an adjustment to make room for the names
+      }
+    });
+    console.log(winnerSpots);
+
+    winners.forEach(function(p, index) {
+      if (!p) {
+        return;
+      }
+      var p0 = winnerSpots[index];
+      p.stage++;
+      var newColor = color(p.stage);
+      var group = svg.insert('g')
+        .attr('class', 'winner')
+        .attr('transform', function(d) { return 'translate(' + p.x + ',' + p.y + ')'; });
+
+      group.insert('path')
+        .attr('class', 'hexagon')
+        .attr('d', 'm' + hexagon(size).join('l') + 'z')
+        .attr('fill', 'url(#img' + p.id + ')')
+
+      var textGroup = group.insert('g')
+        .attr('class', 'text')
+        .attr('font-size', '9px')
+        .attr('transform', function(d) { return 'translate(0,' + size * 1.5 + ')'; });
+
+      var textWidth = size * 2.5
+        , textHeight = size * 1.3;
+      textGroup.insert('rect')
+        .attr('width', textWidth)
+        .attr('height', textHeight)
+        .attr('x', -textWidth / 2)
+        .attr('y', -size / 2.2)
+        .attr('fill', 'white');
+
+      textGroup.insert('text')
+        .attr('class', 'firstname')
+        .attr('text-anchor', 'middle')
+        .text('Firstname');
+
+      textGroup.insert('text')
+        .attr('class', 'lastname')
+        .attr('text-anchor', 'middle')
+        .attr('y', size / 1.5)
+        .text('Lastname');
+
+      group.transition()
+        .duration(duration)
+        .ease('quad-out')
+        .attr('transform', 'matrix('+1/scale+', 0, 0, '+1/scale+', '+ p0.x +', '+ p0.y +')');
+    });
+  });
 
   var interval = 10;
   console.log('timer started');
