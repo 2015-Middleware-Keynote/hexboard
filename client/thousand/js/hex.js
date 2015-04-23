@@ -7,7 +7,7 @@ hex = (function dataSimulator(d3, Rx) {
   var size = 20;
   var display = {
     x: Math.max(document.documentElement.clientWidth, window.innerWidth) || 1920
-  , y: Math.max(document.documentElement.clientHeight, window.innerHeight) - 4
+  , y: Math.max(document.documentElement.clientHeight, window.innerHeight) - 4 - 39
   };
   var honeycomb = {
     spacing: {
@@ -128,20 +128,15 @@ hex = (function dataSimulator(d3, Rx) {
     p.stage++;
 
     var imgsize = (size * 2) / scale;
-    var pattern = defs.append('pattern')
+    defs.append('pattern')
       .attr('id', 'big_img' + p.id)
+      .attr('class', 'doodle falling')
       .attr('patternUnits', 'userSpaceOnUse')
       .attr('width', imgsize)
       .attr('height', imgsize)
       .attr('x', imgsize/2)
-      .attr('y', imgsize/2);
-    // pattern.append('rect')
-    //   .attr('width', imgsize)
-    //   .attr('height', imgsize)
-    //   .attr('x', 0)
-    //   .attr('y', 0)
-    //   .attr('fill', 'white');
-    pattern.append('image')
+      .attr('y', imgsize/2)
+    .append('image')
       .attr('xlink:href', 'doodles/' + img)
       .attr('width', imgsize)
       .attr('height', imgsize)
@@ -149,25 +144,29 @@ hex = (function dataSimulator(d3, Rx) {
       .attr('y', 0);
 
     imgsize = size *2;
-    pattern = p.doodle = defs.append('pattern')
+    var pattern = defs.append('pattern')
       .attr('id', 'img' + p.id)
+      .attr('class', 'doodle tile')
       .attr('patternUnits', 'userSpaceOnUse')
       .attr('width', imgsize)
       .attr('height', imgsize)
       .attr('x', imgsize/2)
       .attr('y', imgsize/2);
+
     pattern.append('rect')
       .attr('width', imgsize)
       .attr('height', imgsize)
       .attr('x', 0)
-      .attr('y', 0)
-      .attr('fill', 'white');
+      .attr('y', 0);
+
     pattern.append('image')
       .attr('xlink:href', 'doodles/' + img)
       .attr('width', imgsize)
       .attr('height', imgsize)
       .attr('x', 0)
       .attr('y', 0);
+
+    p.doodle = pattern;
 
     svg.insert('path')
       .attr('class', 'hexagon')
@@ -256,7 +255,6 @@ hex = (function dataSimulator(d3, Rx) {
 
       var textGroup = group.insert('g')
         .attr('class', 'text')
-        .attr('font-size', '9px')
         .attr('transform', function(d) { return 'translate(0,' + size * 1.5 + ')'; });
 
       var textWidth = size * 2.5
@@ -266,7 +264,8 @@ hex = (function dataSimulator(d3, Rx) {
         .attr('height', textHeight)
         .attr('x', -textWidth / 2)
         .attr('y', -size / 2.2)
-        .attr('fill', 'white');
+        .attr('rx', 3)
+        .attr('ry', 3);
 
       textGroup.insert('text')
         .attr('class', 'firstname')

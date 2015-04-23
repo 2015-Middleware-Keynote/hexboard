@@ -117,7 +117,7 @@
 .navbar-pf-lg{
   .navbar-brand {
     padding: 12px 0;
-  }  
+  }
   .navbar-utility {
     > li > a {
       padding-top: 11px;
@@ -127,8 +127,8 @@
       .pficon-user {
         top: 12px;
       }
-    }    
-  }  
+    }
+  }
 }
 
 
@@ -156,21 +156,22 @@ body {
   stroke-width: .5px;
 }
 
-.winner .hexagon {
-  stroke: steelblue;
-  stroke-width: 2px;
+.doodle.tile rect {
+  fill: white;
 }
 
-.winner text {
-  fill: steelblue;
-}
+.winner {
+  .hexagon {
+    stroke: steelblue;
+    stroke-width: 2px;
+  }
 
-/*#winners {
-  height: 60px;
-  width: 150px;
-  font-size: 20px;
-  position: absolute;
-  top: 10px;
-  left: 10px
+  text {
+    fill: steelblue;
+    font-size: 9px;
+  }
+
+  rect {
+    fill: white;
+  }
 }
-*/
