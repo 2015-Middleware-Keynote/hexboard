@@ -5143,8 +5143,8 @@ h2,
   padding: 12px 0;
 }
 .navbar-pf-lg .navbar-utility > li > a {
-  padding-top: 12px;
-  padding-bottom: 12px;
+  padding-top: 11px;
+  padding-bottom: 11px;
 }
 .navbar-pf-lg .navbar-utility li.dropdown > .dropdown-toggle .pficon-user {
   top: 12px;
@@ -5173,11 +5173,12 @@ body {
 .winner text {
   fill: steelblue;
 }
-#winners {
+/*#winners {
   height: 60px;
   width: 150px;
   font-size: 20px;
   position: absolute;
   top: 10px;
-  left: 10px;
+  left: 10px
 }
+*/
