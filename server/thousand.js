@@ -1,6 +1,8 @@
 'use strict';
 
 var Rx = require('rx')
+  , EventEmitter = require("events").EventEmitter
+  ;
 
 // Returns a random integer between min included) and max (excluded)
 var getRandomInt = function (min, max) {
@@ -41,7 +43,10 @@ var doodles = Rx.Observable.range(0, 200)
       .delay(getRandomInt(0, 10000));
   });
 
+var doodleEmitter = new EventEmitter();
+
 module.exports = {
   events: events2
 , doodles: doodles
+, doodleEmitter: doodleEmitter
 };

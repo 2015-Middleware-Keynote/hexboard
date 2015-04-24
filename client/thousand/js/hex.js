@@ -119,7 +119,7 @@ hex = (function dataSimulator(d3, Rx) {
 
   function image(p, doodle) {
     var c = {x: width / 2, y: height / 2};
-    var perspective = 1.5
+    var perspective = 0.5
       , duration = 1000
       , scale = 0.2
       , opacity = { initial: 0.01, final: 0.9};

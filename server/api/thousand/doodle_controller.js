@@ -1,7 +1,7 @@
 'use strict';
 
 var fs = require('fs')
-  , eventEmitter = new require("events").EventEmitter();
+  , eventEmitter = require('../../thousand').doodleEmitter
   ;
 
 module.exports = exports = {
@@ -22,10 +22,22 @@ module.exports = exports = {
           if (err) {
             next(err);
           };
-          eventEmitter.emit('new-doodle', {url: '/tmp/thousand-doodle.png'})
+          var containerId = 1;
+          eventEmitter.emit('new-doodle', {
+            containerId: containerId
+          , url: '/api/doodle/'
+          , firstname: 'FirstName' + containerId
+          , lastname: 'LastName' + containerId
+          })
           return res.json('Sent!');
         });
       })
     });
+  },
+
+  getImage: function(req, res, next) {
+    fs.createReadStream('/tmp/thousand-doodle.png', {
+      'bufferSize': 4 * 1024
+    }).pipe(res);
   }
 };
