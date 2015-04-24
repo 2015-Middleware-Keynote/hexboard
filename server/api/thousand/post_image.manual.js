@@ -6,6 +6,7 @@ var request = require('superagent')
 
 var readStream = fs.createReadStream('server/api/thousand/cherries.png');
 var req = request.post('http://localhost:9000/api/doodle');
+// var req = request.post('http://beacon.jbosskeynote.com/api/doodle');
 readStream.pipe(req, {end: false});
 readStream.on('end', function() {
   req.end(function (err, res) {

@@ -126,25 +126,9 @@ hex = (function dataSimulator(d3, Rx) {
     var p0 = {x: perspective * (p.x - c.x) + c.x, y: perspective * (p.y - c.y) + c.y};
 
     var imgsize = (size * 2) / scale;
-    defs.append('pattern')
+    var pattern = defs.append('pattern')
       .attr('id', 'big_img' + p.id)
       .attr('class', 'doodle falling')
-      .attr('patternUnits', 'userSpaceOnUse')
-      .attr('width', imgsize)
-      .attr('height', imgsize)
-      .attr('x', imgsize/2)
-      .attr('y', imgsize/2)
-    .append('image')
-      .attr('xlink:href', doodle.url)
-      .attr('width', imgsize)
-      .attr('height', imgsize)
-      .attr('x', 0)
-      .attr('y', 0);
-
-    imgsize = size *2;
-    var pattern = defs.append('pattern')
-      .attr('id', 'img' + p.id)
-      .attr('class', 'doodle tile')
       .attr('patternUnits', 'userSpaceOnUse')
       .attr('width', imgsize)
       .attr('height', imgsize)
@@ -156,6 +140,24 @@ hex = (function dataSimulator(d3, Rx) {
       .attr('height', imgsize)
       .attr('x', 0)
       .attr('y', 0);
+
+
+    pattern.append('image')
+      .attr('xlink:href', doodle.url)
+      .attr('width', imgsize)
+      .attr('height', imgsize)
+      .attr('x', 0)
+      .attr('y', 0);
+
+    imgsize = size *2;
+    pattern = defs.append('pattern')
+      .attr('id', 'img' + p.id)
+      .attr('class', 'doodle tile')
+      .attr('patternUnits', 'userSpaceOnUse')
+      .attr('width', imgsize)
+      .attr('height', imgsize)
+      .attr('x', imgsize/2)
+      .attr('y', imgsize/2);
 
     pattern.append('image')
       .attr('xlink:href', doodle.url)
@@ -174,14 +176,8 @@ hex = (function dataSimulator(d3, Rx) {
       .attr('fill', 'url(#big_img' + p.id + ')')
     .transition()
       .duration(duration)
-      .ease('quad-out')
-      .attr('transform', 'matrix('+scale+', 0, 0, '+scale+', '+ p.x +', '+ p.y +')')
-      .remove();
-    hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
-      .transition()
-      .duration(duration)
       .ease('quad-in')
-      .style('fill', 'url(#img' + p.id + ')');
+      .attr('transform', 'matrix('+scale+', 0, 0, '+scale+', '+ p.x +', '+ p.y +')');
   }
 
   // Returns a random integer between min included) and max (excluded)

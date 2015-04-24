@@ -5,11 +5,11 @@ var WebSocketServer = require('ws').Server
   ;
 
 module.exports = function(server) {
-  var wssThousand = new WebSocketServer({server: server, path: '/thousand'});
+  var wss = new WebSocketServer({server: server, path: '/thousand'});
 
   var eventEmitter = thousand.doodleEmitter;
 
-  wssThousand.on('connection', function connection(ws) {
+  wss.on('connection', function connection(ws) {
     console.log('/thousand connection');
     var subscription1
       , subscription2;
@@ -24,18 +24,23 @@ module.exports = function(server) {
         };
       });
     });
-    var listener = function(doodle) {
-      console.log('doodle listener invoked.');
-      if (ws.readyState === ws.OPEN) {
-        ws.send(JSON.stringify({type: 'doodle', data: doodle}));
-      };
-    };
-    eventEmitter.on('new-doodle', listener)
     ws.onclose = function() {
       console.log('Onclose: disposing /thousand subscriptions');
       subscription2 && subscription2.dispose();
       subscription1 && subscription1.dispose();
-      listener && eventEmitter.removeListener('new-doodle', listener);
     };
   });
+
+  eventEmitter.on('new-doodle', function(doodle) {
+    console.log('doodle listener invoked.');
+    wss.broadcast(doodle);
+  });
+
+  wss.broadcast = function broadcast(doodle) {
+  wss.clients.forEach(function each(ws) {
+    if (ws.readyState === ws.OPEN) {
+      ws.send(JSON.stringify({type: 'doodle', data: doodle}));
+    };
+  });
+};
 }
