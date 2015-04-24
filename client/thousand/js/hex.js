@@ -127,7 +127,7 @@ hex = (function dataSimulator(d3, Rx) {
 
     var imgsize = (size * 2) / scale;
     var pattern = defs.append('pattern')
-      .attr('id', 'big_img' + p.id)
+      .attr('id', 'img' + p.id)
       .attr('class', 'doodle falling')
       .attr('patternUnits', 'userSpaceOnUse')
       .attr('width', imgsize)
@@ -140,24 +140,6 @@ hex = (function dataSimulator(d3, Rx) {
       .attr('height', imgsize)
       .attr('x', 0)
       .attr('y', 0);
-
-
-    pattern.append('image')
-      .attr('xlink:href', doodle.url)
-      .attr('width', imgsize)
-      .attr('height', imgsize)
-      .attr('x', 0)
-      .attr('y', 0);
-
-    imgsize = size *2;
-    pattern = defs.append('pattern')
-      .attr('id', 'img' + p.id)
-      .attr('class', 'doodle tile')
-      .attr('patternUnits', 'userSpaceOnUse')
-      .attr('width', imgsize)
-      .attr('height', imgsize)
-      .attr('x', imgsize/2)
-      .attr('y', imgsize/2);
 
     pattern.append('image')
       .attr('xlink:href', doodle.url)
@@ -173,7 +155,7 @@ hex = (function dataSimulator(d3, Rx) {
       .attr('class', 'hexagon')
       .attr('d', 'm' + hexagon(size/scale).join('l') + 'z')
       .attr('transform', function(d) { return 'translate(' + p0.x + ',' + p0.y + ')'; })
-      .attr('fill', 'url(#big_img' + p.id + ')')
+      .attr('fill', 'url(#img' + p.id + ')')
     .transition()
       .duration(duration)
       .ease('quad-in')
@@ -226,8 +208,9 @@ hex = (function dataSimulator(d3, Rx) {
 
       group.insert('path')
         .attr('class', 'hexagon')
-        .attr('d', 'm' + hexagon(size).join('l') + 'z')
+        .attr('d', 'm' + hexagon(size/scale).join('l') + 'z')
         .attr('fill', 'url(#img' + p.id + ')')
+        .attr('transform', 'matrix('+scale+', 0, 0, '+scale+', 0, 0)');
 
       var textGroup = group.insert('g')
         .attr('class', 'text')
