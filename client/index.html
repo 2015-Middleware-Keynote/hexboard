@@ -7,7 +7,7 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-default navbar-pf" role="navigation">
+  <nav class="navbar navbar-default navbar-pf navbar-pf-lg" role="navigation">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
         <span class="sr-only">Toggle navigation</span>
@@ -16,26 +16,27 @@
         <span class="icon-bar"></span>
       </button>
       <a class="navbar-brand" href="index.html">
-        <img src="/common/img/brand.png" alt="brand" width="270" height="10">
+        <img src="/common/img/logo.svg" alt="brand" height="10">
       </a>
     </div>
 
   </nav>
 
-  <div>
-    Different visualisations:
+  <div style="margin: 20px;">
+    <h1>Different visualisations:</h1>
+    
+    <h3>Beacon location demo:</h3>
     <ul>
-      <li>Beacon location demo:
-        <ul>
-          <li><a href="/map/">A map representation of the live Spark-processed data.</a>
-          <li><a href="/map/playback.html">A playback of the previous days events.</a> (currently fed by random data)
-          <li><a href="/broker/">A visualisation of the activity on the JMS broker</a>
-        </ul>
-      <li>Thousand containers
-        <ul>
-          <li><a href="/thousand">A visualisation of the state changes of 1000 OpenShift-managed docker containers
-        </ul>
+      <li><a href="/map/">A map representation of the live Spark-processed data.</a>
+      <li><a href="/map/playback.html">A playback of the previous days events.</a> (currently fed by random data)
+      <li><a href="/broker/">A visualisation of the activity on the JMS broker</a>
     </ul>
+
+    <h3>Thousand containers:</h3>
+      <ul>
+        <li><a href="/thousand">A visualisation of the state changes of 1000 OpenShift-managed docker containers
+      </ul>
+
   </div>
 </body>
 
