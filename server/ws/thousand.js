@@ -24,6 +24,12 @@ module.exports = function(server) {
         };
       });
     });
+    ws.on('message', function(data, flags) {
+      var message = JSON.parse(data);
+      if (message.type === 'ping') {
+        ws.send(JSON.stringify({type: 'pong'}));
+      }
+    });
     ws.onclose = function() {
       console.log('Onclose: disposing /thousand subscriptions');
       subscription2 && subscription2.dispose();
