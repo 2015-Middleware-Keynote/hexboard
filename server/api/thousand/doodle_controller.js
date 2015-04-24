@@ -7,6 +7,11 @@ var fs = require('fs')
 
 module.exports = exports = {
   receiveImage: function(req, res, next) {
+    var containerId = parseInt(req.params.containerId);
+    if (containerId < 0 || containerId >= 1060) {
+      next('Invalid containerId');
+      return;
+    };
     var data = new Buffer('');
     req.on('data', function(chunk) {
       data = Buffer.concat([data, chunk]);
@@ -15,10 +20,6 @@ module.exports = exports = {
       next(err);
     });
     req.on('end', function() {
-      var containerId = parseInt(req.params.containerId);
-      if (containerId < 0 || containerId >= 1060) {
-        next('Invalid containerId');
-      }
       var filename = 'thousand-doodle' + containerId + 'png';
       fs.open(os.tmpdir() + '/' + filename, 'w', function(err, fd) {
         if (err) {
