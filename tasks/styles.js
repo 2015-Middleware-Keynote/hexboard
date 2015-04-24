@@ -19,8 +19,11 @@ module.exports = function(gulp, opts) {
       .pipe(gulp.dest('./client/map/css'));
   });
 
+};
 
 
+
+module.exports = function(gulp, opts) {
   // Compiles less on to /css
   gulp.task('less', ['less-thousand']);
   gulp.task('less-thousand', function () {
@@ -35,6 +38,7 @@ module.exports = function(gulp, opts) {
       .pipe(gulp.dest('./client/thousand/css'));
   });
 
-
-
 };
+
+
+
