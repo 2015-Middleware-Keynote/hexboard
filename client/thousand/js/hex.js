@@ -128,7 +128,7 @@ hex = (function dataSimulator(d3, Rx) {
     var imgsize = (size * 2) / scale;
     var pattern = defs.append('pattern')
       .attr('id', 'img' + p.id)
-      .attr('class', 'doodle falling')
+      .attr('class', 'doodle')
       .attr('patternUnits', 'userSpaceOnUse')
       .attr('width', imgsize)
       .attr('height', imgsize)
