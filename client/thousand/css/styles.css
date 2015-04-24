@@ -437,10 +437,10 @@ a.text-info:hover {
   color: #245269;
 }
 .text-warning {
-  color: #ec7a08;
+  color: #8a6d3b;
 }
 a.text-warning:hover {
-  color: #bb6106;
+  color: #66512c;
 }
 .text-danger {
   color: #a94442;
@@ -861,25 +861,25 @@ select[multiple].input-lg {
 .has-warning .checkbox,
 .has-warning .radio-inline,
 .has-warning .checkbox-inline {
-  color: #ec7a08;
+  color: #8a6d3b;
 }
 .has-warning .form-control {
-  border-color: #ec7a08;
+  border-color: #8a6d3b;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
 .has-warning .form-control:focus {
-  border-color: #bb6106;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #faad60;
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #faad60;
+  border-color: #66512c;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #c0a16b;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #c0a16b;
 }
 .has-warning .input-group-addon {
-  color: #ec7a08;
-  border-color: #ec7a08;
+  color: #8a6d3b;
+  border-color: #8a6d3b;
   background-color: #fcf8e3;
 }
 .has-warning .form-control-feedback {
-  color: #ec7a08;
+  color: #8a6d3b;
 }
 .has-error .help-block,
 .has-error .control-label,
@@ -4337,16 +4337,7 @@ fieldset[disabled] .form-control {
   color: #969696;
 }
 .form-control:hover {
-  border-color: #7bb2dd;
-}
-.has-error .form-control:hover {
-  border-color: #843534;
-}
-.has-success .form-control:hover {
-  border-color: #2b542c;
-}
-.has-warning .form-control:hover {
-  border-color: #bb6106;
+  border-color: #7BB2DD;
 }
 .input-group .input-group-btn .btn {
   -webkit-box-shadow: none;
