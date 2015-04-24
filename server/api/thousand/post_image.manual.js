@@ -4,8 +4,13 @@ var request = require('superagent')
   , fs = require('fs')
   ;
 
+// Returns a random integer between min included) and max (excluded)
+var getRandomInt = function (min, max) {
+  return Math.floor(Math.random() * (max - min) + min);
+};
+
 var readStream = fs.createReadStream('server/api/thousand/cherries.png');
-var req = request.post('http://localhost:9000/api/doodle');
+var req = request.post('http://localhost:9000/api/doodle/' + getRandomInt(0,1060));
 // var req = request.post('http://beacon.jbosskeynote.com/api/doodle');
 readStream.pipe(req, {end: false});
 readStream.on('end', function() {

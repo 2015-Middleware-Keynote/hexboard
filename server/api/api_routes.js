@@ -17,6 +17,6 @@ module.exports = exports = function (router) {
   router.route('/locations').get(locationController.getAll);
   router.route('/location/:id').get(locationController.getLocation);
 
-  router.route('/doodle').get(doodleController.getImage);
-  router.route('/doodle').post(doodleController.receiveImage);
+  router.route('/doodle/:containerId').get(doodleController.getImage);
+  router.route('/doodle/:containerId').post(doodleController.receiveImage);
 }

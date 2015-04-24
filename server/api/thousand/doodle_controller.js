@@ -1,6 +1,7 @@
 'use strict';
 
 var fs = require('fs')
+  , os = require('os')
   , eventEmitter = require('../../thousand').doodleEmitter
   ;
 
@@ -14,7 +15,12 @@ module.exports = exports = {
       next(err);
     });
     req.on('end', function() {
-      fs.open('/tmp/thousand-doodle.png', 'w', function(err, fd) {
+      var containerId = parseInt(req.params.containerId);
+      if (containerId < 0 || containerId >= 1060) {
+        next('Invalid containerId');
+      }
+      var filename = 'thousand-doodle' + containerId + 'png';
+      fs.open(os.tmpdir() + '/' + filename, 'w', function(err, fd) {
         if (err) {
           next(err);
         };
@@ -22,21 +28,22 @@ module.exports = exports = {
           if (err) {
             next(err);
           };
-          var containerId = 1;
           eventEmitter.emit('new-doodle', {
             containerId: containerId
-          , url: '/api/doodle/'
+          , url: '/api/doodle/' + containerId
           , firstname: 'FirstName' + containerId
           , lastname: 'LastName' + containerId
           })
-          return res.json('Sent!');
+          return res.json({url:'http://beacon.jbosskeynote.com/api/doodle/'+containerId});
         });
       })
     });
   },
 
   getImage: function(req, res, next) {
-    fs.createReadStream('/tmp/thousand-doodle.png', {
+    var containerId = parseInt(req.params.containerId);
+    var filename = 'thousand-doodle' + containerId + 'png';
+    fs.createReadStream(os.tmpdir() + '/' + filename, {
       'bufferSize': 4 * 1024
     }).pipe(res);
   }
