@@ -72,7 +72,6 @@ describe('DB Operations:', function() {
           firstName: user.firstName
         })
         .exec().then(function (users) {
-          console.log(users.length);
           (users).should.have.length(1);
           users[0].firstName.should.equal(user.firstName);
           users[0].lastName.should.equal(user.lastName);
