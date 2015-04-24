@@ -9,7 +9,24 @@ module.exports = function(server) {
 
   var eventEmitter = thousand.doodleEmitter;
 
+  var count = 0;
+  var clients = {};
+
+  wss.broadcast = function broadcast(data) {
+    for (var i in clients) {
+      var ws = clients[i];
+      if (ws.readyState === ws.OPEN) {
+        ws.send(data);
+      } else if (ws.readyState === ws.CLOSED) {
+        console.log('Peer #' + ws.id + ' disconnected from /live.');
+        delete clients[ws.id];
+      }
+    };
+  };
+
   wss.on('connection', function connection(ws) {
+    var id = count++;
+    clients[id] = ws;
     console.log('/thousand connection');
     var subscription1
       , subscription2;
@@ -39,14 +56,6 @@ module.exports = function(server) {
 
   eventEmitter.on('new-doodle', function(doodle) {
     console.log('doodle listener invoked.');
-    wss.broadcast(doodle);
-  });
-
-  wss.broadcast = function broadcast(doodle) {
-  wss.clients.forEach(function each(ws) {
-    if (ws.readyState === ws.OPEN) {
-      ws.send(JSON.stringify({type: 'doodle', data: doodle}));
-    };
+    wss.broadcast(JSON.stringify({type: 'doodle', data: doodle}));
   });
 };
-}
