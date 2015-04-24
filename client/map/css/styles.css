@@ -5146,8 +5146,8 @@ h2,
   padding: 12px 0;
 }
 .navbar-pf-lg .navbar-utility > li > a {
-  padding-top: 12px;
-  padding-bottom: 12px;
+  padding-top: 11px;
+  padding-bottom: 11px;
 }
 .navbar-pf-lg .navbar-utility li.dropdown > .dropdown-toggle .pficon-user {
   top: 12px;
