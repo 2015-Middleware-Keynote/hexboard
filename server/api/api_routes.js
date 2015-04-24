@@ -3,6 +3,7 @@
 var userController = require('./user/user_controllers.js')
   , scanController = require('./scan/scan_controllers.js')
   , locationController = require('./location/location_controllers.js')
+  , doodleController = require('./thousand/doodle_controller.js')
   ;
 
 module.exports = exports = function (router) {
@@ -15,4 +16,6 @@ module.exports = exports = function (router) {
 
   router.route('/locations').get(locationController.getAll);
   router.route('/location/:id').get(locationController.getLocation);
+
+  router.route('/doodle').post(doodleController.receiveImage);
 }
