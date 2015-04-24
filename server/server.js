@@ -8,6 +8,7 @@ var app   = require('./main/app.js')
   , data = require('./randomscans')
   , stomp = require('./stompscans')
   , Scan = require('./api/scan/scan_model')
+  , thousand = require('./thousand')
   ;
 
 var server = http.createServer(app);
@@ -16,6 +17,7 @@ console.log(log);
 
 var wssRandom = new WebSocketServer({server: server, path: '/random'});
 var wssLive = new WebSocketServer({server: server, path: '/live'});
+var wssThousand = new WebSocketServer({server: server, path: '/thousand'});
 
 wssRandom.on('connection', function connection(ws) {
   console.log('/random connection');
@@ -35,6 +37,31 @@ wssRandom.on('connection', function connection(ws) {
     console.log('Onclose: disposing /random subscriptions');
     subscription.dispose();
   }
+});
+
+wssThousand.on('connection', function connection(ws) {
+  console.log('/thousand connection');
+  var subscription1
+    , subscription2;
+  subscription1 = thousand.events.subscribe(function(event) {
+    if (ws.readyState === ws.OPEN) {
+      ws.send(JSON.stringify({type: 'event', data: event}));
+    };
+  }, null, function() {
+    subscription2 = thousand.doodles.subscribe(function(doodle) {
+      if (ws.readyState === ws.OPEN) {
+        ws.send(JSON.stringify({type: 'doodle', data: doodle}));
+      };
+    }, null, function() {
+      console.log('Container event cycle complete, closing connection');
+      ws.close();
+    });
+  });
+  ws.onclose = function() {
+    console.log('Onclose: disposing /thousand subscriptions');
+    subscription2 && subscription2.dispose();
+    subscription1 && subscription1.dispose();
+  };
 });
 
 var count = 0;

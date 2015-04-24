@@ -90,15 +90,14 @@ hex = (function dataSimulator(d3, Rx) {
       .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; })
       .style('fill', function(d) { return color(0); });
 
-  function particle(p) {
+  function particle(p, stage) {
     var c = {x: width / 2, y: height / 2};
     var perspective = 1.5
       , duration = 500
       , scale = 0.4
       , opacity = { initial: 0.01, final: 0.9};
     var p0 = {x: perspective * (p.x - c.x) + c.x, y: perspective * (p.y - c.y) + c.y};
-    p.stage++;
-    var newColor = color(p.stage);
+    var newColor = color(stage);
     svg.insert('path')
       .attr('class', 'hexagon')
       .attr('d', 'm' + hexagon(size/scale).join('l') + 'z')
@@ -118,14 +117,13 @@ hex = (function dataSimulator(d3, Rx) {
       .style('fill', function(d) { return  newColor; })
   };
 
-  function image(img, p) {
+  function image(p, doodle) {
     var c = {x: width / 2, y: height / 2};
     var perspective = 1.5
       , duration = 1000
       , scale = 0.2
       , opacity = { initial: 0.01, final: 0.9};
     var p0 = {x: perspective * (p.x - c.x) + c.x, y: perspective * (p.y - c.y) + c.y};
-    p.stage++;
 
     var imgsize = (size * 2) / scale;
     defs.append('pattern')
@@ -137,7 +135,7 @@ hex = (function dataSimulator(d3, Rx) {
       .attr('x', imgsize/2)
       .attr('y', imgsize/2)
     .append('image')
-      .attr('xlink:href', 'doodles/' + img)
+      .attr('xlink:href', doodle.url)
       .attr('width', imgsize)
       .attr('height', imgsize)
       .attr('x', 0)
@@ -160,13 +158,14 @@ hex = (function dataSimulator(d3, Rx) {
       .attr('y', 0);
 
     pattern.append('image')
-      .attr('xlink:href', 'doodles/' + img)
+      .attr('xlink:href', doodle.url)
       .attr('width', imgsize)
       .attr('height', imgsize)
       .attr('x', 0)
       .attr('y', 0);
 
-    p.doodle = pattern;
+    doodle.pattern = pattern;
+    p.doodle = doodle;
 
     svg.insert('path')
       .attr('class', 'hexagon')
@@ -189,23 +188,6 @@ hex = (function dataSimulator(d3, Rx) {
   var getRandomInt = function (min, max) {
     return Math.floor(Math.random() * (max - min) + min);
   };
-
-  var serverStageChanges = [];
-  var numStates = 7;
-  points.forEach(function(point, index) {
-    serverStageChanges[index] = [];
-    for (var i = 0; i <= numStates; i++ ) {
-      var interval = i < numStates ? getRandomInt(2000, 3000) : getRandomInt(2000, 15000) ;
-      var previousTime = i > 0 ? serverStageChanges[index][i - 1] : 0;
-      serverStageChanges[index].push(previousTime + interval);
-    };
-  });
-
-  var images = ['box-cartone.png', 'cherries.png', 'fairy.png', 'johnny-automatic-skateboard.png', 'kick-scouter3.png', 'papaya.png', 'paratrooper.png', 'Segelyacht.png', 'TheStructorr-cherries.png', 'unicycle.png'];
-  var getRandomImage = function() {
-    var index = getRandomInt(0, images.length);
-    return images[index];
-  }
 
   var pickWinners = function() {
     var numWinners = 6;
@@ -231,7 +213,7 @@ hex = (function dataSimulator(d3, Rx) {
 
     var winnerSpots = d3.range(6).map(function(spot, index) {
       return {
-        x: c.x + (index % 3 - 1) * honeycomb.dimensions.x/4,
+        x: c.x + (index % 3 - 1) * honeycomb.dimensions.x/3,
         y: c.y + (Math.floor(index / 3) * 2 - 1 - 0.3) * honeycomb.dimensions.y/4 // the 0.2 is an adjustment to make room for the names
       }
     });
@@ -242,8 +224,6 @@ hex = (function dataSimulator(d3, Rx) {
         return;
       }
       var p0 = winnerSpots[index];
-      p.stage++;
-      var newColor = color(p.stage);
       var group = svg.insert('g')
         .attr('class', 'winner')
         .attr('transform', function(d) { return 'translate(' + p.x + ',' + p.y + ')'; });
@@ -257,7 +237,7 @@ hex = (function dataSimulator(d3, Rx) {
         .attr('class', 'text')
         .attr('transform', function(d) { return 'translate(0,' + size * 1.5 + ')'; });
 
-      var textWidth = size * 2.5
+      var textWidth = size * 3.5
         , textHeight = size * 1.3;
       textGroup.insert('rect')
         .attr('width', textWidth)
@@ -270,13 +250,13 @@ hex = (function dataSimulator(d3, Rx) {
       textGroup.insert('text')
         .attr('class', 'firstname')
         .attr('text-anchor', 'middle')
-        .text('Firstname');
+        .text(p.doodle.firstname);
 
       textGroup.insert('text')
         .attr('class', 'lastname')
         .attr('text-anchor', 'middle')
         .attr('y', size / 1.5)
-        .text('Lastname');
+        .text(p.doodle.lastname);
 
       group.transition()
         .duration(duration)
@@ -285,37 +265,22 @@ hex = (function dataSimulator(d3, Rx) {
     });
   });
 
-  var interval = 10;
-  console.log('timer started');
-  Rx.Observable.interval(interval).map(function(x) {
-    var time = x * interval;
-    serverStageChanges.forEach(function(stateChange, index) {
-      if (stateChange.length < 1) {
-        return;
-      }
-      if (stateChange[0] < time) {
-        try {
-          stateChange.shift();
-          var point = points[index];
-          if (point.stage < numStates) {
-            particle(point);
-          } else {
-            image(getRandomImage(), point);
-          }
-        } catch(error) {
-          console.error(error.stack);
-          throw error;
-        }
-      };
-    });
-  }).take(30000 / interval).subscribe(
-    undefined
-  , function(error) {
-      throw error;
-    }
-  , function() {
-    console.log('timer complete');
+var events = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/thousand')
+.tap(function(messageEvent) {
+  var message = JSON.parse(messageEvent.data);
+  // console.log(message);
+  if (message.type === 'event') {
+    var event = message.data;
+    // console.log(event);
+    particle(points[event.id], event.stage);
   }
-  );
+  if (message.type === 'doodle') {
+    var doodle = message.data;
+    image(points[doodle.containerId], doodle);
+  }
+})
+.subscribeOnError(function(error) {
+  console.error(error.stack);
+});
 
 })(d3, Rx);

@@ -1,6 +1,8 @@
 'use strict';
 
-var fs = require('fs');
+var fs = require('fs')
+  , eventEmitter = new require("events").EventEmitter();
+  ;
 
 module.exports = exports = {
   receiveImage: function(req, res, next) {
@@ -20,6 +22,7 @@ module.exports = exports = {
           if (err) {
             next(err);
           };
+          eventEmitter.emit('new-doodle', {url: '/tmp/thousand-doodle.png'})
           return res.json('Sent!');
         });
       })
