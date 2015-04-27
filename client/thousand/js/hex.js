@@ -278,7 +278,7 @@ var openObserver = Rx.Observer.create(function(open) {
 var messages = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/thousand', null, openObserver)
 .map(function(messageEvent) {
   return JSON.parse(messageEvent.data);
-});
+}).share();
 
 messages.filter(function(message) {
   return message.type === 'event';
