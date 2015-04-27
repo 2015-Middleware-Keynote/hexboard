@@ -29,18 +29,11 @@ module.exports = function(server) {
     clients[id] = ws;
     ws.id = id;
     console.log('/thousand connection');
-    var subscription1
-      , subscription2;
-    subscription1 = thousand.events.subscribe(function(event) {
+    var subscription;
+    subscription = thousand.events.subscribe(function(event) {
       if (ws.readyState === ws.OPEN) {
         ws.send(JSON.stringify({type: 'event', data: event}));
       };
-    }, null, function() {
-      subscription2 = thousand.doodles.subscribe(function(doodle) {
-        if (ws.readyState === ws.OPEN) {
-          ws.send(JSON.stringify({type: 'doodle', data: doodle}));
-        };
-      });
     });
     ws.on('message', function(data, flags) {
       var message = JSON.parse(data);
@@ -50,8 +43,7 @@ module.exports = function(server) {
     });
     ws.onclose = function() {
       console.log('Onclose: disposing /thousand subscriptions');
-      subscription2 && subscription2.dispose();
-      subscription1 && subscription1.dispose();
+      subscription && subscription.dispose();
     };
   });
 

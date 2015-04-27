@@ -19,4 +19,5 @@ module.exports = exports = function (router) {
 
   router.route('/doodle/:containerId').get(doodleController.getImage);
   router.route('/doodle/:containerId').post(doodleController.receiveImage);
+  router.route('/doodle/random/:numDoodles').get(doodleController.randomDoodles);
 }

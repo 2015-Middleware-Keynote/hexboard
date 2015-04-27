@@ -181,6 +181,12 @@ hex = (function dataSimulator(d3, Rx) {
     return winners;
   };
 
+  Rx.Observable.fromEvent(d3.select('#push-doodles').node(), 'click').subscribe(function() {
+    var xhr = d3.xhr('/api/doodle/random/10', function(err, res) {
+      console.log(err || res);
+    });
+  });
+
   Rx.Observable.fromEvent(d3.select('#winners').node(), 'click').subscribe(function() {
     var winners = pickWinners();
     var c = {x: width / 2, y: height / 2};

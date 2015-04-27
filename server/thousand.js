@@ -43,10 +43,31 @@ var doodles = Rx.Observable.range(0, 200)
       .delay(getRandomInt(0, 10000));
   });
 
+var randomDoodles = function(numDoodles) {
+  var images = ['box-cartone.png', 'cherries.png', 'fairy.png', 'johnny-automatic-skateboard.png', 'kick-scouter3.png', 'papaya.png', 'paratrooper.png', 'Segelyacht.png', 'TheStructorr-cherries.png', 'unicycle.png'];
+  var doodles = Rx.Observable.range(0, numDoodles)
+    .flatMap(function(x) {
+      return Rx.Observable.range(0,1)
+        .map(function() {
+          var containerId = getRandomInt(0, 1026);
+          var doodle = {
+            containerId: containerId
+          , url: '/thousand/doodles/' + images[getRandomInt(0, images.length)]
+          , firstname: 'FirstName' + containerId
+          , lastname: 'LastName' + containerId
+          };
+          return doodle;
+        })
+        .delay(getRandomInt(0, 1000));
+    });
+  return doodles;
+}
+
 var doodleEmitter = new EventEmitter();
 
 module.exports = {
   events: events2
 , doodles: doodles
+, randomDoodles: randomDoodles
 , doodleEmitter: doodleEmitter
 };

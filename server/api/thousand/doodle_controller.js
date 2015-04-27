@@ -2,7 +2,8 @@
 
 var fs = require('fs')
   , os = require('os')
-  , eventEmitter = require('../../thousand').doodleEmitter
+  , thousand = require('../../thousand')
+  , eventEmitter = thousand.doodleEmitter
   ;
 
 module.exports = exports = {
@@ -47,5 +48,18 @@ module.exports = exports = {
     fs.createReadStream(os.tmpdir() + '/' + filename, {
       'bufferSize': 4 * 1024
     }).pipe(res);
+  },
+
+  randomDoodles: function(req, res, next) {
+    var numDoodles = req.params.numDoodles;
+    thousand.randomDoodles(numDoodles)
+      .subscribe(function(doodle) {
+        eventEmitter.emit('new-doodle', doodle);
+      }, function(error) {
+        next(error)
+      }, function() {
+        console.log(numDoodles + ' doodles pushed');
+        res.json({msg: numDoodles + ' doodles pushed'});
+      });
   }
 };
