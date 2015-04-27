@@ -12,8 +12,8 @@ var getRandomInt = function (min, max) {
 var readStream = fs.createReadStream('server/api/thousand/cherries.png');
 var id = getRandomInt(0,1060);
 // id = "";
-var req = request.post('http://localhost:9000/api/doodle/' + id);
-// var req = request.post('http://beacon.jbosskeynote.com/api/doodle/' + id);
+//var req = request.post('http://localhost:9000/api/doodle/' + id);
+ var req = request.post('http://beacon.jbosskeynote.com/api/doodle/' + id);
 readStream.pipe(req, {end: false});
 readStream.on('end', function() {
   req.end(function (err, res) {

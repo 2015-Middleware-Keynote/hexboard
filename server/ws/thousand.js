@@ -27,6 +27,7 @@ module.exports = function(server) {
   wss.on('connection', function connection(ws) {
     var id = count++;
     clients[id] = ws;
+    ws.id = id;
     console.log('/thousand connection');
     var subscription1
       , subscription2;
