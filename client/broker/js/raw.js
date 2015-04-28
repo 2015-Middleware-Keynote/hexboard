@@ -4,49 +4,233 @@ var rawfeed = rawfeed || {};
 
 d3demo.layout = (function dataSimulator(d3, Rx) {
 
-  var width = d3demo.layout.width
-    , height = d3demo.layout.height
-    , locations = d3demo.layout.locations;
+  var display = {
+    x: Math.max(document.documentElement.clientWidth, window.innerWidth) || 1920
+  , y: Math.max(document.documentElement.clientHeight, window.innerHeight) - 4 - 39
+  };
 
-  var i = 0;
+  var margin = {top: 0, right: 0, bottom: 0, left: 0};
 
-  var forceLocation = null
-    , forceLabel = null
-    , nodes = null
-    , labelAnchors = []
-    , labelAnchorLinks = []
-    , dataNodes
-    , foci = null;
+  var  width = display.x - margin.left - margin.right
+   ,  height = display.y - margin.top - margin.bottom;
+
 
   var svg = d3.select('.map').append('svg')
     .attr('width', width)
     .attr('height', height);
 
-  locations.forEach(function(location, index) {
-    location.count = 0;
-    labelAnchors.push({ node: location });
-    labelAnchors.push({ node: location });
-    labelAnchorLinks.push({
-					source : index * 2,
-					target : index * 2 + 1,
-					weight : 1
-		});
-  });
+  var box0 = {
+    x0: width / 4,
+    y0: height/4 - height / 8,
+    width: width / 2,
+    height: height/4
+  };
+  box0.x1 = box0.x0 + box0.width;
+  box0.y1 = box0.y0 + box0.height;
+  box0.cx = box0.x0 + box0.width  / 2;
+  box0.cy = box0.y0 + box0.height / 2;
 
-  function particle(location) {
-      svg.insert('circle', 'rect')
-        .attr('cx', getRandomInt(1, width))
-        .attr('cy', getRandomInt(1, height))
-        .attr('r', 100)
-        .style('stroke', d3.hsl(((location.id * 30) % 360), 1, .5))
+  var box1 = {
+    x0: width / 2 - width / 16,
+    y0: 3 * height/4 - height / 8 - 50,
+    width: width / 8,
+    height: height /4
+  }
+  box1.x1 = box1.x0 + box1.width;
+  box1.y1 = box1.y0 + box1.height;
+  box1.cx = box1.x0 + box1.width / 2;
+  box1.cy = box1.y0 + box1.height / 2;
+
+  function drawBoxes() {
+    svg.insert('rect')
+      .attr('class', 'jms')
+      .attr('x', box0.x0)
+      .attr('y', box0.y0)
+      .attr('width',box0.width)
+      .attr('height', box0.height);
+
+    var spark = svg.insert('rect')
+      .attr('class', 'jms')
+      .attr('x', box1.x0)
+      .attr('y', box1.y0)
+      .attr('width', box1.width)
+      .attr('height', box1.height);
+
+    var scale = 2;
+    var gears = svg.insert('g')
+      .attr('class', 'gear')
+      .attr('transform', 'matrix('+scale+', 0, 0, '+scale+', '+ (box1.cx - 100) +', '+ (box1.cy - 80) +')')
+    var gearbox1 = gears.append('g');
+
+
+    // gear source: http://commons.wikimedia.org/wiki/File:Noun_project_1063.svg
+    gearbox1
+      .append('path')
+      .attr('d', 'm86.6 10.3v-0.1c-1.5-2-3.3-3.7-5.4-5.3v0.1c-1.7 1.3-3.4 2.7-5 4.1-0.7-0.4-1.3-0.7-1.9-1-0.8-0.4-1.6-0.8-2.5-1-0.3-0.1-0.6-0.2-0.9-0.2-0.2-2.2-0.4-4.4-0.7-6.6-1-0.2-2-0.2-3.1-0.3h-0.8-0.8c-1 0.1-1.9 0.1-2.8 0.3-0.3 2.1-0.5 4.3-0.6 6.5-0.4 0-0.7 0.1-1.1 0.2-0.1 0-0.2 0-0.3 0.1-0.8 0.2-1.6 0.6-2.4 1-0.7 0.3-1.3 0.6-1.9 1-1.7-1.4-3.3-2.7-5-4.1l-0.1-0.1c-0.4 0.3-0.8 0.6-1.1 0.9-0.7 0.5-1.3 1.1-1.8 1.7-0.9 0.8-1.6 1.8-2.4 2.8h0.1c1.3 1.7 2.7 3.3 4.1 5-0.4 0.6-0.8 1.3-1.1 1.9-0.4 0.8-0.7 1.7-0.9 2.5-0.2 0.4-0.3 0.8-0.3 1.1-2.2 0.2-4.4 0.4-6.5 0.7-0.2 1-0.3 2-0.3 3.1 0 1.5 0.1 3 0.4 4.4 2.1 0.2 4.2 0.4 6.4 0.6 0 0.4 0.1 0.8 0.3 1.1 0.2 0.9 0.5 1.7 0.9 2.6 0.4 0.7 0.7 1.4 1.2 2-1.4 1.7-2.8 3.3-4.1 5 1.5 2.1 3.3 3.9 5.4 5.4v-0.1c1.6-1.3 3.3-2.7 4.9-4.1h0.1c0.5 0.3 1.1 0.6 1.6 0.9 0.9 0.4 1.9 0.8 2.8 1 0.4 0.1 0.7 0.2 1 0.3 0.2 2.1 0.4 4.3 0.7 6.5 0.9 0.1 1.8 0.2 2.8 0.2h1.5c1.1 0 2.2-0.1 3.3-0.3 0.2-2.1 0.4-4.3 0.6-6.5 0.3-0.1 0.6-0.2 0.9-0.3 0.9-0.2 1.7-0.5 2.5-0.9 0.7-0.3 1.4-0.7 2.1-1.2 0 0.1 0 0.1 0.1 0.1 1.6 1.4 3.3 2.8 5 4.1 0.3-0.2 0.6-0.4 1-0.7 0.6-0.5 1.2-1.1 1.7-1.7 0.9-0.9 1.8-1.9 2.6-3-1.4-1.7-2.8-3.4-4.2-5v-0.1c0.3-0.5 0.6-1.1 0.9-1.7 0.3-0.8 0.7-1.6 0.9-2.4 0-0.1 0-0.2 0.1-0.2 0-0.4 0.1-0.7 0.2-0.9 2.2-0.2 4.4-0.4 6.5-0.6 0.2-1 0.2-2 0.3-3v-0.9-0.8c-0.1-1-0.1-2-0.3-3-2.1-0.2-4.3-0.4-6.5-0.6-0.1-0.3-0.2-0.6-0.2-0.9-0.3-0.9-0.6-1.8-1-2.7-0.3-0.6-0.7-1.3-1-1.9 1.3-1.6 2.7-3.3 4.1-5zm-26.7 8.3c1.8-1.9 4-2.8 6.5-2.7 2.6-0.1 4.7 0.8 6.6 2.7 1.8 1.8 2.7 4 2.7 6.5 0 2.6-0.9 4.7-2.7 6.6-1.9 1.8-4 2.7-6.6 2.7-2.5 0-4.7-0.9-6.5-2.7-1.8-1.9-2.7-4-2.7-6.6 0-2.5 0.9-4.7 2.7-6.5z')
+      .append('animateTransform')
+        .attr('attributeName', 'transform')
+        .attr('type', 'rotate')
+        .attr('from', '0 66.5 25')
+        .attr('to', '360 66.5 25')
+        .attr('dur', '3s')
+        .attr('repeatCount', 'indefinite')
+    gearbox1
+      .append('path')
+      .attr('d', 'm66.5 17.2c-2.2 0-4 0.8-5.6 2.3-1.5 1.6-2.3 3.4-2.3 5.6s0.8 4 2.3 5.6c1.6 1.6 3.4 2.4 5.6 2.4s4-0.8 5.6-2.4c1.6-1.6 2.3-3.4 2.3-5.6s-0.7-4-2.3-5.6c-1.6-1.5-3.4-2.3-5.6-2.3zm-4.2 3.7c1.2-1.1 2.6-1.7 4.2-1.7s3 0.6 4.2 1.7c1.2 1.2 1.7 2.5 1.7 4.2s-0.5 3.1-1.7 4.2c-1.2 1.2-2.6 1.8-4.2 1.8s-3-0.6-4.2-1.8c-1.1-1.1-1.7-2.5-1.7-4.2 0-1.6 0.6-3 1.7-4.2z');
+
+    var gearbox2 = gears
+      .append('g')
+      .attr('transform', 'translate(-33, 33)');
+
+    gearbox2
+      .append('path')
+      .attr('d', 'm86.6 10.3v-0.1c-1.5-2-3.3-3.7-5.4-5.3v0.1c-1.7 1.3-3.4 2.7-5 4.1-0.7-0.4-1.3-0.7-1.9-1-0.8-0.4-1.6-0.8-2.5-1-0.3-0.1-0.6-0.2-0.9-0.2-0.2-2.2-0.4-4.4-0.7-6.6-1-0.2-2-0.2-3.1-0.3h-0.8-0.8c-1 0.1-1.9 0.1-2.8 0.3-0.3 2.1-0.5 4.3-0.6 6.5-0.4 0-0.7 0.1-1.1 0.2-0.1 0-0.2 0-0.3 0.1-0.8 0.2-1.6 0.6-2.4 1-0.7 0.3-1.3 0.6-1.9 1-1.7-1.4-3.3-2.7-5-4.1l-0.1-0.1c-0.4 0.3-0.8 0.6-1.1 0.9-0.7 0.5-1.3 1.1-1.8 1.7-0.9 0.8-1.6 1.8-2.4 2.8h0.1c1.3 1.7 2.7 3.3 4.1 5-0.4 0.6-0.8 1.3-1.1 1.9-0.4 0.8-0.7 1.7-0.9 2.5-0.2 0.4-0.3 0.8-0.3 1.1-2.2 0.2-4.4 0.4-6.5 0.7-0.2 1-0.3 2-0.3 3.1 0 1.5 0.1 3 0.4 4.4 2.1 0.2 4.2 0.4 6.4 0.6 0 0.4 0.1 0.8 0.3 1.1 0.2 0.9 0.5 1.7 0.9 2.6 0.4 0.7 0.7 1.4 1.2 2-1.4 1.7-2.8 3.3-4.1 5 1.5 2.1 3.3 3.9 5.4 5.4v-0.1c1.6-1.3 3.3-2.7 4.9-4.1h0.1c0.5 0.3 1.1 0.6 1.6 0.9 0.9 0.4 1.9 0.8 2.8 1 0.4 0.1 0.7 0.2 1 0.3 0.2 2.1 0.4 4.3 0.7 6.5 0.9 0.1 1.8 0.2 2.8 0.2h1.5c1.1 0 2.2-0.1 3.3-0.3 0.2-2.1 0.4-4.3 0.6-6.5 0.3-0.1 0.6-0.2 0.9-0.3 0.9-0.2 1.7-0.5 2.5-0.9 0.7-0.3 1.4-0.7 2.1-1.2 0 0.1 0 0.1 0.1 0.1 1.6 1.4 3.3 2.8 5 4.1 0.3-0.2 0.6-0.4 1-0.7 0.6-0.5 1.2-1.1 1.7-1.7 0.9-0.9 1.8-1.9 2.6-3-1.4-1.7-2.8-3.4-4.2-5v-0.1c0.3-0.5 0.6-1.1 0.9-1.7 0.3-0.8 0.7-1.6 0.9-2.4 0-0.1 0-0.2 0.1-0.2 0-0.4 0.1-0.7 0.2-0.9 2.2-0.2 4.4-0.4 6.5-0.6 0.2-1 0.2-2 0.3-3v-0.9-0.8c-0.1-1-0.1-2-0.3-3-2.1-0.2-4.3-0.4-6.5-0.6-0.1-0.3-0.2-0.6-0.2-0.9-0.3-0.9-0.6-1.8-1-2.7-0.3-0.6-0.7-1.3-1-1.9 1.3-1.6 2.7-3.3 4.1-5zm-26.7 8.3c1.8-1.9 4-2.8 6.5-2.7 2.6-0.1 4.7 0.8 6.6 2.7 1.8 1.8 2.7 4 2.7 6.5 0 2.6-0.9 4.7-2.7 6.6-1.9 1.8-4 2.7-6.6 2.7-2.5 0-4.7-0.9-6.5-2.7-1.8-1.9-2.7-4-2.7-6.6 0-2.5 0.9-4.7 2.7-6.5z')
+      .append('animateTransform')
+        .attr('attributeName', 'transform')
+        .attr('type', 'rotate')
+        .attr('from', '20 66.5 25')
+        .attr('to', '-340 66.5 25')
+        .attr('dur', '3s')
+        .attr('repeatCount', 'indefinite')
+    gearbox2
+      .append('path')
+      .attr('d', 'm66.5 17.2c-2.2 0-4 0.8-5.6 2.3-1.5 1.6-2.3 3.4-2.3 5.6s0.8 4 2.3 5.6c1.6 1.6 3.4 2.4 5.6 2.4s4-0.8 5.6-2.4c1.6-1.6 2.3-3.4 2.3-5.6s-0.7-4-2.3-5.6c-1.6-1.5-3.4-2.3-5.6-2.3zm-4.2 3.7c1.2-1.1 2.6-1.7 4.2-1.7s3 0.6 4.2 1.7c1.2 1.2 1.7 2.5 1.7 4.2s-0.5 3.1-1.7 4.2c-1.2 1.2-2.6 1.8-4.2 1.8s-3-0.6-4.2-1.8c-1.1-1.1-1.7-2.5-1.7-4.2 0-1.6 0.6-3 1.7-4.2z');
+
+    var imgWidth = box1.width;
+    var imgHeight = 137 * imgWidth / 258;
+
+    var defs = svg.append('defs');
+
+    defs.append('pattern')
+      .attr('id', 'spark')
+      .attr('patternUnits', 'userSpaceOnUse')
+      .attr('width', imgWidth)
+      .attr('height', imgHeight)
+      .attr('x', imgWidth / 2)
+      .attr('y', 30)
+    .append('image')
+      .attr('xlink:href', '/broker/img/spark-logo.png')
+      .attr('width', imgWidth)
+      .attr('height', imgHeight)
+      .attr('x', 0)
+      .attr('y', 0);
+
+    svg.append('rect')
+      .attr('class', 'logo')
+      .attr('x', box1.x0)
+      .attr('y', box1.y1 + 10)
+      .attr('width', imgWidth)
+      .attr('height', imgHeight)
+      .attr('fill', 'url(#spark)')
+
+    var imgHeight = 114;
+    var imgWidth = 386;
+    var yOffest = 15;
+
+    defs.append('pattern')
+      .attr('id', 'activemq')
+      .attr('patternUnits', 'userSpaceOnUse')
+      .attr('width', imgWidth)
+      .attr('height', imgHeight)
+      .attr('y',imgHeight / 2 + yOffest)
+    .append('image')
+      .attr('xlink:href', '/broker/img/activemq-logo.png')
+      .attr('width', imgWidth)
+      .attr('height', imgHeight)
+      .attr('x', 0)
+      .attr('y', 0);
+
+    svg.append('rect')
+      .attr('class', 'logo')
+      .attr('x', box0.cx - imgWidth / 2)
+      .attr('y', box0.cy - imgHeight / 2 + yOffest)
+      .attr('width', imgWidth)
+      .attr('height', imgHeight)
+      .attr('fill', 'url(#activemq)')
+
+  };
+
+  drawBoxes();
+
+  function particle(index, start) {
+    var particle = svg.insert('circle')
+        .datum({index: index, position: start})
+        .attr('cx', start.x)
+        .attr('cy', start.y)
+        .attr('r', 20)
+        .style('stroke', 'red')
+        .style('stroke-opacity', 1);
+    particle.transition()
+        .duration(1000)
+        .ease('linear')
+        .attr('cx', box0.x0 + getRandomInt(-10, 0))
+        .attrTween('cy', function(d, i, a) {
+          var ease = d3.ease('quad-out');
+          var y0 = parseInt(a);
+          var y1 = box0.y0 + 20 + getRandomInt(0, 200);
+          return function(t) {
+            return y0 + ease(t)*(y1-y0);
+          };
+        })
+        .attr('r', 10)
         .style('stroke-opacity', .4)
       .transition()
-        .duration(1000)
-        .ease('quad-in')
-        .attr('cx', location.x)
-        .attr('cy', location.y)
-        .attr('r', 1e-6)
-        .style('stroke-opacity', 1)
+          .duration(1000)
+          .ease('linear')
+          .attrTween('cx', function(d, i, a) {
+            var x0 = box0.x0 + getRandomInt(0, 200);
+            var x1 = box1.x0 + getRandomInt(-10, 0);
+            return d3.interpolate(x0, x1);
+          })
+          .attrTween('cy', function(d, i, a) {
+            var ease = d3.ease('quad-out');
+            var y0 = box0.y1 + getRandomInt(0, 10);
+            var y1 = box1.y0 + 20 + getRandomInt(0, 200);
+            return function(t) {
+              return y0 + ease(t)*(y1-y0);
+            };
+          })
+          .attr('r', 5)
+          .style('stroke-opacity', 1)
+      .remove()
+    .filter(function(d, i) { return d.index % 20 === 0; })
+        .transition()
+            .duration(1000)
+            .ease('linear')
+            .attrTween('cx', function(d, i, a) {
+              var x0 = box1.x1 + getRandomInt(0, 10);
+              var x1 = box0.x1 + getRandomInt(-125, -75);
+              return d3.interpolate(x0, x1);
+            })
+            .attrTween('cy', function(d, i, a) {
+              var ease = d3.ease('quad-in');
+              var y0 = box1.y0 + getRandomInt(50, 150);
+              var y1 = box0.y1 + getRandomInt(0, 10);
+              return function(t) {
+                return y0 + ease(t)*(y1-y0);
+              };
+            })
+            .attr('r', 1)
+            .style('stroke-opacity', 1)
+    .filter(function(d, i) { return d.index % 20 === 0; })
+        .transition()
+            .duration(1000)
+            .ease('linear')
+            .attrTween('cx', function(d, i, a) {
+              var x0 = box0.x1 + getRandomInt(0, 10);
+              var x1 = width;
+              return d3.interpolate(x0, x1);
+            })
+            .attrTween('cy', function(d, i, a) {
+              var ease = d3.ease('quad-out');
+              var y0 = box0.cy + getRandomInt(-5, 5);
+              var y1 = box0.cy + getRandomInt(-20, 20);
+              return function(t) {
+                return y0 + ease(t)*(y1-y0);
+              };
+            })
+            .attr('r', 1)
+            .style('stroke-opacity', 1)
         .remove();
   };
 
@@ -55,96 +239,15 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     return Math.floor(Math.random() * (max - min) + min);
   };
 
-  var dataNodes = locations;
-
-  forceLocation = d3.layout.force()
-      .size([width, height])
-      .nodes(dataNodes)
-      .links([])
-      .charge(function(d) {
-        return -Math.max(1000, Math.sqrt(d.count)* 100);
-  });
-
-  forceLabel = d3.layout.force()
-      .size([width, height])
-      .nodes(labelAnchors)
-      .links(labelAnchorLinks)
-      .gravity(0)
-      .linkDistance(0)
-      .linkStrength(8)
-      .charge(-100)
-      ;
-
-  nodes = svg.selectAll('.node')
-    .data(dataNodes)
-    .enter().append('circle')
-    .attr('class', 'node')
-    .attr('r', 2)
-    .style('fill', function(d) { return d3.hsl(((d.id * 30) % 360), 1, .5)})
-    .attr('cx', function(d) { return d.x; })
-    .attr('cy', function(d) { return d.y; });
-
-  var anchorLinks = svg.selectAll("line.anchorLink").data(labelAnchorLinks);
-
-  var anchorNodes = svg.selectAll("g.anchorNode")
-    .data(forceLabel.nodes())
-    .enter()
-    .append("svg:g")
-    .attr("class", "anchorNode");
-
-	anchorNodes.append("svg:circle").attr("r", 0).style("fill", "#FFF");
-	anchorNodes.append("svg:text").text(function(d, i) {
-	   return i % 2 == 0 ? "" : d.node.name
-	}).style("fill", "#555");
-
-  forceLocation.on('tick', function() {
-    nodes
-      .attr('cx', function(d) { return d.x; })
-      .attr('cy', function(d) { return d.y; })
-      .attr('r', function(d) {return Math.max(5, 50 * Math.log(1 + d.count / 40))})
-    anchorNodes.each(function(d, i) {
-      if(i % 2 == 0) {
-						d.x = d.node.x;
-						d.y = d.node.y;
-					} else {
-						var b = this.childNodes[1].getBBox();
-
-						var diffX = d.x - d.node.x;
-						var diffY = d.y - d.node.y;
-
-						var dist = Math.sqrt(diffX * diffX + diffY * diffY);
-
-						var shiftX = b.width * (diffX - dist) / (dist * 2);
-						shiftX = Math.max(-b.width, Math.min(0, shiftX));
-						var shiftY = 5;
-						this.childNodes[1].setAttribute("transform", "translate(" + shiftX + "," + shiftY + ")");
-					}
-		});
-
-    anchorNodes.attr("transform", function(d) {
-		    return "translate(" + d.x + "," + d.y + ")";
-		});
-
-    anchorLinks.attr("x1", function(d) {
-					return d.source.x;
-				}).attr("y1", function(d) {
-					return d.source.y;
-				}).attr("x2", function(d) {
-					return d.target.x;
-				}).attr("y2", function(d) {
-					return d.target.y;
-				});
-  });
-
-  forceLocation.start();
-  forceLabel.start();
-
-  Rx.Observable.interval(25).map(function() {
-    var location = locations[getRandomInt(0, locations.length)];
-    location.count++;
-    particle(location);
-    forceLocation.start();
-    forceLabel.start();
-  }).take(10000).subscribe();
+  Rx.Observable.interval(10)
+  .flatMap(function(x1) {
+    return Rx.Observable.range(0, 10).map(function(x2) {
+      return 10 * x1 + x2;
+    })
+  })
+  .tap(function(index) {
+    var start = {x: 0, y: getRandomInt(0, height)};
+    particle(index, start);
+  }).take(100000).subscribe();
 
 })(d3, Rx);

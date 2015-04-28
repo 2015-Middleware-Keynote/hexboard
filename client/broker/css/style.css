@@ -3,14 +3,27 @@ body {
   min-width: 960px;
 }
 
-rect {
-  fill: none;
-  pointer-events: all;
-}
-
 circle {
   fill: none;
   stroke-width: 2.5px;
+}
+
+.jms {
+  stroke-width: 2.5px;
+  fill: lightgray;
+  stroke: gray;
+}
+
+.spark {
+  stroke-width: 2.5px;
+  fill: lightgray;
+  stroke: gray;
+}
+
+.gear {
+  fill: black;
+  stroke: lightgray;
+  stroke-width: 1px;
 }
 
 .node {
