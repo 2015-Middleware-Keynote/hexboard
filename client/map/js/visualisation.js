@@ -223,7 +223,7 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
     console.log(err.stack);
   };
 
-  var playback = function() {
+  var random = function() {
     tap(d3demo.playback.scans, d3demo.playback.clockProgress, d3demo.playback.bufferProgress);
     d3demo.forcemap.start();
 
@@ -237,11 +237,18 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
   };
 
   var live = function() {
-    tap(d3demo.stomp.scans);
+    tap(d3demo.stomp.live);
     d3demo.forcemap.start();
 
     scans.subscribeOnError(errorHandler);
   };
+
+  var playback = function() {
+    tap(d3demo.stomp.playback);
+    d3demo.forcemap.start();
+
+    scans.subscribeOnError(errorHandler);
+  }
 
   var start = function() {
     // playback();
@@ -251,6 +258,7 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
   return {
     live: live
   , playback: playback
+  , random: random
   , unSelectNodes: unSelectNodes
   , selectNodes: selectNodes
   , hideUserInfoPanel: hideUserInfoPanel

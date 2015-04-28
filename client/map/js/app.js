@@ -7,12 +7,17 @@ var d3demo = d3demo || {};
     d3demo.playback.init();
     d3demo.forcemap.init();
 
-    if (d3demo.live) {
-      d3demo.visualisation.live();
-    } else {
-      d3demo.visualisation.playback();
+    switch (d3demo.datafeed) {
+      case 'live':
+        d3demo.visualisation.live();
+        break;
+      case 'playback':
+        d3demo.visualisation.playback();
+        break;
+      case 'random':
+      default:
+        d3demo.visualisation.random();
     }
-
   };
 
   run();

@@ -6,27 +6,27 @@ var WebSocketServer = require('ws').Server
   ;
 
 module.exports = function(server) {
-  var wssLive = new WebSocketServer({server: server, path: '/live'});
+  var wss = new WebSocketServer({server: server, path: '/playback'});
 
   var count = 0;
   var clients = {};
 
-  wssLive.broadcast = function broadcast(data) {
+  wss.broadcast = function broadcast(data) {
     for (var i in clients) {
       var ws = clients[i];
       if (ws.readyState === ws.OPEN) {
         ws.send(data);
       } else if (ws.readyState === ws.CLOSED) {
-        console.log('Peer #' + ws.id + ' disconnected from /live.');
+        console.log('Peer #' + ws.id + ' disconnected from /playback.');
         delete clients[ws.id];
       }
     };
   };
 
-  wssLive.on('connection', function connection(wsLive) {
+  wss.on('connection', function connection(ws) {
     var id = count++;
-    clients[id] = wsLive;
-    wsLive.id = id;
+    clients[id] = ws;
+    ws.id = id;
     console.log('Peer #' + id + ' connected to /live.');
   });
 
@@ -45,9 +45,9 @@ module.exports = function(server) {
     });
   }
 
-  stomp.getStompFeed('/topic/beaconEvents_processed').subscribe(function(scan) {
+  stomp.getStompFeed('/topic/replay_processed').subscribe(function(scan) {
     // console.log('user', scan.user.name, 'location', scan.location.name);
     saveScan(scan);
-    wssLive.broadcast(JSON.stringify({type: 'scan', data: scan}));
+    wss.broadcast(JSON.stringify({type: 'scan', data: scan}));
   });
 }

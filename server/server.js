@@ -12,5 +12,6 @@ server.listen(port, ip);
 console.log(log);
 
 require('./ws/beacon-live')(server);
+require('./ws/beacon-playback')(server);
 require('./ws/beacon-random')(server);
 require('./ws/thousand')(server);
