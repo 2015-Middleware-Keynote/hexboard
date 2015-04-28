@@ -96,58 +96,27 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
       .append('path')
       .attr('d', 'm66.5 17.2c-2.2 0-4 0.8-5.6 2.3-1.5 1.6-2.3 3.4-2.3 5.6s0.8 4 2.3 5.6c1.6 1.6 3.4 2.4 5.6 2.4s4-0.8 5.6-2.4c1.6-1.6 2.3-3.4 2.3-5.6s-0.7-4-2.3-5.6c-1.6-1.5-3.4-2.3-5.6-2.3zm-4.2 3.7c1.2-1.1 2.6-1.7 4.2-1.7s3 0.6 4.2 1.7c1.2 1.2 1.7 2.5 1.7 4.2s-0.5 3.1-1.7 4.2c-1.2 1.2-2.6 1.8-4.2 1.8s-3-0.6-4.2-1.8c-1.1-1.1-1.7-2.5-1.7-4.2 0-1.6 0.6-3 1.7-4.2z');
 
-    var imgWidth = box1.width;
-    var imgHeight = 137 * imgWidth / 258;
+    var spark = {
+      x: 258, y: 137
+    }
 
-    var defs = svg.append('defs');
+    svg.append('image')
+      .attr('width', spark.x)
+      .attr('height', spark.y)
+      .attr('x', box1.cx - spark.x / 2)
+      .attr('y', box1.y1+10)
+      .attr('xlink:href', '/broker/img/spark-logo.png');
 
-    defs.append('pattern')
-      .attr('id', 'spark')
-      .attr('patternUnits', 'userSpaceOnUse')
-      .attr('width', imgWidth)
-      .attr('height', imgHeight)
-      .attr('x', imgWidth / 2)
-      .attr('y', 30)
-    .append('image')
-      .attr('xlink:href', '/broker/img/spark-logo.png')
-      .attr('width', imgWidth)
-      .attr('height', imgHeight)
-      .attr('x', 0)
-      .attr('y', 0);
+    var activemq = {
+      x: 386, y: 114
+    }
 
-    svg.append('rect')
-      .attr('class', 'logo')
-      .attr('x', box1.x0)
-      .attr('y', box1.y1 + 10)
-      .attr('width', imgWidth)
-      .attr('height', imgHeight)
-      .attr('fill', 'url(#spark)')
-
-    var imgHeight = 114;
-    var imgWidth = 386;
-    var yOffest = 15;
-
-    defs.append('pattern')
-      .attr('id', 'activemq')
-      .attr('patternUnits', 'userSpaceOnUse')
-      .attr('width', imgWidth)
-      .attr('height', imgHeight)
-      .attr('y',imgHeight / 2 + yOffest)
-    .append('image')
-      .attr('xlink:href', '/broker/img/activemq-logo.png')
-      .attr('width', imgWidth)
-      .attr('height', imgHeight)
-      .attr('x', 0)
-      .attr('y', 0);
-
-    svg.append('rect')
-      .attr('class', 'logo')
-      .attr('x', box0.cx - imgWidth / 2)
-      .attr('y', box0.cy - imgHeight / 2 + yOffest)
-      .attr('width', imgWidth)
-      .attr('height', imgHeight)
-      .attr('fill', 'url(#activemq)')
-
+    svg.append('image')
+      .attr('width', activemq.x)
+      .attr('height', activemq.y)
+      .attr('x', box0.cx - activemq.x / 2)
+      .attr('y', box0.cy - activemq.y / 2)
+      .attr('xlink:href', '/broker/img/activemq-logo.png');
   };
 
   drawBoxes();
