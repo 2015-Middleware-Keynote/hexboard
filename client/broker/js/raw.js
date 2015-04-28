@@ -117,6 +117,34 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
       .attr('x', box0.cx - activemq.x / 2)
       .attr('y', box0.cy - activemq.y / 2)
       .attr('xlink:href', '/broker/img/activemq-logo.png');
+
+    svg.append('text')
+      .attr('class', 'topic')
+      .attr('x', box0.x0 + 10)
+      .attr('y', box0.y0 + 30)
+      .text('/topic/beaconEvents');
+
+    svg.append('text')
+      .attr('id', 'beaconEvents')
+      .attr('class', 'count')
+      .attr('x', box0.x0 + 10)
+      .attr('y', box0.cy + 10)
+      .text('1432567');
+
+      svg.append('text')
+        .attr('class', 'topic')
+        .attr('text-anchor', 'end')
+        .attr('x', box0.x1 - 10)
+        .attr('y', box0.y0 + 30)
+        .text('/topic/beaconEvents_processed');
+
+      svg.append('text')
+        .attr('id', 'beaconEvents_processed')
+        .attr('class', 'count')
+        .attr('text-anchor', 'end')
+        .attr('x', box0.x1 - 10)
+        .attr('y', box0.cy + 10)
+        .text('0');
   };
 
   drawBoxes();
@@ -165,6 +193,10 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     .filter(function(d, i) { return d.index % 20 === 0; })
         .transition()
             .duration(1000)
+            .each('start', function() {
+              var text = d3.select(beaconEvents_processed);
+              text.text(parseInt(text.text()) + 1);
+            })
             .ease('linear')
             .attrTween('cx', function(d, i, a) {
               var x0 = box1.x1 + getRandomInt(0, 10);
@@ -181,7 +213,6 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
             })
             .attr('r', 1)
             .style('stroke-opacity', 1)
-    .filter(function(d, i) { return d.index % 20 === 0; })
         .transition()
             .duration(1000)
             .ease('linear')
@@ -200,7 +231,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
             })
             .attr('r', 1)
             .style('stroke-opacity', 1)
-        .remove();
+            .remove();
   };
 
   // Returns a random integer between min included) and max (excluded)
@@ -216,6 +247,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   })
   .tap(function(index) {
     var start = {x: 0, y: getRandomInt(0, height)};
+    d3.select('#beaconEvents').text(index);
     particle(index, start);
   }).take(100000).subscribe();
 
