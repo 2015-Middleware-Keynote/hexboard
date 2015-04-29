@@ -5,6 +5,7 @@ var Rx = require('rx')
   , locationHashMap = require('./api/location/location_controllers').locationHashMap
   , Stomp = require('stompjs')
   , WebSocket = require('ws')
+  , debuglog = require('debuglog')('stomp')
   ;
 
 var idMap = {};
@@ -28,29 +29,32 @@ var getUser = function(idInt) {
   return users[index];
 }
 
+var connection = Rx.Observable.create(function (observer) {
+  console.log(new Date());
+  console.log('Connecting...');
+  var client = Stomp.overWS('ws://52.10.252.216:61614', ['v12.stomp']);
+  // client.heartbeat = {outgoing: 0, incoming: 0}; // a workaround for the failing heart-beat
+  // client.heartbeat.incoming = 20000;
+  client.debug = function(m) {
+    debuglog(new Date());
+    // console.log(new Date());
+    debuglog(m);
+    // console.log(m);
+  };
+  client.connect('admin', 'admin', function(frame) {
+    console.log(frame.toString());
+    observer.onNext(client);
+  }, function(error) {
+    console.error(error);
+    observer.onError(new Error(error));
+  });
+})
+.retryWhen(function(errors) {
+  return errors.delay(2000);
+}).share();
+
 var getStompFeed = function(queue) {
-  var live = Rx.Observable.create(function (observer) {
-    console.log(new Date());
-    console.log('Connecting...');
-    var client = Stomp.overWS('ws://52.10.252.216:61614', ['v12.stomp']);
-    // client.heartbeat = {outgoing: 0, incoming: 0}; // a workaround for the failing heart-beat
-    client.debug = undefined;
-    // client.debug = function(m) {
-    //   console.log(new Date());
-    //   console.log(m);
-    // };
-    client.connect('admin', 'admin', function(frame) {
-      console.log(frame.toString());
-      observer.onNext(client);
-    }, function(error) {
-      console.error(error);
-      observer.onError(new Error(error));
-    });
-  })
-  .retryWhen(function(errors) {
-    return errors.delay(2000);
-  })
-  .flatMap(function(client) {
+  return connection.flatMap(function(client) {
     return Rx.Observable.create(function (observer) {
       console.log('Subscribing to ' + queue + '...');
       client.subscribe(queue, function(message) {
@@ -81,9 +85,7 @@ var getStompFeed = function(queue) {
         , type: 'check-in'
         , timestamp: message.headers.timestamp * 1000
         }
-        if (process.env.DEBUG) {
-          console.log('Event | user: ', event.user.name, 'location: ', event.location.name);
-        };
+        // debuglog('Event | user: ', event.user.name, 'location: ', event.location.name);
         observer.onNext(event);
         return function() {
           client.disconnect(function() {
@@ -95,8 +97,6 @@ var getStompFeed = function(queue) {
       )
     })
   }).share();
-
-  return live;
 };
 
 module.exports = {
