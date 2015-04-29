@@ -4,6 +4,7 @@ var userController = require('./user/user_controllers.js')
   , scanController = require('./scan/scan_controllers.js')
   , locationController = require('./location/location_controllers.js')
   , doodleController = require('./thousand/doodle_controller.js')
+  , supportController = require('./support/support_controller.js')
   ;
 
 module.exports = exports = function (router) {
@@ -20,4 +21,6 @@ module.exports = exports = function (router) {
   router.route('/doodle/:containerId').get(doodleController.getImage);
   router.route('/doodle/:containerId').post(doodleController.receiveImage);
   router.route('/doodle/random/:numDoodles').get(doodleController.randomDoodles);
+
+  router.route('/support').post(supportController.receiveFeedback);
 }
