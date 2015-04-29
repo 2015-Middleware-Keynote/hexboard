@@ -61,10 +61,18 @@ var getStompFeed = function(queue) {
         message.ack();
         var location;
         switch(message.headers.location_id) {
+          case 'Entrance':
+          case 'General':
+          case 'Lunch1':
+          case 'Lunch2':
+          case 'Booth1':
+          case 'Booth2':
+          case 'Room200':
           case 'Room201':
           case 'Room202':
           case 'Room203':
           case 'Room204':
+          case 'Ballroom':
             location = locationHashMap[message.headers.location_id];
             break;
           case 'Room205':
