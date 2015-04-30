@@ -141,7 +141,9 @@ d3demo.forcemap = (function visualisation(d3, Rx) {
 
   var getNodesByName = function(str) {
     return nodes.filter(function(d) {
-      return d.user.name.toLowerCase().indexOf(str.toLowerCase()) > -1;
+      return d.user.name.toLowerCase().indexOf(str.toLowerCase()) > -1
+        || d.user.id && d.user.id.toString().toLowerCase().indexOf(str.toString().toLowerCase()) > -1
+        || d.beaconId && d.beaconId.toString().toLowerCase().indexOf(str.toString().toLowerCase()) > -1;
     });
   };
 

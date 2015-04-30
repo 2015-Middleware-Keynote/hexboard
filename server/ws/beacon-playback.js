@@ -27,7 +27,7 @@ module.exports = function(server) {
     var id = count++;
     clients[id] = ws;
     ws.id = id;
-    console.log('Peer #' + id + ' connected to /live.');
+    console.log('Peer #' + id + ' connected to /playback.');
   });
 
   var saveScan = function(scan) {

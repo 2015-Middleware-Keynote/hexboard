@@ -78,7 +78,7 @@ d3demo.controls = (function controls(d3, Rx) {
           var option = document.createElement('li');
           var link = document.createElement('a');
           link.href="#";
-          link.textContent = d.user.name;
+          link.textContent = d.user.name + ' (id: '+d.user.id+ (d.beaconId ? ', beacon: '+d.beaconId+')' : ')');
           link.dataset.userid = d.user.id;
           option.appendChild(link);
           typeahead.insertBefore(option, typeahead.firstChild);

@@ -18,7 +18,7 @@ module.exports = function(server) {
       if (ws.readyState === ws.OPEN) {
         ws.send(data);
       } else if (ws.readyState === ws.CLOSED) {
-        console.log('Peer #' + ws.id + ' disconnected from /live.');
+        console.log('Peer #' + ws.id + ' disconnected from /thousand.');
         delete clients[ws.id];
       }
     };

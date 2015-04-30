@@ -5,6 +5,7 @@ var d3demo = d3demo || {};
 d3demo.visualisation = (function visualisation(d3, Rx) {
   var checkinNode = function(movement) {
     var dataNode = d3demo.forcemap.getDataNodeById(movement.user.id);
+    dataNode.beaconId = movement.beaconId;
     dataNode.present = true;
     dataNode.exiting = false;
     dataNode.focus = movement.location.id;
@@ -80,6 +81,7 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
       var div = d3.select('.userinfo');
       div.style({'display': 'block'});
       div.select('.id_v').text(data.user.id);
+      div.select('.beacon_v').text(data.beaconId);
       div.select('.name_v').text(data.user.name);
       div.select('.checkin_v').text(formatTime(data.checkInTime));
       div.select('.checkout_v').text(formatTime(data.checkOutTime));
