@@ -1,6 +1,6 @@
 'use strict';
 
-var request = require('superagent')
+var request = require('request')
   , fs = require('fs')
   ;
 
@@ -11,15 +11,13 @@ var getRandomInt = function (min, max) {
 
 var readStream = fs.createReadStream('server/api/thousand/cherries.png');
 var id = getRandomInt(0,1060);
-// id = "";
-var req = request.post('http://localhost:9000/api/doodle/' + id);
- // var req = request.post('http://beacon.jbosskeynote.com/api/doodle/' + id);
-readStream.pipe(req, {end: false});
-readStream.on('end', function() {
-  req.end(function (err, res) {
-    if (err) {
-      throw new Error(err);
-    }
-    console.log('res', res.body);
-  });
-})
+var url = 'http://localhost:9000/api/doodle/' + id + '?name=John%20Doe';
+// var url = 'http://beacon.jbosskeynote.com/api/doodle/' + id + '?name=John%20Doe';
+var req = request.post(url, function (err, res, body) {
+  if (err) {
+    throw new Error(err);
+  }
+  console.log('res', res.body);
+});
+ //
+readStream.pipe(req);

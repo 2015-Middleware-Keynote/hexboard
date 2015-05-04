@@ -8,6 +8,8 @@ var fs = require('fs')
 
 module.exports = exports = {
   receiveImage: function(req, res, next) {
+    console.log('originalUrl', req.originalUrl);
+
     var containerId = parseInt(req.params.containerId);
     if (containerId < 0 || containerId >= 1060) {
       next('Invalid containerId');
@@ -26,6 +28,7 @@ module.exports = exports = {
         if (err) {
           next(err);
         };
+        console.log('originalUrl', req.originalUrl);
         fs.write(fd, data, 0, data.length, 0, function(err, written, buffer) {
           if (err) {
             next(err);
@@ -33,9 +36,12 @@ module.exports = exports = {
           eventEmitter.emit('new-doodle', {
             containerId: containerId
           , url: '/api/doodle/' + containerId
-          , name: 'Fullname' + containerId
+          , name: req.query.name
           })
-          return res.json({url:'http://beacon.jbosskeynote.com/api/doodle/'+containerId});
+          return res.json({
+            url:'http://beacon.jbosskeynote.com/api/doodle/'+containerId
+          , name:req.query.name
+          });
         });
       })
     });
