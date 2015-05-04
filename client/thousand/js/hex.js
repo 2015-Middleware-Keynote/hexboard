@@ -195,14 +195,14 @@ hex = (function dataSimulator(d3, Rx) {
       , scale = 0.3
       , opacity = { initial: 0.01, final: 0.9}
       , delta = {x: honeycomb.dimensions.x/4, y: honeycomb.dimensions.y/3}
-      , offset = {x: 0, y: - 0.17}
+      , offset = {x: 0, y: - 0.17}  // an adjustment to make room for the names
       ;
 
     var winnerSpots = d3.range(10).map(function(spot, index) {
       if (index <= 2) {
         return {
           x: c.x + (index % 3 - 1) * delta.x,
-          y: c.y + (Math.floor(index / 3) - 1 + offset.y) * delta.y // the 0.2 is an adjustment to make room for the names
+          y: c.y + (Math.floor(index / 3) - 1 + offset.y) * delta.y
         };
       } else if (index <= 6) {
         return {
@@ -212,7 +212,7 @@ hex = (function dataSimulator(d3, Rx) {
       } else {
         return {
           x: c.x + ((index - 1) % 3 - 1) * delta.x,
-          y: c.y + (Math.floor((index - 1) / 3) - 1 + offset.y) * delta.y // the 0.2 is an adjustment to make room for the names
+          y: c.y + (Math.floor((index - 1) / 3) - 1 + offset.y) * delta.y
         };
       }
     });
