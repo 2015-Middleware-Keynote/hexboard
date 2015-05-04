@@ -168,7 +168,7 @@ hex = (function dataSimulator(d3, Rx) {
   };
 
   var pickWinners = function() {
-    var numWinners = 6;
+    var numWinners = 10;
     var candidates = points.filter(function(point) {
       return point.doodle;
     });
@@ -192,13 +192,28 @@ hex = (function dataSimulator(d3, Rx) {
     var c = {x: width / 2, y: height / 2};
     var perspective = 1.5
       , duration = 1000
-      , scale = 0.2
-      , opacity = { initial: 0.01, final: 0.9};
+      , scale = 0.3
+      , opacity = { initial: 0.01, final: 0.9}
+      , delta = {x: honeycomb.dimensions.x/4, y: honeycomb.dimensions.y/3}
+      , offset = {x: 0, y: - 0.17}
+      ;
 
-    var winnerSpots = d3.range(6).map(function(spot, index) {
-      return {
-        x: c.x + (index % 3 - 1) * honeycomb.dimensions.x/3,
-        y: c.y + (Math.floor(index / 3) * 2 - 1 - 0.3) * honeycomb.dimensions.y/4 // the 0.2 is an adjustment to make room for the names
+    var winnerSpots = d3.range(10).map(function(spot, index) {
+      if (index <= 2) {
+        return {
+          x: c.x + (index % 3 - 1) * delta.x,
+          y: c.y + (Math.floor(index / 3) - 1 + offset.y) * delta.y // the 0.2 is an adjustment to make room for the names
+        };
+      } else if (index <= 6) {
+        return {
+          x: c.x + (index % 4 - 2 + 0.5) * delta.x,
+          y: c.y + offset.y * delta.y
+        };
+      } else {
+        return {
+          x: c.x + ((index - 1) % 3 - 1) * delta.x,
+          y: c.y + (Math.floor((index - 1) / 3) - 1 + offset.y) * delta.y // the 0.2 is an adjustment to make room for the names
+        };
       }
     });
     console.log(winnerSpots);
