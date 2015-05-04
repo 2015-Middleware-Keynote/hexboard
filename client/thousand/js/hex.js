@@ -222,6 +222,11 @@ hex = (function dataSimulator(d3, Rx) {
       if (!p) {
         return;
       }
+
+      var spaceIndex = p.doodle.name.indexOf(' ');
+      p.doodle.firstname = p.doodle.name.substring(0,spaceIndex);
+      p.doodle.lastname = p.doodle.name.substring(spaceIndex+1);
+
       var p0 = winnerSpots[index];
       var group = svg.insert('g')
         .attr('class', 'winner')

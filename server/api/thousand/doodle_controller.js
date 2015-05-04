@@ -33,8 +33,7 @@ module.exports = exports = {
           eventEmitter.emit('new-doodle', {
             containerId: containerId
           , url: '/api/doodle/' + containerId
-          , firstname: 'FirstName' + containerId
-          , lastname: 'LastName' + containerId
+          , name: 'Fullname' + containerId
           })
           return res.json({url:'http://beacon.jbosskeynote.com/api/doodle/'+containerId});
         });

@@ -35,8 +35,7 @@ var doodles = Rx.Observable.range(0, 200)
         var doodle = {
           containerId: containerId
         , url: '/thousand/doodles/' + images[getRandomInt(0, images.length)]
-        , firstname: 'FirstName' + containerId
-        , lastname: 'LastName' + containerId
+        , name: 'FirstName' + containerId + ' LastName' + containerId
         };
         return doodle;
       })
@@ -53,8 +52,7 @@ var randomDoodles = function(numDoodles) {
           var doodle = {
             containerId: containerId
           , url: '/thousand/doodles/' + images[getRandomInt(0, images.length)]
-          , firstname: 'FirstName' + containerId
-          , lastname: 'LastName' + containerId
+          , name: 'FirstName' + containerId + ' LastName' + containerId
           };
           return doodle;
         })
