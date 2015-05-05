@@ -8,7 +8,6 @@ var request = require('supertest')
   , Scan = require('./scan_model')
   , mongoose = require('mongoose')
   , should = require('should')
-  , _ = require('underscore')
   ;
 
 // mongoose.set('debug', true);

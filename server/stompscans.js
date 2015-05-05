@@ -53,37 +53,34 @@ var connection = Rx.Observable.create(function (observer) {
   return errors.delay(2000);
 }).share();
 
+var convertLocation = function(code) {
+  var location = locationHashMap[code];
+  if (!location) {
+    switch(code) {
+      case 'Room205':
+        location = locationHashMap['Ballroom'];
+        break;
+      case 'Room206':
+        location = locationHashMap['Room200'];
+        break;
+      case 'Unknown':
+        location = locationHashMap['Entrance'];
+        break;
+      default:
+        console.log('Unmapped location code: ' + code);
+        location = locationHashMap['Entrance'];
+    };
+  }
+  return location;
+}
+
 var getStompFeed = function(queue) {
   return connection.flatMap(function(client) {
     return Rx.Observable.create(function (observer) {
       console.log('Subscribing to ' + queue + '...');
       client.subscribe(queue, function(message) {
         message.ack();
-        var location;
-        switch(message.headers.location_id) {
-          case 'Entrance':
-          case 'General':
-          case 'Lunch1':
-          case 'Lunch2':
-          case 'Booth1':
-          case 'Booth2':
-          case 'Room200':
-          case 'Room201':
-          case 'Room202':
-          case 'Room203':
-          case 'Room204':
-          case 'Ballroom':
-            location = locationHashMap[message.headers.location_id];
-            break;
-          case 'Room205':
-            location = locationHashMap['Ballroom'];
-            break;
-          case 'Room206':
-            location = locationHashMap['Room200'];
-            break;
-          default:
-            location = locationHashMap['Entrance'];
-        }
+        var location = convertLocation(message.headers.location_id);
         var id = JSON.parse(message.headers.user_id);
         var user = id[0]*10 + id[1];
         var event = {
@@ -109,5 +106,7 @@ var getStompFeed = function(queue) {
 
 module.exports = {
   users: users
+, getUser: getUser
+, convertLocation: convertLocation
 , getStompFeed: getStompFeed
 };
