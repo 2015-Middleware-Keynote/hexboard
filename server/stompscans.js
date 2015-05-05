@@ -90,7 +90,7 @@ var getStompFeed = function(queue) {
           user: getUser(id)
         , beaconId: message.headers.user_id
         , location: location
-        , type: 'check-in'
+        , type: message.headers.type || 'check-in'
         , timestamp: message.headers.timestamp * 1000
         }
         // debuglog('Event | user: ', event.user.name, 'location: ', event.location.name);
