@@ -90,6 +90,9 @@ var getStompFeed = function(queue) {
         , type: message.headers.type || 'check-in'
         , timestamp: message.headers.timestamp * 1000
         }
+        if (!event.timestamp) {
+          event.timestamp = new Date().getTime();
+        }
         // debuglog('Event | user: ', event.user.name, 'location: ', event.location.name);
         observer.onNext(event);
         return function() {
