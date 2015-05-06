@@ -89,7 +89,8 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
             .duration(1000)
             .each('start', function() {
               var text = d3.select('.amq-output .count');
-              text.text(parseInt(text.text()) + 1);
+              var count = parseInt(text.text()) + 1;
+              text.text(numeral(count).format('0,0'));
             })
             .ease('linear')
             .attrTween('cx', function(d, i, a) {
@@ -173,7 +174,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   .filter(function(index) {
     return index % 50 === 0
   }).tap(function(index) {
-    d3.select('.amq-input .count').text(index);
+    d3.select('.amq-input .count').text(numeral(index).format('0,0'));
   }).subscribe();
 
 })(d3, Rx);
