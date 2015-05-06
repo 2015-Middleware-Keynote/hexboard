@@ -128,47 +128,58 @@ var num = 50;
 var randomSource = Rx.Observable.interval(interval).share();
 
 var beaconEventsRandom = function() {
-  return getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents/EnqueueCount')
-  .flatMap(function(enqueueCount) {
-    return randomSource
+  return randomSource
       .map(function(x) {
         return {
-          type: 'beaconEvents'
-        , data: {
-            enqueueCount: enqueueCount
-          , x: x
-          , num: num
-          , interval: interval
+          type: 'beaconEvents',
+          data: {
+            x: x,
+            num: num,
+            interval: interval
           }
-        }
-
-      })
-    });
+        };
+      });
 };
 
 var beaconEventsProcessedRandom = function() {
-  return getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents_processed/EnqueueCount')
-  .flatMap(function(enqueueCount) {
-    return randomSource
+  return randomSource
       .filter(function(x) {
         return x % 50 == 0;
       })
       .map(function(x) {
         return {
-          type: 'beaconEventsProcessed'
-        , data: {
-            enqueueCount: enqueueCount
-          , x: x
-          , num: num
-          , interval: interval * 50
+          type: 'beaconEventsProcessed',
+          data: {
+            x: x / 50,
+            num: 20,
+            interval: interval * 50
           }
-        }
+        };
       });
-    });
 };
 
 var randomFeed = function() {
   return Rx.Observable.merge(
+    getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents/EnqueueCount')
+      .map(function(count) {
+        return {
+          type: 'enqueueCount',
+          data: {
+            count: count,
+            topic: 'beaconEvents'
+          }
+        }
+      }),
+    getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents_processed/EnqueueCount')
+      .map(function(count) {
+        return {
+          type: 'enqueueCount',
+          data: {
+            count: count,
+            topic: 'beaconEventsProcessed'
+          }
+        }
+      }),
     beaconEventsRandom(),
     beaconEventsProcessedRandom()
   );

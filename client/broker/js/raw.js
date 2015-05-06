@@ -4,11 +4,6 @@ var rawfeed = rawfeed || {};
 
 d3demo.layout = (function dataSimulator(d3, Rx) {
 
-  var enqueueCount = {
-    beaconEvents: 0,
-    beaconEventsProcessed: 0
-  };
-
   var display = {
     x: Math.max(document.documentElement.clientWidth, window.innerWidth) || 1920
   , y: Math.max(document.documentElement.clientHeight, window.innerHeight) - 4 - 39
@@ -152,11 +147,13 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   };
 
   var interval;
+  var beaconEventsCount = 0;
+  var beaconEventsProcessedCount = 0;
 
   var feed = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/broker')
   .map(function(message) {
     return JSON.parse(message.data);
-  }).share();
+  }).take(10000).share();
 
   feed.filter(function(message) {
     return message.type === 'setup';
@@ -168,11 +165,29 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   });
 
   feed.filter(function(message) {
+    return message.type === 'enqueueCount';
+  }).tap(function(message) {
+    switch(message.data.topic) {
+      case 'beaconEvents':
+        beaconEventsCount += message.data.count;
+        d3.select('.amq-input .count').text(numeral(beaconEventsCount).format('0,0'));
+        break;
+      case 'beaconEventsProcessed':
+        beaconEventsProcessedCount += message.data.count;
+        d3.select('.amq-output .count').text(numeral(beaconEventsProcessedCount).format('0,0'));
+        break;
+    };
+  })
+  .subscribeOnError(function(err) {
+    console.log(err);
+  });
+
+  feed.filter(function(message) {
     return message.type === 'beaconEvents'
   }).flatMap(function(message) {
+    beaconEventsCount += message.data.num;
     return Rx.Observable.range(0, message.data.num).flatMap(function(x2) {
-      enqueueCount = message.data.enqueueCount;
-      var index = enqueueCount.beaconEvents + message.data.num * message.data.x + x2;
+      var index = message.data.num * message.data.x + x2;
       var delay = getRandomInt(0, message.data.interval);
       return Rx.Observable.range(0,1)
         .map(function() {
@@ -184,20 +199,18 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   .tap(function(index) {
     var start = {x: getRandomInt(0, 100), y: getRandomInt(0, height)};
     particleIn(index, start);
-  }).take(100000)
+  })
   .filter(function(index) {
     return index % 50 === 0
   }).tap(function(index) {
-    d3.select('.amq-input .count').text(numeral(index).format('0,0'));
+    d3.select('.amq-input .count').text(numeral(beaconEventsCount).format('0,0'));
   }).subscribe();
-
   feed.filter(function(message) {
-    return message.type === 'beaconEventsProcessed'
-  }).flatMap(function(message) {
-    console.log('processed')
+    return message.type === 'beaconEventsProcessed';
+  })
+  .flatMap(function(message) {
     return Rx.Observable.range(0, message.data.num).flatMap(function(x2) {
-      enqueueCount = message.data.enqueueCount;
-      var index = enqueueCount.beaconEvents + message.data.num * message.data.x + x2;
+      var index = message.data.num * message.data.x + x2;
       var delay = getRandomInt(0, message.data.interval);
       return Rx.Observable.range(0,1)
         .map(function() {
@@ -208,11 +221,9 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   })
   .tap(function(index) {
     particleOut(index);
-  }).take(100000)
-  .filter(function(index) {
-    return index % 50 === 0
-  }).tap(function(index) {
-    d3.select('.amq-output .count').text(numeral(index).format('0,0'));
-  }).subscribe();
+    beaconEventsProcessedCount++;
+    d3.select('.amq-output .count').text(numeral(beaconEventsProcessedCount).format('0,0'));
+  })
+  .subscribe();
 
 })(d3, Rx);
