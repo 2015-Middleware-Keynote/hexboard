@@ -14,11 +14,6 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   var  width = display.x - margin.left - margin.right
    ,  height = display.y - margin.top - margin.bottom;
 
-
-  var svg = d3.select('.map').append('svg')
-    .attr('width', width)
-    .attr('height', height);
-
   var box0 = {
     x0: width / 4,
     y0: height/4 - height / 8,
@@ -40,6 +35,10 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   box1.y1 = box1.y0 + box1.height;
   box1.cx = box1.x0 + box1.width / 2;
   box1.cy = box1.y0 + box1.height / 2;
+
+  var svg = d3.select('.map').append('svg')
+    .attr('width', width)
+    .attr('height', height);
 
   function particle(index, start) {
     var particle = svg.insert('circle')
@@ -89,7 +88,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
         .transition()
             .duration(1000)
             .each('start', function() {
-              var text = d3.select('.amq-output');
+              var text = d3.select('.amq-output .count');
               text.text(parseInt(text.text()) + 1);
             })
             .ease('linear')
@@ -174,7 +173,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   .filter(function(index) {
     return index % 50 === 0
   }).tap(function(index) {
-    d3.select('.amq-input').text(index);
+    d3.select('.amq-input .count').text(index);
   }).subscribe();
 
 })(d3, Rx);
