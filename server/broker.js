@@ -6,6 +6,9 @@ var Rx = require('rx')
   , Stomp = require('stompjs')
   , WebSocket = require('ws')
   , debuglog = require('debuglog')('stomp')
+  , http = require('http')
+  , request = require('request')
+  , url = require('url')
   ;
 
 var idMap = {};
@@ -27,7 +30,24 @@ var getUser = function(idInt) {
   }
   var index = idMap[idInt];
   return users[index];
-}
+};
+
+var getEnqueueCount = Rx.Observable.create(function (observer) {
+  request.get('http://admin:admin@broker.jbosskeynote.com:8181/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents/EnqueueCount'
+  , function (err, res, body) {
+      var enqueueCount;
+      if (err || res.statusCode !== 200) {
+        console.log('Error', res.statusCode, err, '; Proceeding with enqueueCount = 0');
+        enqueueCount = 0;
+      } else {
+        console.log('body', body, '/body');
+        data = JSON.parse(body);
+        enqueueCount = data.value;
+      }
+      observer.onNext(enqueueCount);
+      observer.onCompleted();
+    });
+  });
 
 var connection = Rx.Observable.create(function (observer) {
   console.log(new Date());
@@ -97,10 +117,11 @@ var interval = 100;
 var num = 50;
 
 var getRandomFeed = function(queue) {
-  return Rx.Observable.interval(interval)
-  .map(function(x) {
-    return {x: x, num: num};
-  })
+  return getEnqueueCount.flatMap(function(enqueueCount) {
+    return Rx.Observable.interval(interval).map(function(x) {
+        return {enqueueCount: enqueueCount, x: x, num: num};
+      })
+    });
 }
 
 module.exports = {

@@ -266,7 +266,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     return message.type === 'beaconEvents'
   }).flatMap(function(message) {
     return Rx.Observable.range(0, message.data.num).flatMap(function(x2) {
-      var index = message.data.num * message.data.x + x2;
+      var index = message.data.enqueueCount + message.data.num * message.data.x + x2;
       var delay = getRandomInt(0, interval);
       return Rx.Observable.range(0,1)
         .map(function() {
