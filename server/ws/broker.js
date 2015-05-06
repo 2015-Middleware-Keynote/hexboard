@@ -40,8 +40,9 @@ module.exports = function(server) {
   var subscription;
 
   var subscribe = function() {
-    subscription = broker.getStompFeed('/topic/beaconEvents_processed').tap(function(event) {
-      wss.broadcast(JSON.stringify({type: 'beaconEvents', data: event}));
+    subscription = broker.eventFeed()
+    .tap(function(event) {
+      wss.broadcast(JSON.stringify(event));
     })
     .subscribeOnError(function(err) {
       console.log(err);

@@ -125,25 +125,56 @@ var getStompFeed = function(queue) {
 var interval = 100;
 var num = 50;
 
-var getRandomFeed = function(queue) {
-  return Rx.Observable.zip(
-    getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents/EnqueueCount'),
-    getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents_processed/EnqueueCount'),
-    function(beaconEvents, beaconEventsProcessed) {
-      return {
-        beaconEvents: beaconEvents,
-        beaconEventsProcessed: beaconEventsProcessed
-      }
-    }
-  )
+var randomSource = Rx.Observable.interval(interval).share();
+
+var beaconEventsRandom = function() {
+  return getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents/EnqueueCount')
   .flatMap(function(enqueueCount) {
-    return Rx.Observable.interval(interval).map(function(x) {
-        return {enqueueCount: enqueueCount, x: x, num: num};
+    return randomSource
+      .map(function(x) {
+        return {
+          type: 'beaconEvents'
+        , data: {
+            enqueueCount: enqueueCount
+          , x: x
+          , num: num
+          , interval: interval
+          }
+        }
+
       })
     });
-}
+};
+
+var beaconEventsProcessedRandom = function() {
+  return getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents_processed/EnqueueCount')
+  .flatMap(function(enqueueCount) {
+    return randomSource
+      .filter(function(x) {
+        return x % 50 == 0;
+      })
+      .map(function(x) {
+        return {
+          type: 'beaconEventsProcessed'
+        , data: {
+            enqueueCount: enqueueCount
+          , x: x
+          , num: num
+          , interval: interval * 50
+          }
+        }
+      });
+    });
+};
+
+var randomFeed = function() {
+  return Rx.Observable.merge(
+    beaconEventsRandom(),
+    beaconEventsProcessedRandom()
+  );
+};
 
 module.exports = {
-  getStompFeed: getRandomFeed
+  eventFeed: randomFeed
 , interval: interval
 };

@@ -43,7 +43,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     .attr('width', width)
     .attr('height', height);
 
-  function particle(index, start) {
+  function particleIn(index, start) {
     var particle = svg.insert('circle')
         .datum({index: index, position: start})
         .attr('cx', start.x)
@@ -89,53 +89,61 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
             return d3.interpolate(.6, .8);
           })
       .remove()
-    .filter(function(d, i) { return d.index % 20 === 0; })
-        .transition()
-            .duration(1000)
-            .each('start', function() {
-              var text = d3.select('.amq-output .count');
-              var count = parseInt(text.text()) + 1;
-              text.text(numeral(count).format('0,0'));
-            })
-            .ease('linear')
-            .attrTween('cx', function(d, i, a) {
-              var offset = getRandomInt(-50, 0);
-              return function(t) {
-                var a = 1.15;
-                return (box1.x1 - (t)*offset + 5) * (a + (1-a) * Math.cos(2*Math.PI*t))
-              };
-            })
-            .attrTween('cy', function(d, i, a) {
-              var ease = d3.ease('quad-in');
-              var y0 = box1.y0 + getRandomInt(75, 125);
-              var y1 = box0.y1 + getRandomInt(0, 10);
-              return function(t) {
-                return y0 + ease(t)*(y1-y0);
-              };
-            })
-            .styleTween('stroke-opacity', function(d, i, a) {
-              return d3.interpolate(.8, 1);
-            })
-            .attr('r', 1)
-        .transition()
-            .duration(1000)
-            .ease('linear')
-            .attrTween('cx', function(d, i, a) {
-              var x0 = box0.x1 + getRandomInt(0, 10);
-              var x1 = width;
-              return d3.interpolate(x0, x1);
-            })
-            .attrTween('cy', function(d, i, a) {
-              var ease = d3.ease('quad-out');
-              var y0 = box0.cy + getRandomInt(-5, 5);
-              var y1 = box0.cy + getRandomInt(-20, 20);
-              return function(t) {
-                return y0 + ease(t)*(y1-y0);
-              };
-            })
-            .attr('r', 1)
-            .style('stroke-opacity', 1)
-            .remove();
+  };
+
+  function particleOut(index) {
+    var start = {
+      x: box1.x1,
+      y: box1.y0 + getRandomInt(75, 125)
+    }
+    svg.insert('circle')
+        .datum({index: index, position: start})
+        .attr('cx', start.x)
+        .attr('cy', start.y)
+        .attr('r', 5)
+        .style('stroke', '#ce0000')
+        .style('stroke-opacity', 1)
+      .transition()
+          .duration(1000)
+          .ease('linear')
+          .attrTween('cx', function(d, i, a) {
+            var offset = getRandomInt(-50, 0);
+            return function(t) {
+              var a = 1.15;
+              return (box1.x1 - (t)*offset + 5) * (a + (1-a) * Math.cos(2*Math.PI*t))
+            };
+          })
+          .attrTween('cy', function(d, i, a) {
+            var ease = d3.ease('quad-in');
+            var y0 = start.y;
+            var y1 = box0.y1 + getRandomInt(0, 10);
+            return function(t) {
+              return y0 + ease(t)*(y1-y0);
+            };
+          })
+          .styleTween('stroke-opacity', function(d, i, a) {
+            return d3.interpolate(.8, 1);
+          })
+          .attr('r', 1)
+      .transition()
+          .duration(1000)
+          .ease('linear')
+          .attrTween('cx', function(d, i, a) {
+            var x0 = box0.x1 + getRandomInt(0, 10);
+            var x1 = width;
+            return d3.interpolate(x0, x1);
+          })
+          .attrTween('cy', function(d, i, a) {
+            var ease = d3.ease('quad-out');
+            var y0 = box0.cy + getRandomInt(-5, 5);
+            var y1 = box0.cy + getRandomInt(-20, 20);
+            return function(t) {
+              return y0 + ease(t)*(y1-y0);
+            };
+          })
+          .attr('r', 1)
+          .style('stroke-opacity', 1)
+          .remove();
   };
 
   // Returns a random integer between min included) and max (excluded)
@@ -165,7 +173,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     return Rx.Observable.range(0, message.data.num).flatMap(function(x2) {
       enqueueCount = message.data.enqueueCount;
       var index = enqueueCount.beaconEvents + message.data.num * message.data.x + x2;
-      var delay = getRandomInt(0, interval);
+      var delay = getRandomInt(0, message.data.interval);
       return Rx.Observable.range(0,1)
         .map(function() {
           return index;
@@ -175,12 +183,36 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   })
   .tap(function(index) {
     var start = {x: getRandomInt(0, 100), y: getRandomInt(0, height)};
-    particle(index, start);
+    particleIn(index, start);
   }).take(100000)
   .filter(function(index) {
     return index % 50 === 0
   }).tap(function(index) {
     d3.select('.amq-input .count').text(numeral(index).format('0,0'));
+  }).subscribe();
+
+  feed.filter(function(message) {
+    return message.type === 'beaconEventsProcessed'
+  }).flatMap(function(message) {
+    console.log('processed')
+    return Rx.Observable.range(0, message.data.num).flatMap(function(x2) {
+      enqueueCount = message.data.enqueueCount;
+      var index = enqueueCount.beaconEvents + message.data.num * message.data.x + x2;
+      var delay = getRandomInt(0, message.data.interval);
+      return Rx.Observable.range(0,1)
+        .map(function() {
+          return index;
+        })
+        .delay(delay);
+    })
+  })
+  .tap(function(index) {
+    particleOut(index);
+  }).take(100000)
+  .filter(function(index) {
+    return index % 50 === 0
+  }).tap(function(index) {
+    d3.select('.amq-output .count').text(numeral(index).format('0,0'));
   }).subscribe();
 
 })(d3, Rx);
