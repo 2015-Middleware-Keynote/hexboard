@@ -211,8 +211,8 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
                 return y0 + ease(t)*(y1-y0);
               };
             })
+            .style('stroke-opacity', .4)
             .attr('r', 1)
-            .style('stroke-opacity', 1)
         .transition()
             .duration(1000)
             .ease('linear')
@@ -239,16 +239,43 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     return Math.floor(Math.random() * (max - min) + min);
   };
 
-  Rx.Observable.interval(10)
-  .flatMap(function(x1) {
-    return Rx.Observable.range(0, 10).map(function(x2) {
-      return 10 * x1 + x2;
+  var interval;
+
+  var feed = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/broker')
+  .map(function(message) {
+    return JSON.parse(message.data);
+  }).share();
+
+  feed.filter(function(message) {
+    return message.type === 'setup';
+  }).tap(function(message) {
+    interval = message.data.interval;
+  }).take(1)
+  .subscribeOnError(function(err) {
+    console.log(err);
+  });
+
+  feed.filter(function(message) {
+    return message.type === 'beaconEvents'
+  }).flatMap(function(message) {
+    return Rx.Observable.range(0, message.data.num).flatMap(function(x2) {
+      var index = message.data.num * message.data.x + x2;
+      var delay = getRandomInt(0, interval);
+      return Rx.Observable.range(0,1)
+        .map(function() {
+          return index;
+        })
+        .delay(delay);
     })
   })
   .tap(function(index) {
-    var start = {x: 0, y: getRandomInt(0, height)};
-    d3.select('#beaconEvents').text(index);
+    var start = {x: getRandomInt(0, 100), y: getRandomInt(0, height)};
     particle(index, start);
-  }).take(100000).subscribe();
+  }).take(100000)
+  .filter(function(index) {
+    return index % 100 === 0
+  }).tap(function(index) {
+    d3.select('#beaconEvents').text(index);
+  }).subscribe();
 
 })(d3, Rx);
