@@ -5173,7 +5173,7 @@ body {
 }
 .amq {
   width: 50%;
-  margin: 80px auto 0 auto;
+  margin: 0px auto 0 auto;
   border-top: 2px solid #00a8e1;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   background: #fff;
@@ -5221,33 +5221,31 @@ body {
   border-right: 1px solid #d1d1d1;
 }
 .spark {
-  width: 50%;
-  margin: 0 auto 0 auto;
-  padding-top: 70px;
+  background: #fff;
+  margin: 120px auto 0 auto;
+  border-top: 2px solid #00a8e1;
+  width: 220px;
   position: relative;
 }
 .spark h1 {
   background: url(../img/spark.png) no-repeat center center;
   background-size: 108px 57px;
-  height: 57px;
-  margin: 0 auto;
+  height: 67px;
+  margin: 10px auto 0 auto;
   text-indent: -9999999px;
-  margin: 0;
+  margin: 0 auto;
   position: relative;
   z-index: 5;
 }
 .spark .gears {
-  width: 180px;
+  width: 220px;
   height: 180px;
-  border-radius: 100px;
   margin: 0px auto;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-  background: #fff;
 }
 #content {
   position: absolute;
-  top: 360px;
-  left: 100px;
+  top: 300px;
+  left: -110px;
 }
 #gears {
   position: relative;
@@ -5325,14 +5323,14 @@ body {
   animation: rotate 1500ms linear infinite;
 }
 #shadow8 {
-  width: 42px;
-  height: 42px;
+  width: 32px;
+  height: 32px;
   -webkit-border-radius: 18px;
   -moz-border-radius: 18px;
   border-radius: 18px;
   position: absolute;
-  left: 162px;
-  bottom: 70px;
+  left: 172px;
+  bottom: 75px;
 }
 /*gear1*/
 #gear1 {

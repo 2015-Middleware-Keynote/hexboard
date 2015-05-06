@@ -44,7 +44,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
         .attr('cx', start.x)
         .attr('cy', start.y)
         .attr('r', 20)
-        .style('stroke', 'red')
+        .style('stroke', '#ce0000')
         .style('stroke-opacity', 1);
     particle.transition()
         .duration(1000)
