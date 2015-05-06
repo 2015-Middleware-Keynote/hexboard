@@ -1,0 +1,129 @@
+ @import "../../common/styles/common.less";
+
+
+body {
+  margin: 0;
+  min-width: 960px;
+//  width:  1920px;
+//  height:  1080px;
+  background: #f5f5f5 url(../img/bg.png) no-repeat 0 -58px;
+  background-size: 1260px 1108px;
+  
+}
+
+
+// AMQ ==========================================================
+
+.amq{
+ .clearfix();
+ width: 50%;
+ margin: 80px auto 0 auto;
+ border-top: 2px solid @brand-primary;
+ box-shadow: 0 1px 2px rgba(0,0,0,.15);
+ background: #fff;
+ h1{
+   margin: 0;
+   border-bottom: 1px solid #d1d1d1;
+   background: url(../img/redhatamq.png) no-repeat 20px 20px;
+   background-size: 234px 58px;
+   height: 98px;
+   text-indent: -9999999px;
+ } 
+ 
+ .amq-input, .amq-output{
+   float: left;
+   width: 50%;
+   .container{
+     padding: 20px;
+   }
+   strong{
+     display: block;
+     font-size: @font-size-h1;
+     font-weight: 300;
+   }
+ }
+ .amq-input{
+   .container{
+       border-right: 1px solid #d1d1d1;
+   }
+  }
+
+}
+
+
+// Spark ==========================================================
+
+.spark{
+  background: url(../img/bg_spark.png) no-repeat center top;
+  background-size: cover;
+  width: 50%;
+  margin: 0 auto 0 auto;
+  padding-top: 70px;
+  h1{
+    background: url(../img/spark.png) no-repeat center center;
+    background-size: 108px 57px;
+    height: 57px;
+    margin: 0 auto;
+    text-indent: -9999999px;
+    margin: 0;
+  }
+  .gears{
+    .size (180px; 180px);
+    border-radius: 100px;
+    margin: 0px auto;
+    box-shadow: 0 1px 2px rgba(0,0,0,.15);
+    background: #fff;
+  }
+}
+
+
+// Old Styles ====================
+
+.map{
+  position: absolute;
+  z-index: -1;
+  top: 38px;
+  left: 0;
+}
+
+circle {
+  fill: none;
+  stroke-width: 2.5px;
+}
+
+.jms {
+  stroke-width: 2.5px;
+  fill: lightgray;
+  stroke: gray;
+}
+
+.spark {
+  stroke-width: 2.5px;
+  fill: lightgray;
+  stroke: gray;
+}
+
+.gear {
+  fill: black;
+  stroke: lightgray;
+  stroke-width: 1px;
+}
+
+.node {
+    fill: #ccc;
+    stroke: #fff;
+    stroke-width: 2px;
+}
+
+.anchorNode text {
+  font-family: Arial;
+  font-size: 30px;
+}
+
+.topic {
+  font-size: 20px;
+}
+
+.count {
+  font-size: 40px;
+}
