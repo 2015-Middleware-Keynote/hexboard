@@ -5211,7 +5211,7 @@ body {
 }
 .amq .amq-input .container,
 .amq .amq-output .container {
-  padding: 10px 20px 20px 20px;
+  padding: 5px 20px 20px 20px;
 }
 .amq .amq-input strong,
 .amq .amq-output strong {
