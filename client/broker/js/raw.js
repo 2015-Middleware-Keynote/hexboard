@@ -69,7 +69,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
           .duration(1000)
           .ease('linear')
           .attrTween('cx', function(d, i, a) {
-            var offset = getRandomInt(-200, 0);
+            var offset = getRandomInt(-125, 25);
             return function(t) {
               var a = 0.80;
               return (box1.x0 - (t-1)*offset - 5) * (a + (1-a) * Math.cos(2*Math.PI*t))
