@@ -32,8 +32,16 @@ var getUser = function(idInt) {
   return users[index];
 };
 
-var getEnqueueCount = Rx.Observable.create(function (observer) {
-  request.get('http://admin:admin@broker.jbosskeynote.com:8181/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents/EnqueueCount'
+var getEnqueueCount = function(url) {
+  return Rx.Observable.create(function (observer) {
+  request.get({
+    baseUrl: 'http://broker.jbosskeynote.com:8181/',
+    url: url,
+    auth: {
+      user: 'admin',
+      pass: 'admin'
+    }
+  }
   , function (err, res, body) {
       var enqueueCount;
       if (err || res.statusCode !== 200) {
@@ -48,6 +56,7 @@ var getEnqueueCount = Rx.Observable.create(function (observer) {
       observer.onCompleted();
     });
   });
+};
 
 var connection = Rx.Observable.create(function (observer) {
   console.log(new Date());
@@ -117,7 +126,17 @@ var interval = 100;
 var num = 50;
 
 var getRandomFeed = function(queue) {
-  return getEnqueueCount.flatMap(function(enqueueCount) {
+  return Rx.Observable.zip(
+    getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents/EnqueueCount'),
+    getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents_processed/EnqueueCount'),
+    function(beaconEvents, beaconEventsProcessed) {
+      return {
+        beaconEvents: beaconEvents,
+        beaconEventsProcessed: beaconEventsProcessed
+      }
+    }
+  )
+  .flatMap(function(enqueueCount) {
     return Rx.Observable.interval(interval).map(function(x) {
         return {enqueueCount: enqueueCount, x: x, num: num};
       })

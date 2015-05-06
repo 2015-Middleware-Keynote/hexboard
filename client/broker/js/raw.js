@@ -4,6 +4,11 @@ var rawfeed = rawfeed || {};
 
 d3demo.layout = (function dataSimulator(d3, Rx) {
 
+  var enqueueCount = {
+    beaconEvents: 0,
+    beaconEventsProcessed: 0
+  };
+
   var display = {
     x: Math.max(document.documentElement.clientWidth, window.innerWidth) || 1920
   , y: Math.max(document.documentElement.clientHeight, window.innerHeight) - 4 - 39
@@ -158,7 +163,8 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     return message.type === 'beaconEvents'
   }).flatMap(function(message) {
     return Rx.Observable.range(0, message.data.num).flatMap(function(x2) {
-      var index = message.data.enqueueCount + message.data.num * message.data.x + x2;
+      enqueueCount = message.data.enqueueCount;
+      var index = enqueueCount.beaconEvents + message.data.num * message.data.x + x2;
       var delay = getRandomInt(0, interval);
       return Rx.Observable.range(0,1)
         .map(function() {
