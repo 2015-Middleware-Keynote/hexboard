@@ -80,21 +80,7 @@ var getStompFeed = function(queue) {
       console.log('Subscribing to ' + queue + '...');
       client.subscribe(queue, function(message) {
         message.ack();
-        var location = convertLocation(message.headers.location_id);
-        var id = JSON.parse(message.headers.user_id);
-        var user = id[0]*10 + id[1];
-        var event = {
-          user: getUser(id)
-        , beaconId: message.headers.user_id
-        , location: location
-        , type: message.headers.type || 'check-in'
-        , timestamp: message.headers.timestamp * 1000
-        }
-        if (!event.timestamp) {
-          event.timestamp = new Date().getTime();
-        }
-        // debuglog('Event | user: ', event.user.name, 'location: ', event.location.name);
-        observer.onNext(event);
+        observer.onNext(message);
         return function() {
           client.disconnect(function() {
             console.log('Disconnected.');
@@ -107,9 +93,17 @@ var getStompFeed = function(queue) {
   }).share();
 };
 
+var interval = 100;
+var num = 50;
+
+var getRandomFeed = function(queue) {
+  return Rx.Observable.interval(interval)
+  .map(function(x) {
+    return {x: x, num: num};
+  })
+}
+
 module.exports = {
-  users: users
-, getUser: getUser
-, convertLocation: convertLocation
-, getStompFeed: getStompFeed
+  getStompFeed: getRandomFeed
+, interval: interval
 };
