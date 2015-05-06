@@ -59,7 +59,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
           };
         })
         .attr('r', 10)
-        .style('stroke-opacity', .8)
+        .style('stroke-opacity', .4)
       .transition()
           .duration(1000)
           .ease('linear')
@@ -73,14 +73,16 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
           .attrTween('cy', function(d, i, a) {
             var ease = d3.ease('quad-out');
             var y0 = box0.y1 + getRandomInt(5, 15);
-            var y1 = box1.y0 + 20 + getRandomInt(0, 200);
+            var y1 = box1.y0 + 20 + getRandomInt(0, 150);
             return function(t) {
               return y0 + ease(t)*(y1-y0);
               // return y0  + (y1-y0) * (1/Math.sin(Math.PI*t));
             };
           })
           .attr('r', 5)
-          .style('stroke-opacity', .8)
+          .styleTween('stroke-opacity', function(d, i, a) {
+            return d3.interpolate(.6, .8);
+          })
       .remove()
     .filter(function(d, i) { return d.index % 20 === 0; })
         .transition()
