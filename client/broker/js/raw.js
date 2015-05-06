@@ -9,30 +9,28 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   , y: Math.max(document.documentElement.clientHeight, window.innerHeight) - 4 - 39
   };
 
-  var margin = {top: 0, right: 0, bottom: 0, left: 0};
+  var margin = {top: 50, right: 0, bottom: 0, left: 0};
 
   var  width = display.x - margin.left - margin.right
    ,  height = display.y - margin.top - margin.bottom;
 
-  var box0 = {
-    x0: width / 4,
-    y0: height/4 - height / 8,
-    width: width / 2,
-    height: height/4
-  };
-  box0.x1 = box0.x0 + box0.width;
-  box0.y1 = box0.y0 + box0.height;
+  var diagram = d3.select('.diagram');
+
+  diagram.style({'top': (height + margin.top - diagram.node().clientHeight) / 4 + 'px' });
+
+  var box0 = document.querySelector('.amq').getBoundingClientRect()
+  box0.x0 = box0.left;
+  box0.x1 = box0.right;
+  box0.y0 = box0.top - margin.top;
+  box0.y1 = box0.bottom - margin.top;
   box0.cx = box0.x0 + box0.width  / 2;
   box0.cy = box0.y0 + box0.height / 2;
 
-  var box1 = {
-    x0: width / 2 - width / 16,
-    y0: 3 * height/4 - height / 8 - 50,
-    width: width / 8,
-    height: height /4
-  }
-  box1.x1 = box1.x0 + box1.width;
-  box1.y1 = box1.y0 + box1.height;
+  var box1 = document.querySelector('.spark .gears').getBoundingClientRect()
+  box1.x0 = box1.left;
+  box1.x1 = box1.right;
+  box1.y0 = box1.top - margin.top;
+  box1.y1 = box1.bottom - margin.top;
   box1.cx = box1.x0 + box1.width / 2;
   box1.cy = box1.y0 + box1.height / 2;
 
@@ -55,7 +53,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
         .attrTween('cy', function(d, i, a) {
           var ease = d3.ease('quad-out');
           var y0 = parseInt(a);
-          var y1 = box0.y0 + 20 + getRandomInt(0, 200);
+          var y1 = box0.y0 + 20 + getRandomInt(25, 175);
           return function(t) {
             return y0 + ease(t)*(y1-y0);
           };
