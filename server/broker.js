@@ -125,6 +125,61 @@ var getStompFeed = function(queue) {
 var interval = 100;
 var num = 50;
 
+var beaconEventsLive = function() {
+  return getStompFeed('/topic/beaconEvents')
+  .bufferWithTime(interval).map(function(buf) {
+    return {
+      type: 'beaconEvents',
+      data: {
+        x: 0,
+        num: buf.length,
+        interval: interval
+      }
+    };
+  })
+};
+
+var beaconEventsProcessedLive = function() {
+  return getStompFeed('/topic/beaconEvents_processed')
+  .bufferWithTime(interval).map(function(buf) {
+    return {
+      type: 'beaconEventsProcessed',
+      data: {
+        x: 0,
+        num: buf.length,
+        interval: interval
+      }
+    };
+  })
+};
+
+var liveFeed = function() {
+  return Rx.Observable.merge(
+    getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents/EnqueueCount')
+      .map(function(count) {
+        return {
+          type: 'enqueueCount',
+          data: {
+            count: count,
+            topic: 'beaconEvents'
+          }
+        }
+      }),
+    getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents_processed/EnqueueCount')
+      .map(function(count) {
+        return {
+          type: 'enqueueCount',
+          data: {
+            count: count,
+            topic: 'beaconEventsProcessed'
+          }
+        }
+      }),
+    beaconEventsLive(),
+    beaconEventsProcessedLive()
+  );
+}
+
 var randomSource = Rx.Observable.interval(interval).share();
 
 var beaconEventsRandom = function() {
@@ -186,6 +241,6 @@ var randomFeed = function() {
 };
 
 module.exports = {
-  eventFeed: randomFeed
+  eventFeed: liveFeed
 , interval: interval
 };
