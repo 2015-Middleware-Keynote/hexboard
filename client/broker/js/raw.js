@@ -170,25 +170,28 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
           };
         })
         .attr('r', 10)
-        .style('stroke-opacity', .4)
+        .style('stroke-opacity', .8)
       .transition()
           .duration(1000)
           .ease('linear')
           .attrTween('cx', function(d, i, a) {
-            var x0 = box0.x0 + getRandomInt(0, 200);
-            var x1 = box1.x0 + getRandomInt(-10, 0);
-            return d3.interpolate(x0, x1);
+            var offset = getRandomInt(-200, 0);
+            return function(t) {
+              var a = 0.80;
+              return (box1.x0 - (t-1)*offset - 5) * (a + (1-a) * Math.cos(2*Math.PI*t))
+            };
           })
           .attrTween('cy', function(d, i, a) {
             var ease = d3.ease('quad-out');
-            var y0 = box0.y1 + getRandomInt(0, 10);
+            var y0 = box0.y1 + getRandomInt(5, 15);
             var y1 = box1.y0 + 20 + getRandomInt(0, 200);
             return function(t) {
               return y0 + ease(t)*(y1-y0);
+              // return y0  + (y1-y0) * (1/Math.sin(Math.PI*t));
             };
           })
           .attr('r', 5)
-          .style('stroke-opacity', 1)
+          .style('stroke-opacity', .8)
       .remove()
     .filter(function(d, i) { return d.index % 20 === 0; })
         .transition()
@@ -199,20 +202,24 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
             })
             .ease('linear')
             .attrTween('cx', function(d, i, a) {
-              var x0 = box1.x1 + getRandomInt(0, 10);
-              var x1 = box0.x1 + getRandomInt(-125, -75);
-              return d3.interpolate(x0, x1);
+              var offset = getRandomInt(-50, 0);
+              return function(t) {
+                var a = 1.15;
+                return (box1.x1 - (t)*offset + 5) * (a + (1-a) * Math.cos(2*Math.PI*t))
+              };
             })
             .attrTween('cy', function(d, i, a) {
               var ease = d3.ease('quad-in');
-              var y0 = box1.y0 + getRandomInt(50, 150);
+              var y0 = box1.y0 + getRandomInt(75, 125);
               var y1 = box0.y1 + getRandomInt(0, 10);
               return function(t) {
                 return y0 + ease(t)*(y1-y0);
               };
             })
+            .styleTween('stroke-opacity', function(d, i, a) {
+              return d3.interpolate(.8, 1);
+            })
             .attr('r', 1)
-            .style('stroke-opacity', 1)
         .transition()
             .duration(1000)
             .ease('linear')
@@ -239,16 +246,43 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     return Math.floor(Math.random() * (max - min) + min);
   };
 
-  Rx.Observable.interval(10)
-  .flatMap(function(x1) {
-    return Rx.Observable.range(0, 10).map(function(x2) {
-      return 10 * x1 + x2;
+  var interval;
+
+  var feed = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/broker')
+  .map(function(message) {
+    return JSON.parse(message.data);
+  }).share();
+
+  feed.filter(function(message) {
+    return message.type === 'setup';
+  }).tap(function(message) {
+    interval = message.data.interval;
+  }).take(1)
+  .subscribeOnError(function(err) {
+    console.log(err);
+  });
+
+  feed.filter(function(message) {
+    return message.type === 'beaconEvents'
+  }).flatMap(function(message) {
+    return Rx.Observable.range(0, message.data.num).flatMap(function(x2) {
+      var index = message.data.num * message.data.x + x2;
+      var delay = getRandomInt(0, interval);
+      return Rx.Observable.range(0,1)
+        .map(function() {
+          return index;
+        })
+        .delay(delay);
     })
   })
   .tap(function(index) {
-    var start = {x: 0, y: getRandomInt(0, height)};
-    d3.select('#beaconEvents').text(index);
+    var start = {x: getRandomInt(0, 100), y: getRandomInt(0, height)};
     particle(index, start);
-  }).take(100000).subscribe();
+  }).take(100000)
+  .filter(function(index) {
+    return index % 50 === 0
+  }).tap(function(index) {
+    d3.select('#beaconEvents').text(index);
+  }).subscribe();
 
 })(d3, Rx);

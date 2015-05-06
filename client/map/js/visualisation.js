@@ -195,12 +195,14 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
       logScan(scan);
       if (scan.type === 'check-in') {
         checkinNode(scan);
-      } else {
+      } else if (scan.type === 'check-out') {
         if (scan.location.id !== 0) {
           checkoutNode(scan);
         } else {
           removeNode(scan);
         }
+      } else {
+        console.log('Ignoring scan of type: ' + scan.type);
       }
       d3demo.forcemap.start();
     }, errorHandler);
