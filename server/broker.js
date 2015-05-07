@@ -40,21 +40,34 @@ var getEnqueueCount = function(url) {
     auth: {
       user: 'admin',
       pass: 'admin'
+    },
+    headers: {
+      'User-Agent' : 'curl'
     }
   }
   , function (err, res, body) {
       var enqueueCount;
-      if (err || res.statusCode !== 200) {
-        console.log('Error', res.statusCode, err, '; Proceeding with enqueueCount = 0');
-        enqueueCount = 0;
-      } else {
-        console.log('body', body, '/body');
-        data = JSON.parse(body);
+      if (res && res.statusCode === 200 && body) {
+        var data = JSON.parse(body);
         enqueueCount = data.value;
+        observer.onNext(enqueueCount);
+        observer.onCompleted();
+      } else {
+        var msg = 'getEnqueueCount Error: ';
+        if (res && res.statusCode) {
+          msg += res.statusCode;
+        }
+        console.log(msg);
+        console.log('err', err);
+        console.log('res', res);
+        console.log('body', body);
+        msg += err;
+        observer.onError(msg);
       }
-      observer.onNext(enqueueCount);
-      observer.onCompleted();
     });
+  })
+  .retryWhen(function(errors) {
+    return errors.delay(2000);
   });
 };
 
