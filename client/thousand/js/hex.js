@@ -61,7 +61,7 @@ hex = (function dataSimulator(d3, Rx) {
 
   var color = d3.scale.linear()
     .domain([0, 1, 2, 3, 4])  // 5 states
-    .range(['#002235)', '#004368', '#00659c', '#0088ce', '#39a5dc']);
+    .range(['#002235', '#004368', '#00659c', '#0088ce', '#39a5dc']);
 
 //  awaiting (initial state)  ==    gray          #ddd
 //  pending                   ==    light blue    #00b9e4
