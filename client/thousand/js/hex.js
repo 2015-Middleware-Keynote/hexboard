@@ -61,7 +61,14 @@ hex = (function dataSimulator(d3, Rx) {
 
   var color = d3.scale.linear()
     .domain([0, 1, 2, 3, 4])  // 5 states
-    .range(['#dae7f1', 'lightblue', 'blue', 'steelblue', '#1d3549']);
+    .range(['#002235)', '#004368', '#00659c', '#0088ce', '#39a5dc']);
+
+//  awaiting (initial state)  ==    gray          #ddd
+//  pending                   ==    light blue    #00b9e4
+//  running                   ==    blue          #0088ce     
+//  live                      ==    light green   #92d400   
+//  ready                     ==    green         #3f9c35   
+    
 
   var svg = d3.select('.map').append('svg')
       .attr('width', width + margin.left + margin.right)
