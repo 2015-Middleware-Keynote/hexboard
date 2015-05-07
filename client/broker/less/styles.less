@@ -81,7 +81,7 @@ body {
       margin-right: 5px;
       border-radius: 15px;
       border-width: : 2px;
-      border-style: solid;      
+      border-style: solid;
     }
     &.scanner:before{         border-color: #0088ce; .size(30px;30px);} // big blue
     &.dequeue:before{         border-color: #0088ce; .size(10px;10px); margin-top:10px} // small blue
@@ -89,6 +89,19 @@ body {
     &.checkout:before{        border-color: #ce0000;    background: #ce0000; margin-top:5px} // red
     &.retransmit:before{      border-color: #ec7a08;    background: #ec7a08; .size(10px;10px); margin-top:10px} // orange
   }
+}
+
+#cover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: black;
+  z-index: 500;
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0.5s linear 0.5s, opacity 0.5s linear 0.5s;
 }
 
 // Spark ==========================================================

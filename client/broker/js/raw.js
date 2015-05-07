@@ -90,7 +90,6 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   };
 
   function particleOut(event) {
-    console.log(event);
     var offset = getRandomInt(0, 100);
     var start = {
       x: box1.x1,
@@ -171,7 +170,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     console.log(err);
   });
 
-  feed.filter(function(message) {
+  var enqueueFeed = feed.filter(function(message) {
     return message.type === 'enqueueCount';
   }).tap(function(message) {
     switch(message.data.topic) {
@@ -190,12 +189,9 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
         });
         break;
     };
-  })
-  .subscribeOnError(function(err) {
-    console.log(err);
   });
 
-  feed.filter(function(message) {
+  var beaconEventsFeed = feed.filter(function(message) {
     return message.type === 'beaconEvents'
   }).flatMap(function(message) {
     beaconEventsCount += message.data.num;
@@ -214,12 +210,9 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     window.requestAnimationFrame(function() {
       d3.select('.amq-input .count').text(numeral(beaconEventsCount).format('0,0'));
     });
-  })
-  .subscribeOnError(function(err) {
-    console.log(err);
   });
 
-  feed.filter(function(message) {
+  var beaconEventsProcessedFeed = feed.filter(function(message) {
     return message.type === 'beaconEventsProcessed';
   })
   .flatMap(function(message) {
@@ -234,9 +227,38 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     window.requestAnimationFrame(function() {
       d3.select('.amq-output .count').text(numeral(beaconEventsProcessedCount).format('0,0'));
     });
-  })
-  .subscribeOnError(function(err) {
+  });
+
+  var mergedFeed = Rx.Observable.merge(
+    enqueueFeed,
+    beaconEventsFeed,
+    beaconEventsProcessedFeed
+  );
+
+  var subscribtion = mergedFeed.subscribeOnError(function(err) {
     console.log(err.stack ? err.stack : err);
   });
+
+  var focus = true;
+  window.onblur = function() {
+    focus = false;
+    setTimeout(function() {
+      if (!focus) {
+        subscribtion.dispose();
+        console.log(subscribtion);
+        d3.select('#cover').style({visibility: 'visible', opacity: '0.6'});
+      };
+    }, 0);
+  }
+
+  window.onfocus = function() {
+    focus = true;
+    if (subscribtion.isStopped) {
+      subscribtion = mergedFeed.subscribeOnError(function(err) {
+        console.log(err.stack ? err.stack : err);
+      });
+      d3.select('#cover').style({visibility: 'hidden', opacity: '0'});
+    };
+  }
 
 })(d3, Rx);
