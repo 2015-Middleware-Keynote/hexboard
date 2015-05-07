@@ -170,11 +170,15 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     switch(message.data.topic) {
       case 'beaconEvents':
         beaconEventsCount += message.data.count;
-        d3.select('.amq-input .count').text(numeral(beaconEventsCount).format('0,0'));
+        window.requestAnimationFrame(function() {
+          d3.select('.amq-input .count').text(numeral(beaconEventsCount).format('0,0'));
+        });
         break;
       case 'beaconEventsProcessed':
         beaconEventsProcessedCount += message.data.count;
-        d3.select('.amq-output .count').text(numeral(beaconEventsProcessedCount).format('0,0'));
+        window.requestAnimationFrame(function() {
+          d3.select('.amq-output .count').text(numeral(beaconEventsProcessedCount).format('0,0'));
+        });
         break;
     };
   })
@@ -199,7 +203,9 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   .filter(function(index) {
     return index % 50 === 0
   }).tap(function(index) {
-    d3.select('.amq-input .count').text(numeral(beaconEventsCount).format('0,0'));
+    window.requestAnimationFrame(function() {
+      d3.select('.amq-input .count').text(numeral(beaconEventsCount).format('0,0'));
+    });
   }).subscribe();
   feed.filter(function(message) {
     return message.type === 'beaconEventsProcessed';
@@ -214,7 +220,9 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   .tap(function(index) {
     particleOut(index);
     beaconEventsProcessedCount++;
-    d3.select('.amq-output .count').text(numeral(beaconEventsProcessedCount).format('0,0'));
+    window.requestAnimationFrame(function() {
+      d3.select('.amq-output .count').text(numeral(beaconEventsProcessedCount).format('0,0'));
+    });
   })
   .subscribe();
 
