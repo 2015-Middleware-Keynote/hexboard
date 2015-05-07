@@ -38,9 +38,11 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     .attr('width', width)
     .attr('height', height);
 
-  function particleIn(index, start) {
+  function particleIn(index) {
+    var offset = getRandomInt(0, 100);
+    var start = {x: -10, y: 50 + offset * height / 100};
     var particle = svg.insert('circle')
-        .datum({index: index, position: start})
+        .datum({index: index, position: start, offset: offset})
         .attr('cx', start.x)
         .attr('cy', start.y)
         .attr('r', 20)
@@ -49,11 +51,11 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     particle.transition()
         .duration(1000)
         .ease('linear')
-        .attr('cx', box0.x0 + getRandomInt(-10, 0))
+        .attr('cx', box0.x0)
         .attrTween('cy', function(d, i, a) {
           var ease = d3.ease('quad-out');
           var y0 = parseInt(a);
-          var y1 = box0.y0 + 20 + getRandomInt(25, 175);
+          var y1 = box0.y0 + 40 + y0 / height * 150;
           return function(t) {
             return y0 + ease(t)*(y1-y0);
           };
@@ -64,7 +66,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
           .duration(1000)
           .ease('linear')
           .attrTween('cx', function(d, i, a) {
-            var offset = getRandomInt(-125, 25);
+            var offset = 1.5 * d.offset - 125;
             return function(t) {
               var a = 0.80;
               return (box1.x0 - (t-1)*offset - 5) * (a + (1-a) * Math.cos(2*Math.PI*t))
@@ -72,11 +74,10 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
           })
           .attrTween('cy', function(d, i, a) {
             var ease = d3.ease('quad-out');
-            var y0 = box0.y1 + getRandomInt(5, 15);
-            var y1 = box1.y0 + 20 + getRandomInt(0, 150);
+            var y0 = box0.y1 + 10;
+            var y1 = box1.y0 + 20 + 1.5 * d.offset;
             return function(t) {
               return y0 + ease(t)*(y1-y0);
-              // return y0  + (y1-y0) * (1/Math.sin(Math.PI*t));
             };
           })
           .attr('r', 5)
@@ -87,12 +88,13 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   };
 
   function particleOut(index) {
+    var offset = getRandomInt(0, 100);
     var start = {
       x: box1.x1,
-      y: box1.y0 + getRandomInt(75, 125)
+      y: box1.y0 + offset / 2
     }
     svg.insert('circle')
-        .datum({index: index, position: start})
+        .datum({index: index, position: start, offset: offset})
         .attr('cx', start.x)
         .attr('cy', start.y)
         .attr('r', 5)
@@ -102,7 +104,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
           .duration(1000)
           .ease('linear')
           .attrTween('cx', function(d, i, a) {
-            var offset = getRandomInt(-50, 0);
+            var offset = -1 * d.offset;
             return function(t) {
               var a = 1.15;
               return (box1.x1 - (t)*offset + 5) * (a + (1-a) * Math.cos(2*Math.PI*t))
@@ -111,7 +113,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
           .attrTween('cy', function(d, i, a) {
             var ease = d3.ease('quad-in');
             var y0 = start.y;
-            var y1 = box0.y1 + getRandomInt(0, 10);
+            var y1 = box0.y1;
             return function(t) {
               return y0 + ease(t)*(y1-y0);
             };
@@ -124,14 +126,14 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
           .duration(1000)
           .ease('linear')
           .attrTween('cx', function(d, i, a) {
-            var x0 = box0.x1 + getRandomInt(0, 10);
+            var x0 = box0.x1;
             var x1 = width;
             return d3.interpolate(x0, x1);
           })
           .attrTween('cy', function(d, i, a) {
             var ease = d3.ease('quad-out');
-            var y0 = box0.cy + getRandomInt(-5, 5);
-            var y1 = box0.cy + getRandomInt(-20, 20);
+            var y0 = box0.cy + 0.1 * d.offset - 5;
+            var y1 = box0.cy + 0.4 * d.offset - 20;
             return function(t) {
               return y0 + ease(t)*(y1-y0);
             };
@@ -197,8 +199,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     })
   })
   .tap(function(index) {
-    var start = {x: getRandomInt(0, 100), y: getRandomInt(0, height)};
-    particleIn(index, start);
+    particleIn(index);
   })
   .filter(function(index) {
     return index % 50 === 0
