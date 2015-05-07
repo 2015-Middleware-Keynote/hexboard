@@ -43,7 +43,8 @@ var getEnqueueCount = function(url) {
     },
     headers: {
       'User-Agent' : 'curl'
-    }
+    },
+    timeout: 20000
   }
   , function (err, res, body) {
       var enqueueCount;

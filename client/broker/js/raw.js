@@ -174,12 +174,14 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
         beaconEventsCount += message.data.count;
         window.requestAnimationFrame(function() {
           d3.select('.amq-input .count').text(numeral(beaconEventsCount).format('0,0'));
+          d3.select('.amq-input .dirty').style({visibility: 'hidden'});
         });
         break;
       case 'beaconEventsProcessed':
         beaconEventsProcessedCount += message.data.count;
         window.requestAnimationFrame(function() {
           d3.select('.amq-output .count').text(numeral(beaconEventsProcessedCount).format('0,0'));
+          d3.select('.amq-output .dirty').style({visibility: 'hidden'});
         });
         break;
     };
@@ -207,7 +209,11 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     window.requestAnimationFrame(function() {
       d3.select('.amq-input .count').text(numeral(beaconEventsCount).format('0,0'));
     });
-  }).subscribe();
+  })
+  .subscribeOnError(function(err) {
+    console.log(err);
+  });
+
   feed.filter(function(message) {
     return message.type === 'beaconEventsProcessed';
   })
@@ -225,6 +231,8 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
       d3.select('.amq-output .count').text(numeral(beaconEventsProcessedCount).format('0,0'));
     });
   })
-  .subscribe();
+  .subscribeOnError(function(err) {
+    console.log(err);
+  });
 
 })(d3, Rx);
