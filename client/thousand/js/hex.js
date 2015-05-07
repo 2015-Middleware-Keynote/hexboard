@@ -60,9 +60,8 @@ hex = (function dataSimulator(d3, Rx) {
   console.log(points.length);
 
   var color = d3.scale.linear()
-    .domain([0, 3, 7])
-    .range(['#dae7f1', 'steelblue', '#1d3549'])
-    .interpolate(d3.interpolateLab);
+    .domain([0, 1, 2, 3, 4])  // 5 states
+    .range(['#dae7f1', 'lightblue', 'blue', 'steelblue', '#1d3549']);
 
   var svg = d3.select('.map').append('svg')
       .attr('width', width + margin.left + margin.right)
