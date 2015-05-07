@@ -190,11 +190,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
       var index = message.data.num * message.data.x + x2;
       // var delay = getRandomInt(0, message.data.interval);
       var delay = message.data.interval * x2 / message.data.num;
-      return Rx.Observable.range(0,1)
-        .map(function() {
-          return index;
-        })
-        .delay(delay);
+      return Rx.Observable.from([index]).delay(delay);
     })
   })
   .tap(function(index) {
@@ -214,11 +210,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
       var index = message.data.num * message.data.x + x2;
       // var delay = getRandomInt(0, message.data.interval);
       var delay = message.data.interval * x2 / message.data.num;
-      return Rx.Observable.range(0,1)
-        .map(function() {
-          return index;
-        })
-        .delay(delay);
+      return Rx.Observable.from([index]).delay(delay);
     })
   })
   .tap(function(index) {
