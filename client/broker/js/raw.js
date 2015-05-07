@@ -248,7 +248,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
         console.log(subscribtion);
         d3.select('#cover').style({visibility: 'visible', opacity: '0.6'});
       };
-    }, 0);
+    }, 2000);
   }
 
   window.onfocus = function() {
