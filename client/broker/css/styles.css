@@ -5171,6 +5171,12 @@ body {
   position: relative;
   vertical-align: middle;
 }
+.map {
+  position: absolute;
+  z-index: -1;
+  top: 38px;
+  left: 0;
+}
 .amq {
   width: 560px;
   margin: 0px auto 0 auto;
@@ -5226,6 +5232,54 @@ body {
 }
 .amq .amq-input .container {
   border-right: 1px solid #d1d1d1;
+}
+.legend {
+  text-align: center;
+  margin-top: 40px;
+}
+.legend li {
+  display: inline-block;
+  margin-left: 20px;
+  line-height: 30px;
+  font-size: 13px;
+}
+.legend li:before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  float: left;
+  margin-right: 5px;
+  border-radius: 15px;
+  border-width: : 2px;
+  border-style: solid;
+}
+.legend li.scanner:before {
+  border-color: #0088ce;
+  width: 30px;
+  height: 30px;
+}
+.legend li.dequeue:before {
+  border-color: #0088ce;
+  width: 10px;
+  height: 10px;
+  margin-top: 10px;
+}
+.legend li.checkin:before {
+  border-color: #3f9c35;
+  background: #3f9c35;
+  margin-top: 5px;
+}
+.legend li.checkout:before {
+  border-color: #ce0000;
+  background: #ce0000;
+  margin-top: 5px;
+}
+.legend li.retransmit:before {
+  border-color: #ec7a08;
+  background: #ec7a08;
+  width: 10px;
+  height: 10px;
+  margin-top: 10px;
 }
 .spark {
   background: #fff;
@@ -5478,23 +5532,17 @@ body {
     transform: rotate(-360deg);
   }
 }
-.map {
-  position: absolute;
-  z-index: -1;
-  top: 38px;
-  left: 0;
-}
 circle {
   fill: none;
-  stroke-width: 2.5px;
+  stroke-width: 2px;
 }
 .jms {
-  stroke-width: 2.5px;
+  stroke-width: 2px;
   fill: lightgray;
   stroke: gray;
 }
 .spark {
-  stroke-width: 2.5px;
+  stroke-width: 2px;
   fill: lightgray;
   stroke: gray;
 }

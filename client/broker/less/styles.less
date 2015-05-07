@@ -4,11 +4,8 @@
 body {
   margin: 0;
   min-width: 960px;
-//  width:  1920px;
-//  height:  1080px;
   background: #f5f5f5;
   background-size: 1260px 1108px;
-
 }
 
 .diagram {
@@ -16,48 +13,81 @@ body {
   vertical-align: middle;
 }
 
+.map{
+  position: absolute;
+  z-index: -1;
+  top: 38px;
+  left: 0;
+}
+
+
 // AMQ ==========================================================
 
 .amq{
- .clearfix();
- width: 560px;
- margin: 0px auto 0 auto;
- border-top: 2px solid @brand-primary;
- box-shadow: 0 1px 2px rgba(0,0,0,.15);
- background: #fff;
- h1{
-   margin: 0;
-   border-bottom: 1px solid #d1d1d1;
-   background: url(../img/redhatamq.png) no-repeat 20px 20px;
-   background-size: 234px 58px;
-   height: 98px;
-   text-indent: -9999999px;
- }
-
- .amq-input, .amq-output{
-   float: left;
-   width: 50%;
-   font-size: @font-size-h3;
-   line-height: 35px;
-   .container{
-     padding: 5px 20px 20px 20px;
-   }
-   strong {
-     display: block;
-     font-weight: 300;
-     font-size: @font-size-h1*1.5;
-     .count {
-     }
-     .dirty {
-       font-size: @font-size-h1*.75;
-       vertical-align: super;
-     }
-   }
- }
- .amq-input{
-   .container{
+  .clearfix();
+  width: 560px;
+  margin: 0px auto 0 auto;
+  border-top: 2px solid @brand-primary;
+  box-shadow: 0 1px 2px rgba(0,0,0,.15);
+  background: #fff;
+  h1{
+    margin: 0;
+    border-bottom: 1px solid #d1d1d1;
+    background: url(../img/redhatamq.png) no-repeat 20px 20px;
+    background-size: 234px 58px;
+    height: 98px;
+    text-indent: -9999999px;
+  }
+  .amq-input, .amq-output{
+    float: left;
+    width: 50%;
+    font-size: @font-size-h3;
+    line-height: 35px;
+    .container{
+      padding: 5px 20px 20px 20px;
+    }
+    strong {
+      display: block;
+      font-weight: 300;
+      font-size: @font-size-h1*1.5;
+      .dirty {
+        font-size: @font-size-h1*.75;
+        vertical-align: super;
+      }
+    }
+  }
+  .amq-input{
+    .container{
       border-right: 1px solid #d1d1d1;
-   }
+    }
+  }
+}
+
+// legend ==========================================================
+
+.legend{
+  text-align: center;
+  margin-top: 40px;
+  li{
+    display: inline-block;
+    margin-left: 20px;
+    line-height: 30px;
+    font-size: @font-size-h5;
+    &:before{
+//      line-height: 30px;
+      content: "";
+      .size(20px;20px);
+      float: left;
+      margin-right: 5px;
+      border-radius: 15px;
+      border-width: : 2px;
+      border-style: solid;      
+    }
+    &.scanner:before{         border-color: #0088ce; .size(30px;30px);} // big blue
+    &.dequeue:before{         border-color: #0088ce; .size(10px;10px); margin-top:10px} // small blue
+    &.checkin:before{         border-color: #3f9c35;    background: #3f9c35; margin-top:5px} // green
+    &.checkout:before{        border-color: #ce0000;    background: #ce0000; margin-top:5px} // red
+    &.retransmit:before{      border-color: #ec7a08;    background: #ec7a08; .size(10px;10px); margin-top:10px} // orange
   }
 }
 
@@ -71,7 +101,6 @@ body {
   border-top: 2px solid @brand-primary;
   width: 220px;
   position: relative;
-
   h1{
     background: url(../img/spark.png) no-repeat center center;
     background-size: 108px 57px;
@@ -88,20 +117,19 @@ body {
   }
 }
 
+// gears =====================
+
 #content{
   position: absolute;
   top: 300px;
   left: -110px;
 }
+
 #gears{
-//	width:478px;
-//	height:655px;
 	position:relative;
 	display:inline-block;
 	vertical-align:middle;
 }
-
-
 #gears-static{
 	background:url(../img/FgFnjks.png) no-repeat -363px -903px;
 	width:329px;
@@ -110,7 +138,6 @@ body {
 	bottom:5px;
 	left:60px;
 }
-
 
 .shadow{
 	-webkit-box-shadow:     0 0 10px 5px rgba(43, 36, 0, 0.36);
@@ -213,8 +240,6 @@ body {
 	left:103px;
 	bottom:130px;
 }
-
-
 
 
 
@@ -350,26 +375,20 @@ body {
 
 // Old Styles ====================
 
-.map{
-  position: absolute;
-  z-index: -1;
-  top: 38px;
-  left: 0;
-}
 
 circle {
   fill: none;
-  stroke-width: 2.5px;
+  stroke-width: 2px;
 }
 
 .jms {
-  stroke-width: 2.5px;
+  stroke-width: 2px;
   fill: lightgray;
   stroke: gray;
 }
 
 .spark {
-  stroke-width: 2.5px;
+  stroke-width: 2px;
   fill: lightgray;
   stroke: gray;
 }
