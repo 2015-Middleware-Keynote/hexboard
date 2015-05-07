@@ -46,7 +46,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
         .attr('cx', start.x)
         .attr('cy', start.y)
         .attr('r', 20)
-        .style('stroke', '#ce0000')
+        .style('stroke', 'steelblue')
         .style('stroke-opacity', 1);
     particle.transition()
         .duration(1000)
@@ -60,7 +60,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
             return y0 + ease(t)*(y1-y0);
           };
         })
-        .attr('r', 10)
+        .attr('r', 5)
         .style('stroke-opacity', .4)
       .transition()
           .duration(1000)
@@ -80,34 +80,39 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
               return y0 + ease(t)*(y1-y0);
             };
           })
-          .attr('r', 5)
+          .attrTween('r', function(d, i, a) {
+            return d3.interpolate(5, 5);;
+          })
           .styleTween('stroke-opacity', function(d, i, a) {
             return d3.interpolate(.6, .8);
           })
       .remove()
   };
 
-  function particleOut(index) {
+  function particleOut(event) {
+    console.log(event);
     var offset = getRandomInt(0, 100);
     var start = {
       x: box1.x1,
-      y: box1.y1 - offset / 2 - 75
+      // y: box1.y1 - offset / 2 - 75
+      y: box1.y1 - 100 + 0.8 * (offset - 50)
     }
     svg.insert('circle')
-        .datum({index: index, position: start, offset: offset})
+        .datum({event: event, offset: offset})
         .attr('cx', start.x)
         .attr('cy', start.y)
-        .attr('r', 5)
-        .style('stroke', '#ce0000')
+        .attr('r', function(d) {return d.event.retransmit ? 5 : 10;})
+        .style('stroke', function(d) {return d.event.retransmit ? 'orange' : d.event.type === 'check-in' ? 'green': '#ce0000';})
+        .style('fill', function(d) {return d.event.retransmit ? 'orange' : d.event.type === 'check-in' ? 'green': '#ce0000';})
         .style('stroke-opacity', 1)
       .transition()
           .duration(1000)
           .ease('linear')
           .attrTween('cx', function(d, i, a) {
-            var offset = -1 * d.offset;
+            var offset = -1.5 * d.offset;
             return function(t) {
               var a = 1.15;
-              return (box1.x1 - (t)*offset + 5) * (a + (1-a) * Math.cos(2*Math.PI*t))
+              return (box1.x1 - t*offset) * (a + (1-a) * Math.cos(2*Math.PI*t))
             };
           })
           .attrTween('cy', function(d, i, a) {
@@ -121,7 +126,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
           .styleTween('stroke-opacity', function(d, i, a) {
             return d3.interpolate(.8, 1);
           })
-          .attr('r', 1)
+          // .attr('r', 1)
       .transition()
           .duration(1000)
           .ease('linear')
@@ -132,13 +137,13 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
           })
           .attrTween('cy', function(d, i, a) {
             var ease = d3.ease('quad-out');
-            var y0 = box0.cy + 0.1 * d.offset - 5;
-            var y1 = box0.cy + 0.4 * d.offset - 20;
+            var y0 = box0.cy + 0.2 * (d.offset - 50);
+            var y1 = box0.cy + 1.5 * (d.offset - 50);
             return function(t) {
               return y0 + ease(t)*(y1-y0);
             };
           })
-          .attr('r', 1)
+          // .attr('r', 1)
           .style('stroke-opacity', 1)
           .remove();
   };
@@ -218,21 +223,20 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     return message.type === 'beaconEventsProcessed';
   })
   .flatMap(function(message) {
-    return Rx.Observable.range(0, message.data.num).flatMap(function(x2) {
-      var index = message.data.num * message.data.x + x2;
-      var delay = Math.floor(message.data.interval * x2 / message.data.num);
-      return Rx.Observable.from([index]).delay(delay);
+    return Rx.Observable.from(message.data.messages).flatMap(function(event, x2) {
+      var delay = Math.floor(message.data.interval * x2 / message.data.num) * 4;
+      return Rx.Observable.from([event]).delay(delay);
     })
   })
-  .tap(function(index) {
-    particleOut(index);
+  .tap(function(event) {
+    particleOut(event);
     beaconEventsProcessedCount++;
     window.requestAnimationFrame(function() {
       d3.select('.amq-output .count').text(numeral(beaconEventsProcessedCount).format('0,0'));
     });
   })
   .subscribeOnError(function(err) {
-    console.log(err);
+    console.log(err.stack ? err.stack : err);
   });
 
 })(d3, Rx);

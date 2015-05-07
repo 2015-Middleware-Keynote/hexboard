@@ -155,16 +155,22 @@ var beaconEventsLive = function() {
 
 var beaconEventsProcessedLive = function() {
   return getStompFeed('/topic/beaconEvents_processed')
-  .bufferWithTime(interval / 10).map(function(buf) {
-    return {
-      type: 'beaconEventsProcessed',
-      data: {
-        x: 0,
-        num: buf.length,
-        interval: interval / 10
+    .map(function(message) {
+      return {
+        type: message.headers.type,
+        retransmit: message.headers.retransmit
       }
-    };
-  })
+    })
+    .bufferWithTime(50).map(function(buf) {
+      return {
+        type: 'beaconEventsProcessed',
+        data: {
+          num: buf.length,
+          interval: 50,
+          messages: buf
+        }
+      };
+    })
 };
 
 var liveFeed = function() {
