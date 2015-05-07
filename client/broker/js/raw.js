@@ -91,7 +91,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     var offset = getRandomInt(0, 100);
     var start = {
       x: box1.x1,
-      y: box1.y0 + offset / 2
+      y: box1.y1 - offset / 2 - 75
     }
     svg.insert('circle')
         .datum({index: index, position: start, offset: offset})
