@@ -188,7 +188,8 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     beaconEventsCount += message.data.num;
     return Rx.Observable.range(0, message.data.num).flatMap(function(x2) {
       var index = message.data.num * message.data.x + x2;
-      var delay = getRandomInt(0, message.data.interval);
+      // var delay = getRandomInt(0, message.data.interval);
+      var delay = message.data.interval * x2 / message.data.num;
       return Rx.Observable.range(0,1)
         .map(function() {
           return index;
@@ -211,7 +212,8 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   .flatMap(function(message) {
     return Rx.Observable.range(0, message.data.num).flatMap(function(x2) {
       var index = message.data.num * message.data.x + x2;
-      var delay = getRandomInt(0, message.data.interval);
+      // var delay = getRandomInt(0, message.data.interval);
+      var delay = message.data.interval * x2 / message.data.num;
       return Rx.Observable.range(0,1)
         .map(function() {
           return index;

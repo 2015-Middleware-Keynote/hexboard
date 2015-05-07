@@ -122,8 +122,8 @@ var getStompFeed = function(queue) {
   }).share();
 };
 
-var interval = 100;
-var num = 50;
+var interval = 500;
+var num = 500 * interval / 1000;
 
 var beaconEventsLive = function() {
   return getStompFeed('/topic/beaconEvents')
@@ -141,13 +141,13 @@ var beaconEventsLive = function() {
 
 var beaconEventsProcessedLive = function() {
   return getStompFeed('/topic/beaconEvents_processed')
-  .bufferWithTime(interval).map(function(buf) {
+  .bufferWithTime(interval / 10).map(function(buf) {
     return {
       type: 'beaconEventsProcessed',
       data: {
         x: 0,
         num: buf.length,
-        interval: interval
+        interval: interval / 10
       }
     };
   })
