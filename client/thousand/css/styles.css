@@ -5175,8 +5175,8 @@ body {
   shape-rendering: crispEdges;
 }
 .hexagon {
-  stroke: #000;
-  stroke-width: .5px;
+  stroke: #fff;
+  stroke-width: 1.5px;
 }
 .doodle rect {
   fill: white;
