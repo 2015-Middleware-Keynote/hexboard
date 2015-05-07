@@ -153,7 +153,7 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   var feed = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/broker')
   .map(function(message) {
     return JSON.parse(message.data);
-  }).take(10000).share();
+  }).share();
 
   feed.filter(function(message) {
     return message.type === 'setup';
