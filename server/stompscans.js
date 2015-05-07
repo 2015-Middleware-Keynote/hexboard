@@ -8,6 +8,8 @@ var Rx = require('rx')
   , debuglog = require('debuglog')('stomp')
   ;
 
+var tag = 'STOMP';
+
 var idMap = {};
 var lastIndex = 0;
 
@@ -30,19 +32,17 @@ var getUser = function(idInt) {
 }
 
 var connection = Rx.Observable.create(function (observer) {
-  console.log(new Date());
-  console.log('Connecting...');
+  console.log(tag, new Date());
+  console.log(tag, 'Connecting...');
   var client = Stomp.overWS('ws://52.10.252.216:61614', ['v12.stomp']);
   // client.heartbeat = {outgoing: 0, incoming: 0}; // a workaround for the failing heart-beat
   // client.heartbeat.incoming = 20000;
   client.debug = function(m) {
     debuglog(new Date());
-    // console.log(new Date());
     debuglog(m);
-    // console.log(m);
   };
   client.connect('admin', 'admin', function(frame) {
-    console.log(frame.toString());
+    debuglog(frame.toString());
     observer.onNext(client);
   }, function(error) {
     console.error(error);
@@ -67,7 +67,7 @@ var convertLocation = function(code) {
         location = locationHashMap['Entrance'];
         break;
       default:
-        console.log('Unmapped location code: ' + code);
+        console.log(tag, 'Unmapped location code: ' + code);
         location = locationHashMap['Entrance'];
     };
   }
@@ -77,7 +77,7 @@ var convertLocation = function(code) {
 var getStompFeed = function(queue) {
   return connection.flatMap(function(client) {
     return Rx.Observable.create(function (observer) {
-      console.log('Subscribing to ' + queue + '...');
+      console.log(tag, 'Subscribing to ' + queue + '...');
       client.subscribe(queue, function(message) {
         message.ack();
         var location = convertLocation(message.headers.location_id);
@@ -97,7 +97,7 @@ var getStompFeed = function(queue) {
         observer.onNext(event);
         return function() {
           client.disconnect(function() {
-            console.log('Disconnected.');
+            console.log(tag, 'Disconnected.');
           });
         };
       }

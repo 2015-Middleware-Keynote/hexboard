@@ -7,9 +7,11 @@ var app   = require('./main/app.js')
   , log   = 'Listening on ' + ip + ':' + port
   ;
 
+var tag = 'SERVER';
+
 var server = http.createServer(app);
 server.listen(port, ip);
-console.log(log);
+console.log(tag, log);
 
 require('./ws/beacon-live')(server);
 require('./ws/beacon-playback')(server);

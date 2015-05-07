@@ -4,6 +4,8 @@ var WebSocketServer = require('ws').Server
   , thousand = require('../thousand')
   ;
 
+var tag = 'WS/THOUSAND';
+
 module.exports = function(server) {
   var wss = new WebSocketServer({server: server, path: '/thousand'});
 
@@ -18,7 +20,7 @@ module.exports = function(server) {
       if (ws.readyState === ws.OPEN) {
         ws.send(data);
       } else if (ws.readyState === ws.CLOSED) {
-        console.log('Peer #' + ws.id + ' disconnected from /thousand.');
+        console.log(tag, 'Peer #' + ws.id + ' disconnected from /thousand.');
         delete clients[ws.id];
       }
     };
@@ -28,7 +30,7 @@ module.exports = function(server) {
     var id = count++;
     clients[id] = ws;
     ws.id = id;
-    console.log('/thousand connection');
+    console.log(tag, '/thousand connection');
     var subscription;
     subscription = thousand.events.subscribe(function(event) {
       if (ws.readyState === ws.OPEN) {
@@ -42,13 +44,13 @@ module.exports = function(server) {
       }
     });
     ws.onclose = function() {
-      console.log('Onclose: disposing /thousand subscriptions');
+      console.log(tag, 'Onclose: disposing /thousand subscriptions');
       subscription && subscription.dispose();
     };
   });
 
   eventEmitter.on('new-doodle', function(doodle) {
-    console.log('doodle listener invoked.');
+    console.log(tag, 'doodle listener invoked.');
     wss.broadcast(JSON.stringify({type: 'doodle', data: doodle}));
   });
 };

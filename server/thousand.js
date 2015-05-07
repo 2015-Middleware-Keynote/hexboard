@@ -4,6 +4,8 @@ var Rx = require('rx')
   , EventEmitter = require("events").EventEmitter
   ;
 
+var tag = 'THOUSAND';
+
 // Returns a random integer between min included) and max (excluded)
 var getRandomInt = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);

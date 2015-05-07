@@ -6,9 +6,11 @@ var fs = require('fs')
   , eventEmitter = thousand.doodleEmitter
   ;
 
+var tag = 'API/THOUSAND';
+
 module.exports = exports = {
   receiveImage: function(req, res, next) {
-    console.log('originalUrl', req.originalUrl);
+    console.log(tag, 'originalUrl', req.originalUrl);
 
     var containerId = parseInt(req.params.containerId);
     if (containerId < 0 || containerId >= 1060) {
@@ -28,7 +30,7 @@ module.exports = exports = {
         if (err) {
           next(err);
         };
-        console.log('originalUrl', req.originalUrl);
+        console.log(tag, 'originalUrl', req.originalUrl);
         fs.write(fd, data, 0, data.length, 0, function(err, written, buffer) {
           if (err) {
             next(err);
@@ -63,7 +65,7 @@ module.exports = exports = {
       }, function(error) {
         next(error)
       }, function() {
-        console.log(numDoodles + ' doodles pushed');
+        console.log(tag, numDoodles + ' doodles pushed');
         res.json({msg: numDoodles + ' doodles pushed'});
       });
   }

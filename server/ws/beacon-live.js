@@ -6,6 +6,8 @@ var WebSocketServer = require('ws').Server
   , restoreScans = require('../restorescans').restoreScans
   ;
 
+var tag = 'WS/LIVE';
+
 module.exports = function(server) {
   var wss = new WebSocketServer({server: server, path: '/live'});
 
@@ -18,7 +20,7 @@ module.exports = function(server) {
       if (ws.readyState === ws.OPEN) {
         ws.send(data);
       } else if (ws.readyState === ws.CLOSED) {
-        console.log('Peer #' + ws.id + ' disconnected from /live.');
+        console.log(tag, 'Peer #' + ws.id + ' disconnected from /live.');
         delete clients[ws.id];
       }
     };
@@ -30,12 +32,12 @@ module.exports = function(server) {
     ws.id = id;
     restoreScans().then(function(scans) {
       // ws.send('hello');
-      console.log('Restoring', scans.length, 'scans');
+      console.log(tag, 'Restoring', scans.length, 'scans');
       scans.forEach(function(scan) {
         clients[id].send(JSON.stringify({type: 'scan', data: scan}));
       })
     })
-    console.log('Peer #' + id + ' connected to /live.');
+    console.log(tag, 'Peer #' + id + ' connected to /live.');
   });
 
   var saveScan = function(scan) {
@@ -45,16 +47,16 @@ module.exports = function(server) {
     , type: scan.type
     , timestamp: scan.timestamp
     }).then(function (createdScan) {
-      // console.log('Saved scan for beacon: ', createdScan.beaconId);
+      // console.log(tag, 'Saved scan for beacon: ', createdScan.beaconId);
       // process.stdout.write('.');
       return;
     }, function(error) {
-      console.log('Error saving scan: ', error);
+      console.log(tag, 'Error saving scan: ', error);
     });
   }
 
   stomp.getStompFeed('/topic/beaconEvents_processed').subscribe(function(scan) {
-    // console.log('user', scan.user.name, 'location', scan.location.name);
+    // console.log(tag, 'user', scan.user.name, 'location', scan.location.name);
     saveScan(scan);
     wss.broadcast(JSON.stringify({type: 'scan', data: scan}));
   });

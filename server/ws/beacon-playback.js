@@ -5,6 +5,8 @@ var WebSocketServer = require('ws').Server
   , Scan = require('../api/scan/scan_model')
   ;
 
+var tag = 'WS/PLAYBACK';
+
 module.exports = function(server) {
   var wss = new WebSocketServer({server: server, path: '/playback'});
 
@@ -17,7 +19,7 @@ module.exports = function(server) {
       if (ws.readyState === ws.OPEN) {
         ws.send(data);
       } else if (ws.readyState === ws.CLOSED) {
-        console.log('Peer #' + ws.id + ' disconnected from /playback.');
+        console.log(tag, 'Peer #' + ws.id + ' disconnected from /playback.');
         delete clients[ws.id];
       }
     };
@@ -27,7 +29,7 @@ module.exports = function(server) {
     var id = count++;
     clients[id] = ws;
     ws.id = id;
-    console.log('Peer #' + id + ' connected to /playback.');
+    console.log(tag, 'Peer #' + id + ' connected to /playback.');
   });
 
   var saveScan = function(scan) {
@@ -37,16 +39,16 @@ module.exports = function(server) {
     , type: scan.type
     , timestamp: scan.timestamp
     }).then(function (createdScan) {
-      // console.log('Saved scan for beacon: ', createdScan.beaconId);
+      // console.log(tag, 'Saved scan for beacon: ', createdScan.beaconId);
       // process.stdout.write('.');
       return;
     }, function(error) {
-      console.log('Error saving scan: ', error);
+      console.log(tag, 'Error saving scan: ', error);
     });
   }
 
   stomp.getStompFeed('/topic/replay_processed').subscribe(function(scan) {
-    // console.log('user', scan.user.name, 'location', scan.location.name);
+    // console.log(tag, 'user', scan.user.name, 'location', scan.location.name);
     saveScan(scan);
     wss.broadcast(JSON.stringify({type: 'scan', data: scan}));
   });

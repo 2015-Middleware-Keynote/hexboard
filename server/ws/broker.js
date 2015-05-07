@@ -4,6 +4,8 @@ var WebSocketServer = require('ws').Server
   , broker = require('../broker')
   ;
 
+var tag = 'WS/BROKER';
+
 module.exports = function(server) {
   var wss = new WebSocketServer({server: server, path: '/broker'});
 
@@ -16,10 +18,10 @@ module.exports = function(server) {
       if (ws.readyState === ws.OPEN) {
         ws.send(data);
       } else if (ws.readyState === ws.CLOSED) {
-        console.log('Peer #' + ws.id + ' disconnected from /broker.');
+        console.log(tag, 'Peer #' + ws.id + ' disconnected from /broker.');
         delete clients[ws.id];
         if (Object.keys(clients).length == 0) {
-          console.log('Disposing of broker subscription');
+          console.log(tag, 'Disposing of broker subscription');
           subscription.dispose();
         }
       }
@@ -34,7 +36,7 @@ module.exports = function(server) {
     clients[id] = ws;
     ws.id = id;
     ws.send(JSON.stringify({type: 'setup', data: {interval: broker.interval}}));
-    console.log('Peer #' + id + ' connected to /broker.');
+    console.log(tag, 'Peer #' + id + ' connected to /broker.');
   });
 
   var subscription;
@@ -45,7 +47,7 @@ module.exports = function(server) {
       wss.broadcast(JSON.stringify(event));
     })
     .subscribeOnError(function(err) {
-      console.log(err);
+      console.log(tag, err);
     });
   };
 };
