@@ -63,11 +63,6 @@ hex = (function dataSimulator(d3, Rx) {
     .domain([0, 1, 2, 3, 4])  // 5 states
     .range(['#002235', '#004368', '#00659c', '#0088ce', '#39a5dc']);
 
-//  awaiting (initial state)  ==    gray          #ddd
-//  pending                   ==    light blue    #00b9e4
-//  running                   ==    blue          #0088ce     
-//  live                      ==    light green   #92d400   
-//  ready                     ==    green         #3f9c35   
     
 
   var svg = d3.select('.map').append('svg')

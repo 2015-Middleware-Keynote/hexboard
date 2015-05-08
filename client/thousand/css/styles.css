@@ -5161,9 +5161,47 @@ h2,
 .navbar-pf-lg .navbar-utility li.dropdown > .dropdown-toggle .pficon-user {
   top: 12px;
 }
+.legend {
+  text-align: center;
+  margin-top: 40px;
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+}
+.legend ul {
+  margin: 0;
+  padding: 10px 10px 10px 0;
+  list-style: none;
+  background: #fff;
+  border-radius: 1px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  display: inline-block;
+}
+.legend li {
+  display: inline-block;
+  font-size: 13px;
+  line-height: 30px;
+  background-image: url(../img/legend.png);
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  padding-left: 30px;
+  margin-left: 10px;
+}
+.legend li:nth-child(2) {
+  background-position: 0 -30px;
+}
+.legend li:nth-child(3) {
+  background-position: 0 -60px;
+}
+.legend li:nth-child(4) {
+  background-position: 0 -90px;
+}
+.legend li:nth-child(5) {
+  background-position: 0 -120px;
+}
 body {
   margin: 0;
-  transform: transale3d(0, 0, 0);
 }
 .axis text {
   font: 10px sans-serif;
