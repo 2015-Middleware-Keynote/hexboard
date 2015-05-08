@@ -43,6 +43,7 @@ d3demo.controls = (function controls(d3, Rx) {
     hideComboBox();
     var node = d3.select(event.target);
     d3demo.visualisation.selectNodes(node);
+    d3demo.forcemap.start();
   });
 
   filter.subscribe(function(event) {

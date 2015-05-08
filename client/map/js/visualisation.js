@@ -196,6 +196,7 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
         var dataNode = d3demo.forcemap.getDataNodeById(scan.user.id);
         if (dataNode.focus === scan.location.id) {
           d3demo.forcemap.particle(dataNode);
+          d3demo.forcemap.start();
           return;
         };
       };
@@ -212,8 +213,7 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
         console.log('Ignoring scan of type: ' + scan.type);
       }
       d3demo.forcemap.start();
-    }, errorHandler);
-
+    });
   };
 
   var formatTime = function(time) {
