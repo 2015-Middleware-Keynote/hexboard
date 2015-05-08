@@ -5254,6 +5254,7 @@ h2,
   content: "\f017";
 }
 .info #log span.log-id {
+  text-transform: none;
   width: 35%;
   margin-bottom: 15px;
 }
@@ -5261,6 +5262,7 @@ h2,
   content: "\f10c";
 }
 .info #log span.log-location {
+  text-transform: none;
   width: 65%;
   margin-bottom: 15px;
 }
