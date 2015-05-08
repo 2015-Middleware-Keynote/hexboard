@@ -1,7 +1,7 @@
 'use strict';
 
 var WebSocketServer = require('ws').Server
-  , stomp = require('../stompscans')
+  , live = require('../beacon-live')
   , Scan = require('../api/scan/scan_model')
   , restoreScans = require('../restorescans').restoreScans
   ;
@@ -36,6 +36,8 @@ module.exports = function(server) {
       scans.forEach(function(scan) {
         clients[id].send(JSON.stringify({type: 'scan', data: scan}));
       })
+    }, function(err) {
+      console.err(tag, err);
     })
     console.log(tag, 'Peer #' + id + ' connected to /live.');
   });
@@ -55,7 +57,7 @@ module.exports = function(server) {
     });
   }
 
-  stomp.getStompFeed('/topic/beaconEvents_processed').subscribe(function(scan) {
+  live.getScanFeed('/topic/beaconEvents_processed').subscribe(function(scan) {
     // console.log(tag, 'user', scan.user.name, 'location', scan.location.name);
     saveScan(scan);
     wss.broadcast(JSON.stringify({type: 'scan', data: scan}));

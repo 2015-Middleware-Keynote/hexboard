@@ -20,6 +20,27 @@ locations.forEach(function(location) {
   locationHashMap[location.code] = location;
 });
 
+var convertLocation = function(code) {
+  var location = locationHashMap[code];
+  if (!location) {
+    switch(code) {
+      case 'Room205':
+        location = locationHashMap['Ballroom'];
+        break;
+      case 'Room206':
+        location = locationHashMap['Room200'];
+        break;
+      case 'Unknown':
+        location = locationHashMap['Entrance'];
+        break;
+      default:
+        console.log(tag, 'Unmapped location code: ' + code);
+        location = locationHashMap['Entrance'];
+    };
+  }
+  return location;
+}
+
 module.exports = exports = {
   getAll: function(req, res, next) {
     res.json(locations);
@@ -28,5 +49,5 @@ module.exports = exports = {
     res.json(locations[req.params.id]);
   }
 , locations: locations
-, locationHashMap: locationHashMap
+, convertLocation: convertLocation
 };

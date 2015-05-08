@@ -1,7 +1,7 @@
 'use strict';
 
 var WebSocketServer = require('ws').Server
-  , data = require('../randomscans')
+  , data = require('../beacon-random')
   ;
 
 var tag = 'WS/RANDOM';

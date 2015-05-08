@@ -1,7 +1,7 @@
 'use strict';
 
 var WebSocketServer = require('ws').Server
-  , stomp = require('../stompscans')
+  , stomp = require('../stomp')
   , Scan = require('../api/scan/scan_model')
   ;
 

@@ -1,9 +1,9 @@
 'use strict';
 
 var Rx = require('rx')
-  , locationHashMap = require('./api/location/location_controllers').locationHashMap
+  , convertLocation = require('./api/location/location_controllers').convertLocation
   , Scan = require('./api/scan/scan_model')
-  , getUser = require('./stompscans').getUser
+  , getUser = require('./beacon-live').getUser
   ;
 
 var restoreScans = function() {
@@ -25,7 +25,7 @@ var restoreScans = function() {
     .then(function(scans) {
       return scans.map(function(scan) {
         scan.user = getUser(scan.beaconId);
-        scan.location = locationHashMap[scan.location];
+        scan.location = convertLocation(scan.location);
         scan.timestamp = new Date(scan.timestamp).getTime();
         scan.retransmit = false;
         return scan;
