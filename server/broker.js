@@ -74,6 +74,31 @@ var getEnqueueCount = function(url) {
   });
 };
 
+var enqueueCountsFeed = function() {
+  return Rx.Observable.merge(
+    getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents/EnqueueCount')
+      .map(function(count) {
+        return {
+          type: 'enqueueCount',
+          data: {
+            count: count,
+            topic: 'beaconEvents'
+          }
+        }
+      }),
+    getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents_processed/EnqueueCount')
+      .map(function(count) {
+        return {
+          type: 'enqueueCount',
+          data: {
+            count: count,
+            topic: 'beaconEventsProcessed'
+          }
+        }
+      })
+  );
+};
+
 var connection = Rx.Observable.create(function (observer) {
   console.log(tag, new Date());
   console.log(tag, 'Connecting...');
@@ -177,30 +202,10 @@ var beaconEventsProcessedLive = function() {
 
 var liveFeed = function() {
   return Rx.Observable.merge(
-    getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents/EnqueueCount')
-      .map(function(count) {
-        return {
-          type: 'enqueueCount',
-          data: {
-            count: count,
-            topic: 'beaconEvents'
-          }
-        }
-      }),
-    getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents_processed/EnqueueCount')
-      .map(function(count) {
-        return {
-          type: 'enqueueCount',
-          data: {
-            count: count,
-            topic: 'beaconEventsProcessed'
-          }
-        }
-      }),
     beaconEventsLive(),
     beaconEventsProcessedLive()
   );
-}
+};
 
 var randomSource = Rx.Observable.interval(interval).share();
 
@@ -237,26 +242,6 @@ var beaconEventsProcessedRandom = function() {
 
 var randomFeed = function() {
   return Rx.Observable.merge(
-    getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents/EnqueueCount')
-      .map(function(count) {
-        return {
-          type: 'enqueueCount',
-          data: {
-            count: count,
-            topic: 'beaconEvents'
-          }
-        }
-      }),
-    getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents_processed/EnqueueCount')
-      .map(function(count) {
-        return {
-          type: 'enqueueCount',
-          data: {
-            count: count,
-            topic: 'beaconEventsProcessed'
-          }
-        }
-      }),
     beaconEventsRandom(),
     beaconEventsProcessedRandom()
   );
@@ -265,4 +250,5 @@ var randomFeed = function() {
 module.exports = {
   eventFeed: liveFeed
 , interval: interval
+, enqueueCountsFeed: enqueueCountsFeed
 };

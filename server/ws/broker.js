@@ -36,6 +36,11 @@ module.exports = function(server) {
     clients[id] = ws;
     ws.id = id;
     ws.send(JSON.stringify({type: 'setup', data: {interval: broker.interval}}));
+    broker.enqueueCountsFeed().tap(function(event) {
+      wss.broadcast(JSON.stringify(event));
+    }).subscribeOnError(function(err) {
+      console.log(tag, err);
+    });;
     console.log(tag, 'Peer #' + id + ' connected to /broker.');
   });
 
