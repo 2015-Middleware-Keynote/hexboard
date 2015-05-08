@@ -88,6 +88,7 @@ var getStompFeed = function(queue) {
         , beaconId: message.headers.user_id
         , location: location
         , type: message.headers.type || 'check-in'
+        , retransmit: message.headers.retransmit === 'true'
         , timestamp: message.headers.timestamp * 1000
         }
         if (!event.timestamp) {

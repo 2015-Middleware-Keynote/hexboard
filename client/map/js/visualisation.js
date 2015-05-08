@@ -192,6 +192,13 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
     };
 
     scans = scansStream.tap(function(scan) {
+      if (scan.retransmit) {
+        var dataNode = d3demo.forcemap.getDataNodeById(scan.user.id);
+        if (dataNode.focus === scan.location.id) {
+          d3demo.forcemap.particle(dataNode);
+          return;
+        };
+      };
       logScan(scan);
       if (scan.type === 'check-in') {
         checkinNode(scan);

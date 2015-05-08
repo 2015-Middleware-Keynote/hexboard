@@ -27,6 +27,7 @@ var restoreScans = function() {
         scan.user = getUser(scan.beaconId);
         scan.location = locationHashMap[scan.location];
         scan.timestamp = new Date(scan.timestamp).getTime();
+        scan.retransmit = false;
         return scan;
       });
     });

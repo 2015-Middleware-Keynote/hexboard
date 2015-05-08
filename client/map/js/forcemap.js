@@ -74,11 +74,12 @@ d3demo.forcemap = (function visualisation(d3, Rx) {
               : d.present ? -14 : -2;
         });
 
-    nodes = svg.selectAll('circle')
+    nodes = svg.selectAll('circle.user')
         .data(dataNodes, function(datum, index) {
           return datum.id;
         })
         .enter().append("circle")
+          .attr('class', 'user')
           .attr("cx", function(d) { return d.x; })
           .attr("cy", function(d) { return d.y; })
           .attr('r', function(d) { return d.present ? 8 : 2});
@@ -155,7 +156,22 @@ d3demo.forcemap = (function visualisation(d3, Rx) {
     return dataNodes.filter(function(d) {
       return d.focus !== -1;
     }).length;
-  }
+  };
+
+  function particle(dataNode) {
+    var particle = svg.insert('circle')
+        .attr('class', 'particle')
+        .attr('cx', dataNode.x)
+        .attr('cy', dataNode.y)
+        .attr('r', 5)
+        .style('stroke-opacity', 1)
+      .transition()
+        .duration(1000)
+        .ease('quad-out')
+        .attr('r', 50)
+        .style('stroke-opacity', .1)
+      .remove();
+  };
 
   return {
     init: init
@@ -165,5 +181,6 @@ d3demo.forcemap = (function visualisation(d3, Rx) {
   , getNodesByName: getNodesByName
   , getSelectedNodes: getSelectedNodes
   , getNodeCount: getNodeCount
+  , particle: particle
   };
 })(d3, Rx);
