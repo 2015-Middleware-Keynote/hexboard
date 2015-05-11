@@ -15,6 +15,8 @@ var locations = [
 , { id: 11, x_i: 1800, y_i: 150, name: 'Ballroom A 3rd floor', code: 'Ballroom'}
 ];
 
+var tag = 'API/LOCATION';
+
 var locationHashMap = {};
 locations.forEach(function(location) {
   locationHashMap[location.code] = location;
