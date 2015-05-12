@@ -175,14 +175,14 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   }).tap(function(message) {
     switch(message.data.topic) {
       case 'beaconEvents':
-        beaconEventsCount += message.data.count;
+        beaconEventsCount = message.data.count;
         window.requestAnimationFrame(function() {
           d3.select('.amq-input .count').text(numeral(beaconEventsCount).format('0,0'));
           d3.select('.amq-input .dirty').style({visibility: 'hidden'});
         });
         break;
       case 'beaconEventsProcessed':
-        beaconEventsProcessedCount += message.data.count;
+        beaconEventsProcessedCount = message.data.count;
         window.requestAnimationFrame(function() {
           d3.select('.amq-output .count').text(numeral(beaconEventsProcessedCount).format('0,0'));
           d3.select('.amq-output .dirty').style({visibility: 'hidden'});
