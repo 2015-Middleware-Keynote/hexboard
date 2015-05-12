@@ -3,6 +3,9 @@
 var hex = hex || {};
 
 hex = (function dataSimulator(d3, Rx) {
+  var errorObserver = function(error) {
+    console.error(error.stack || error);
+  };
 
   var size = 20;
   var display = {
@@ -62,8 +65,6 @@ hex = (function dataSimulator(d3, Rx) {
   var color = d3.scale.linear()
     .domain([0, 1, 2, 3, 4])  // 5 states
     .range(['#002235', '#004368', '#00659c', '#0088ce', '#39a5dc']);
-
-    
 
   var svg = d3.select('.map').append('svg')
       .attr('width', width + margin.left + margin.right)
@@ -162,6 +163,82 @@ hex = (function dataSimulator(d3, Rx) {
       .ease('quad-in')
       .attr('transform', 'matrix('+scale+', 0, 0, '+scale+', '+ p.x +', '+ p.y +')');
   }
+
+  var highlightedHexagon;
+
+  var highlight = function(index) {
+    if (highlightedHexagon) {
+      unhighlight();
+    }
+    var perspective = 1.5
+      , duration = 200
+      , scale = 0.2
+      , zoom = 0.5;
+
+    var p = points[index];
+    highlightedHexagon = svg.insert('path');
+    highlightedHexagon
+      .attr('class', 'hexagon highlight')
+      .attr('d', 'm' + hexagon(size/scale).join('l') + 'z')
+      .attr('transform', 'matrix('+scale+', 0, 0, '+scale+', '+ p.x +', '+ p.y +')')
+      .attr('fill', 'url(#img' + p.id + ')')
+      .style('fill-opacity', 1.0)
+      .datum(p)
+    .transition()
+      .duration(duration)
+      .ease('quad-out')
+      .attr('transform', 'matrix('+zoom+', 0, 0, '+zoom+', '+ p.x +', '+ p.y +')');
+  };
+
+  var unhighlight = function() {
+    var perspective = 1.5
+      , duration = 200
+      , scale = 0.2;
+    var p = highlightedHexagon.datum();
+    console.log(p)
+    highlightedHexagon
+    .transition()
+    .duration(duration)
+    .ease('quad-out')
+    .attr('transform', 'matrix('+scale+', 0, 0, '+scale+', '+ p.x +', '+ p.y +')')
+    .remove();
+  }
+
+  Rx.Observable.fromEvent(document.getElementsByTagName('body')[0], 'keyup')
+  .filter(function(event) {
+    return [37, 38, 39, 40].some(function(keyCode) {
+      return keyCode == event.keyCode;
+    });
+  })
+  .tap(function(event) {
+    var candidates = points.filter(function(point) {
+      return point.doodle;
+    });
+    var currentIndex = highlightedHexagon ? candidates.indexOf(highlightedHexagon.datum()) : null;
+    console.log('currentIndex', currentIndex);
+    var newIndex;
+    switch(event.keyCode) {
+      case 37: // LEFT
+      case 38: // UP
+        if (currentIndex === null || currentIndex === 0) {
+          newIndex = candidates.length - 1;
+        } else {
+          newIndex = currentIndex - 1;
+        }
+        break;
+      case 39: // RIGHT
+      case 40: // DOWN
+        if (currentIndex === null || currentIndex === candidates.length - 1) {
+          newIndex = 0;
+        } else {
+          newIndex = currentIndex + 1;
+        }
+        break;
+    };
+    console.log('newIndex', newIndex);
+    highlight(candidates[newIndex].id);
+  })
+  .subscribeOnError(errorObserver);
 
   // Returns a random integer between min included) and max (excluded)
   var getRandomInt = function (min, max) {
@@ -323,8 +400,4 @@ messages.filter(function(message) {
   image(points[doodle.containerId], doodle);
 }).subscribeOnError(errorObserver);
 
-var errorObserver = function(error) {
-  console.error(error);
-  error.stack && console.error(error.stack);
-};
 })(d3, Rx);
