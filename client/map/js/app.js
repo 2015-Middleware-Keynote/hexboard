@@ -4,7 +4,6 @@ var d3demo = d3demo || {};
 
 (function d3andRxDemo(d3, Rx) {
   var run = function(clock, source, bufferProgress) {
-    d3demo.playback.init();
     d3demo.forcemap.init();
 
     switch (d3demo.datafeed) {

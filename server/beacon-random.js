@@ -15,7 +15,10 @@ var KEYNOTE_1_START_MINUTES = 10*60
   , START_MINUTES = 7*60 + 50
   , END_MINUTES = 18*60;
 
-var EVENT_DATE = new Date('2015-06-23').getTime() + 7 * 60 * 60 * 1000;
+var EVENT_DATE = new Date();
+// EVENT_DATE.setDate(EVENT_DATE.getDate() - 1); // yesterday
+EVENT_DATE.setHours(0,0,0,0); // start of the day
+EVENT_DATE = EVENT_DATE.getTime();
 
 // Returns a random integer between min included) and max (excluded)
 var getRandom = function (min, max) {
@@ -153,7 +156,8 @@ var reset = function() {
 };
 
 module.exports = {
-    eventTimeStamp: EVENT_DATE + START_MINUTES * 60 * 1000
+    startTimestamp: EVENT_DATE + START_MINUTES * 60 * 1000
+  , endTimestamp: EVENT_DATE + END_MINUTES * 60 * 1000
   , users: users
   , reset: reset
   , scans: randomScans

@@ -172,22 +172,25 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
       , buffer: d3.select('.progress .buffer').node()
   };
 
-  var clock, buffer, scans;
+  var timeElement = document.getElementById('time');
+
   var tap = function(scansStream, clockStream, bufferStream) {
+    var clock, buffer, scans;
 
     if (clockStream) {
       clock = clockStream.tap(function(time) {
         d3.timer(function() {
-          document.getElementById('time').textContent = formatTime(time.timestamp);
-          progress.playback.style.width = (100 * (time.minutes - d3demo.playback.START_MINUTES )/ (d3demo.playback.END_MINUTES - d3demo.playback.START_MINUTES )) + '%';
+          timeElement.textContent = formatTime(time.timestamp);
+          progress.playback.style.width = time.percent + '%';
+          d3demo.forcemap.start();
           return true;
         });
       });
     };
 
     if (bufferStream) {
-      buffer = bufferStream.tap(function(minutes) {
-        progress.buffer.style.width = (100 * (minutes - d3demo.playback.START_MINUTES ) / (d3demo.playback.END_MINUTES - d3demo.playback.START_MINUTES)) + '%';
+      buffer = bufferStream.tap(function(percent) {
+        progress.buffer.style.width = percent + '%';
       });
     };
 
@@ -214,6 +217,12 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
       }
       d3demo.forcemap.start();
     });
+
+    return {
+      scans: scans
+    , clock: clock
+    , buffer: buffer
+    }
   };
 
   var formatTime = function(time) {
@@ -235,12 +244,13 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
   };
 
   var random = function() {
-    tap(d3demo.playback.scans, d3demo.playback.clockProgress, d3demo.playback.bufferProgress);
+    var playback = d3demo.playback.playback(d3demo.stomp.random);
+    var streams = tap(playback.scans, playback.clockProgress, playback.bufferProgress);
     d3demo.forcemap.start();
 
-    scans.subscribeOnError(errorHandler);
-    buffer.subscribeOnError(errorHandler);
-    clock.subscribeOnError(errorHandler);
+    streams.scans.subscribeOnError(errorHandler);
+    streams.buffer.subscribeOnError(errorHandler);
+    streams.clock.subscribeOnError(errorHandler);
 
     Rx.Observable.timer(1000).subscribe(function() {
       d3demo.playback.resume();
@@ -248,22 +258,24 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
   };
 
   var live = function() {
-    tap(d3demo.stomp.live);
+    var streams = tap(d3demo.stomp.live);
     d3demo.forcemap.start();
 
-    scans.subscribeOnError(errorHandler);
+    streams.scans.subscribeOnError(errorHandler);
   };
 
   var playback = function() {
-    tap(d3demo.stomp.playback);
+    var playback = d3demo.playback.playback(d3demo.stomp.playback);
+    var streams = tap(playback.scans, playback.clockProgress, playback.bufferProgress);
     d3demo.forcemap.start();
 
-    scans.subscribeOnError(errorHandler);
-  }
+    streams.scans.subscribeOnError(errorHandler);
+    streams.buffer.subscribeOnError(errorHandler);
+    streams.clock.subscribeOnError(errorHandler);
 
-  var start = function() {
-    // playback();
-    live();
+    Rx.Observable.timer(1000).subscribe(function() {
+      d3demo.playback.resume();
+    })
   }
 
   return {

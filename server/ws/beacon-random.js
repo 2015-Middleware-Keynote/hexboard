@@ -7,17 +7,29 @@ var WebSocketServer = require('ws').Server
 var tag = 'WS/RANDOM';
 
 module.exports = function(server) {
-  var wssRandom = new WebSocketServer({server: server, path: '/random'});
+  var wss = new WebSocketServer({server: server, path: '/random'});
 
-  wssRandom.on('connection', function connection(ws) {
+  wss.on('connection', function connection(ws) {
     console.log(tag, '/random connection');
-    var clock, scans;
     data.reset();
-    var subscription = data.scans.subscribe(function(scan) {
+    var scans = data.scans.share();
+    scans.take(1).subscribe(function(scan) {
       if (ws.readyState === ws.OPEN) {
-        ws.send(JSON.stringify({type: 'scan', data: scan}));
+        ws.send(JSON.stringify({type: 'setup', data: {
+          startTime: data.startTimestamp,
+          endTime: data.endTimestamp
+        }}));
       };
-    }, null, function() {
+    });
+    var subscription = scans
+    .bufferWithTime(20)
+    .subscribe(function(scanBundle) {
+      if (ws.readyState === ws.OPEN) {
+        ws.send(JSON.stringify({type: 'scanBundle', data: scanBundle}));
+      };
+    }, function(error) {
+      console.log(error.stack || error);
+    }, function() {
       if (ws.readyState === ws.OPEN) {
         console.log(tag, 'Playback complete, closing connection');
         ws.close();

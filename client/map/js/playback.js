@@ -2,68 +2,92 @@
 
 var d3demo = d3demo || {};
 
-d3demo.playback = (function dataSimulator(d3, Rx) {
-  var START_MINUTES = 7*60 + 50
-    , END_MINUTES = 18*60;
-
-  // var EVENT_DATE = new Date('2015-06-23').getTime() + 7 * 60 * 60 * 1000;
-  var EVENT_DATE = new Date('2015-03-11').getTime();
-
-  var scans = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/random')
-  .map(function(json) {
-    return JSON.parse(json.data);
-  }).filter(function(data) {
-    return data.type === 'scan';
-  }).map(function(data) {
-    return data.data;
-  })
-  .share();
-
+d3demo.playback = (function dataPlayback(d3, Rx) {
   var pauser = new Rx.Subject();
-  var minutes = START_MINUTES;
-  var counter = Rx.Observable.interval(50)  // determines the playback rate
-    .map(function(n) {
-      return {
-        n: n
-      , minutes: minutes++ // increment in 1 minute increments
-      , timestamp: EVENT_DATE + minutes * 60 * 1000 // timestamp in ms
+  var counter;
+
+  var playback = function(feed) {
+    var minutes, START_MINUTES, END_MINUTES;
+    var setupFeed = feed.filter(function(message) {
+      return message.type === 'setup';
+    }).tap(function(message) {
+      var data = message.data;
+      START_MINUTES = Math.floor(data.startTime / 60000);
+      END_MINUTES = Math.floor(data.endTime / 60000);
+      console.log('Playback range: ', new Date(data.startTime), new Date(data.endTime));
+      minutes = START_MINUTES;
+      counter.connect();
+    }).take(1);
+
+    var scans1 = feed.filter(function(message) {
+      return message.type === 'scan';
+    }).map(function(message) {
+      return message.data;
+    });
+
+    var scans2 = feed.filter(function(message) {
+      return message.type === 'scanBundle';
+    }).flatMap(function(scanBundle) {
+      return scanBundle.data;
+    });
+
+    var scans = Rx.Observable.merge(scans1, scans2).share();
+
+    counter = Rx.Observable.interval(50)  // determines the playback rate
+      .map(function(n) {
+        return {
+          n: n
+        , minutes: minutes++ // increment in 1 minute increments
+        , timestamp: minutes * 60 * 1000 // timestamp in ms
+        }
+      })
+      .takeWhile(function(tick) {
+        return tick.minutes <= END_MINUTES;
+    }).pausable(pauser).publish();
+
+    var clock = counter.filter(function(tick) { // reduce the counter to 5 minute increments
+      return tick.timestamp % 300000 === 0;
+    }).map(function(tick) {
+      tick.date = new Date(tick.timestamp);
+      tick.percent = 100 * (tick.minutes - START_MINUTES ) / (END_MINUTES - START_MINUTES);
+      return tick;
+    });
+
+    var bufferMinutes;
+
+    var bufferProgress = scans.flatMap(function(scan) {
+      var scanMinutes = Math.floor(scan.timestamp / 60000.0 - START_MINUTES);
+      !bufferMinutes && (bufferMinutes = minutes);
+      if (scanMinutes === bufferMinutes) {
+        return Rx.Observable.empty(); // don't trigger on same minute
+      } else {
+        var gap = scanMinutes - bufferMinutes;
+        var sequence = gap === 1 ? [scanMinutes] : Rx.Observable.range(bufferMinutes + 1, gap); // trigger on empty minutes
+        bufferMinutes = scanMinutes;
+        return sequence;
       }
-    })
-    .takeWhile(function(tick) {
-      return tick.minutes <= END_MINUTES;
-  }).pausable(pauser).publish();
+    }).map(function(scanMinutes) {
+      var percent = 100 * (scanMinutes) / (END_MINUTES - START_MINUTES);
+      return percent;
+    }).share();
 
-  var clock = counter.filter(function(tick) { // reduce the counter to 5 minute increments
-    return tick.timestamp % 300000 === 0;
-  });
+    var bufferedScans = scans.buffer(bufferProgress);
 
-  var bufferMinutes;
-  var bufferProgress = scans.flatMap(function(scan) {
-    var minutes = Math.floor((scan.timestamp - EVENT_DATE) / 60000.0);
-    !bufferMinutes && (bufferMinutes = minutes);
-    if (minutes === bufferMinutes) {
-      return Rx.Observable.empty(); // don't trigger on same minute
-    } else {
-      var gap = minutes - bufferMinutes;
-      var sequence = gap === 1 ? [minutes] : Rx.Observable.range(bufferMinutes + 1, gap); // trigger on empty minutes
-      bufferMinutes = minutes;
-      return sequence;
+    var timedScans = Rx.Observable.zip(counter, bufferedScans, function(tick, scans) {
+      return scans;
+    }).flatMap(function(scans) {
+      return scans;
+    });
+
+    setupFeed.subscribeOnError(function (err) {
+      console.log(err)
+    });
+
+    return {
+      scans: timedScans
+    , clockProgress: clock
+    , bufferProgress: bufferProgress
     }
-  }).share();
-
-  var bufferedScans = scans.buffer(bufferProgress);
-
-  var timedScans = Rx.Observable.zip(counter, bufferedScans, function(tick, scans) {
-    return scans;
-  }).flatMap(function(scans) {
-    return scans;
-  });
-
-  var init = function() {
-    bufferMinutes = null;
-    minutes = START_MINUTES;
-    counter.connect();
-    pauser.onNext(false);
   };
 
   var pause = function() {
@@ -82,15 +106,9 @@ d3demo.playback = (function dataSimulator(d3, Rx) {
   }
 
   return {
-    eventTimeStamp: EVENT_DATE + START_MINUTES * 60 * 1000
-  , START_MINUTES: START_MINUTES
-  , END_MINUTES: END_MINUTES
-  , init: init
-  , pause: pause
+    pause: pause
   , resume: resume
   , step: step
-  , clockProgress: clock
-  , bufferProgress: bufferProgress
-  , scans: timedScans
+  , playback: playback
   }
 })(d3, Rx);

@@ -8,6 +8,7 @@ var ObjectId = mongoose.Schema.Types.ObjectId;
   beaconId: {type: String, required: true},
   location: {type: String, required: true},
   type: {type: String, required: true}, // check-in / check-out
+  retransmit: {type: Boolean, default: false},
   timestamp: {type: Date, required: true},
   created: { type: Date, default: Date.now }
 });
