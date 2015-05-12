@@ -22,7 +22,10 @@ module.exports = function(server) {
       };
     });
     var subscription = scans
-    .bufferWithTime(20)
+    .bufferWithTimeOrCount(20, 100)
+    .filter(function(buf) {
+      return buf.length > 0;
+    })
     .subscribe(function(scanBundle) {
       if (ws.readyState === ws.OPEN) {
         ws.send(JSON.stringify({type: 'scanBundle', data: scanBundle}));

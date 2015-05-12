@@ -7,13 +7,14 @@ d3demo.playback = (function dataPlayback(d3, Rx) {
   var counter;
 
   var playback = function(feed) {
-    var minutes, START_MINUTES, END_MINUTES;
+    var minutes, START_MINUTES, END_MINUTES, START_TIME;
     var setupFeed = feed.filter(function(message) {
       return message.type === 'setup';
     }).tap(function(message) {
       var data = message.data;
+      START_TIME = data.startTime;
       START_MINUTES = Math.floor(data.startTime / 60000);
-      END_MINUTES = Math.floor(data.endTime / 60000);
+      END_MINUTES = Math.floor((data.endTime - data.startTime) / 60000) + START_MINUTES; // account for day boundaries
       console.log('Playback range: ', new Date(data.startTime), new Date(data.endTime));
       minutes = START_MINUTES;
       counter.connect();
@@ -56,7 +57,7 @@ d3demo.playback = (function dataPlayback(d3, Rx) {
     var bufferMinutes;
 
     var bufferProgress = scans.flatMap(function(scan) {
-      var scanMinutes = Math.floor(scan.timestamp / 60000.0 - START_MINUTES);
+      var scanMinutes = Math.floor((scan.timestamp - START_TIME) / 60000.0);
       !bufferMinutes && (bufferMinutes = minutes);
       if (scanMinutes === bufferMinutes) {
         return Rx.Observable.empty(); // don't trigger on same minute

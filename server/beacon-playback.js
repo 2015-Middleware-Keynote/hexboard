@@ -25,7 +25,11 @@ var counter = Rx.Observable.interval(25)
 
 
 var getScanFeed = function() {
-  var query = Scan.find({retransmit: false})
+  var date = new Date();
+  date.setDate(date.getDate() - 1);
+  date.setHours(7,30,0,0);
+  console.log(date);
+  var query = Scan.find({retransmit: false, timestamp: {$gte: date}})
     .sort({'timestamp': 1})
     .lean();
   return Rx.Node.fromStream(query.stream(), 'close')

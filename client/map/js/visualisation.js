@@ -273,7 +273,13 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
     streams.buffer.subscribeOnError(errorHandler);
     streams.clock.subscribeOnError(errorHandler);
 
-    Rx.Observable.timer(1000).subscribe(function() {
+    Rx.Observable.zip (  // a compliacted stream manipulation that waits until the buffer is 25% full
+      Rx.Observable.from([0])
+    , streams.buffer.filter(function (percent) {
+        return percent > 25;
+      })
+    , function() { return 0})
+    .subscribe(function() {
       d3demo.playback.resume();
     })
   }
