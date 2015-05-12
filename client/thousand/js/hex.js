@@ -195,7 +195,6 @@ hex = (function dataSimulator(d3, Rx) {
       , duration = 200
       , scale = 0.2;
     var p = highlightedHexagon.datum();
-    console.log(p)
     highlightedHexagon
     .transition()
     .duration(duration)
@@ -211,32 +210,80 @@ hex = (function dataSimulator(d3, Rx) {
     });
   })
   .tap(function(event) {
+    var closestHexagonInRow = function(currentPoint, yCandidates, y) {
+      var y2Candidates = yCandidates.filter(function(point) {
+        return point.y === y;
+      });
+      var closest = y2Candidates[0];
+      y2Candidates.forEach(function(closer) {
+        if (Math.abs(closer.x - currentPoint.x) < Math.abs(closest.x - currentPoint.x)) {
+          closest = closer;
+        }
+      });
+      return closest;
+    }
     var candidates = points.filter(function(point) {
-      return point.doodle;
+      return !!point.doodle;
     });
-    var currentIndex = highlightedHexagon ? candidates.indexOf(highlightedHexagon.datum()) : null;
-    console.log('currentIndex', currentIndex);
-    var newIndex;
+    if (candidates.length < 1) {
+      return;
+    }
+    var currentPoint = highlightedHexagon ? highlightedHexagon.datum() : null;
+    var currentIndex = highlightedHexagon ? candidates.indexOf(currentPoint) : null;
+    var newId;
     switch(event.keyCode) {
       case 37: // LEFT
-      case 38: // UP
+        var newIndex;
         if (currentIndex === null || currentIndex === 0) {
           newIndex = candidates.length - 1;
         } else {
           newIndex = currentIndex - 1;
         }
+        newId = candidates[newIndex].id
+        break;
+      case 38: // UP
+        if (! highlightedHexagon) {
+          newId = candidates[candidates.length - 1].id;
+        } else {
+          var yCandidates = candidates.filter(function(point) {
+            return point.y < currentPoint.y;
+          });
+          var closest;
+          if (yCandidates.length === 0) {
+            closest = closestHexagonInRow(currentPoint, candidates, candidates[candidates.length -1].y);
+          } else {
+            var closest = closestHexagonInRow(currentPoint, yCandidates, yCandidates[yCandidates.length -1].y);
+          }
+          newId = closest.id;
+        }
         break;
       case 39: // RIGHT
-      case 40: // DOWN
         if (currentIndex === null || currentIndex === candidates.length - 1) {
           newIndex = 0;
         } else {
           newIndex = currentIndex + 1;
         }
+        newId = candidates[newIndex].id
+        break;
+      case 40: // DOWN
+        if (!highlightedHexagon) {
+          newId = candidates[0].id;
+        } else {
+          var yCandidates = candidates.filter(function(point) {
+            return point.y > currentPoint.y;
+          });
+          var closest;
+          if (yCandidates.length === 0) {
+            closest = closestHexagonInRow(currentPoint, candidates, candidates[0].y);
+          } else {
+            closest = closestHexagonInRow(currentPoint, yCandidates, yCandidates[0].y);
+          }
+          newId = closest.id;
+        }
         break;
     };
-    console.log('newIndex', newIndex);
-    highlight(candidates[newIndex].id);
+    console.log(newId)
+    highlight(newId);
   })
   .subscribeOnError(errorObserver);
 
