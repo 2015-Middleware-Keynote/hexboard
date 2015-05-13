@@ -33,21 +33,21 @@ var scans = [];
 for (var i = 0; i < 100; i++) {
   var loopScan = {
     beaconId: '1'
-  , location: locations[getRandomInt(0, locations.length)].code
+  , locationCode: locations[getRandomInt(0, locations.length)].code
   , type: 'check-in'
   , timestamp: now + i
   }
   scans.push(loopScan);
   loopScan = {
     beaconId: '2'
-  , location: locations[getRandomInt(0, locations.length)].code
+  , locationCode: locations[getRandomInt(0, locations.length)].code
   , type: 'check-in'
   , timestamp: now + i
   }
   scans.push(loopScan);
   loopScan = {
     beaconId: '3'
-  , location: locations[getRandomInt(0, locations.length)].code
+  , locationCode: locations[getRandomInt(0, locations.length)].code
   , type: 'check-in'
   , timestamp: now + 30 + i
   }
@@ -79,8 +79,9 @@ describe('DB Operations:', function() {
           });
           var last = userScans[userScans.length - 1];
           recent.beaconId.should.equal(last.beaconId);
-          recent.timestamp.getTime().should.equal(last.timestamp);
-          recent.location.code.should.equal(last.location);
+          new Date(recent.timestamp).getTime().should.equal(last.timestamp);
+          recent.locationCode.should.equal(last.locationCode);
+          recent.location.code.should.equal(last.locationCode);
         });
       });
     });

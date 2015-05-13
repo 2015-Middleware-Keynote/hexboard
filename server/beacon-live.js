@@ -38,6 +38,7 @@ var getScanFeed = function(queue) {
     var event = {
       user: getUser(id)
     , beaconId: message.headers.user_id
+    , locationCode: message.headers.location_id
     , location: location
     , type: message.headers.type || 'check-in'
     , retransmit: message.headers.retransmit === 'true'

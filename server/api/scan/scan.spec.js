@@ -38,7 +38,7 @@ var now = new Date().getTime();
 
 var testScan = {
   beaconId: '1'
-, location: testLocation.code
+, locationCode: testLocation.code
 , type: 'check-in'
 , timestamp: now
 }
@@ -67,7 +67,7 @@ describe('DB Operations:', function() {
     it('create', function() {
       return Scan.create(testScan).then(function (createdScan) {
         createdScan.beaconId.should.equal(testScan.beaconId);
-        createdScan.location.should.equal(testScan.location);
+        createdScan.locationCode.should.equal(testScan.locationCode);
         createdScan.type.should.equal(testScan.type);
         createdScan.timestamp.getTime().should.equal(testScan.timestamp);
         createdScan.created.getTime().should.be.greaterThan(now);
@@ -85,7 +85,7 @@ describe('DB Operations:', function() {
         (scans).should.have.length(100);
         var foundScan = scans[99];
         foundScan.beaconId.should.equal(testScan.beaconId);
-        foundScan.location.should.equal(testScan.location);
+        foundScan.locationCode.should.equal(testScan.locationCode);
         foundScan.type.should.equal(testScan.type);
         foundScan.timestamp.getTime().should.equal(testScan.timestamp);
         foundScan.created.getTime().should.be.greaterThan(now);
@@ -123,7 +123,7 @@ describe('Rest API:', function () {
           res.body.should.have.length(100);
           var foundScan = res.body[99];
           foundScan.beaconId.should.equal(testScan.beaconId);
-          foundScan.location.should.equal(testScan.location);
+          foundScan.locationCode.should.equal(testScan.locationCode);
           foundScan.type.should.equal(testScan.type);
           new Date(foundScan.timestamp).getTime().should.equal(testScan.timestamp);
           new Date(foundScan.created).getTime().should.be.greaterThan(now);

@@ -12,12 +12,12 @@ var restoreScans = function() {
     .group({
       _id: "$beaconId"
     , timestamp: { $first: '$timestamp'}
-    , location: {$first: '$location'}
+    , locationCode: {$first: '$locationCode'}
     , type: {$first: '$type'}
     })
     .project({
       beaconId: '$_id'
-    , location: 1
+    , locationCode: 1
     , type: 1
     , timestamp: 1
     })
@@ -25,7 +25,7 @@ var restoreScans = function() {
     .then(function(scans) {
       return scans.map(function(scan) {
         scan.user = getUser(scan.beaconId);
-        scan.location = convertLocation(scan.location);
+        scan.location = convertLocation(scan.locationCode);
         scan.timestamp = new Date(scan.timestamp).getTime();
         scan.retransmit = false;
         return scan;

@@ -35,7 +35,7 @@ var getScanFeed = function() {
   return Rx.Node.fromStream(query.stream(), 'close')
   .map(function(scan) {
     scan.user = getUser(scan.beaconId);
-    scan.location = convertLocation(scan.location);
+    scan.location = convertLocation(scan.locationCode);
     scan.timestamp = new Date(scan.timestamp).getTime();
     return scan;
   });

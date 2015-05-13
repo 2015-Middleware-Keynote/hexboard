@@ -6,7 +6,7 @@ var ObjectId = mongoose.Schema.Types.ObjectId;
 
  var ScanSchema = new mongoose.Schema({
   beaconId: {type: String, required: true, index: true},
-  location: {type: String, required: true},
+  locationCode: {type: String, required: true},
   type: {type: String, required: true}, // check-in / check-out
   retransmit: {type: Boolean, default: false, index: true},
   timestamp: {type: Date, required: true, index: true},

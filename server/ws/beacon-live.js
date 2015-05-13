@@ -45,7 +45,7 @@ module.exports = function(server) {
   var saveScan = function(scan) {
     Scan.create({
       beaconId: scan.beaconId
-    , location: scan.location.code
+    , locationCode: scan.locationCode
     , type: scan.type
     , retransmit: scan.retransmit
     , timestamp: scan.timestamp
