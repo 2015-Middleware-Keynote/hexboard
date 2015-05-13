@@ -6,13 +6,6 @@ d3demo.playback = (function dataPlayback(d3, Rx) {
   var pauser = new Rx.Subject();
   var counter;
 
-  var getParameterByName = function (name) {
-    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-        results = regex.exec(location.search);
-    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-  };
-
   var playback = function(feed) {
     var minutes, START_MINUTES, END_MINUTES, START_TIME;
     var setupFeed = feed.filter(function(message) {
@@ -41,7 +34,7 @@ d3demo.playback = (function dataPlayback(d3, Rx) {
 
     var scans = Rx.Observable.merge(scans1, scans2).share();
 
-    var rate = getParameterByName('rate') || 600;
+    var rate = d3demo.config.playback.rate;
     console.log('rate', rate);
 
     counter = Rx.Observable.interval(rate)  // determines the playback rate
