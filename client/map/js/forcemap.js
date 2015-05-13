@@ -87,8 +87,8 @@ d3demo.forcemap = (function visualisation(d3, Rx) {
     force.on('tick', stepForce);
   };
 
+  var stepSize = d3demo.config.playback.rate > 100 ? 0.1 : 0.2;
   var stepForce = function(event) {
-    var stepSize = .1;
     var k = stepSize * event.alpha;
     // Push nodes toward their designated focus.
     var now = new Date().getTime();
