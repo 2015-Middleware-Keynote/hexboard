@@ -1,6 +1,7 @@
 'use strict';
 
 var Rx = require('rx')
+  , RxNode = require('rx-node') // available as Rx.Node as well
   , convertLocation = require('./api/location/location_controllers').convertLocation
   , Scan = require('./api/scan/scan_model')
   , getUser = require('./beacon-live').getUser
