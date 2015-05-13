@@ -2,7 +2,7 @@
 
 var WebSocketServer = require('ws').Server
   , data = require('../beacon-playback')
-  , Q = require('q')
+  , Rx = require('rx')
   ;
 
 var tag = 'WS/PLAYBACK';
@@ -22,24 +22,23 @@ module.exports = function(server) {
         }}));
       };
     });
-    var promises = [];
+    var send = Rx.Observable.fromCallback(ws.send, ws);
     var subscription = scans
     .bufferWithTimeOrCount(20, 100)
     .filter(function(buf) {
       return buf.length > 0;
     })
-    .subscribe(function(scanBundle) {
+    .flatMap(function(scanBundle) {
       if (ws.readyState === ws.OPEN) {
-        promises.push(Q.ninvoke(ws, 'send', JSON.stringify({type: 'scanBundle', data: scanBundle})));
+        return send(JSON.stringify({type: 'scanBundle', data: scanBundle}));
       };
-    }, function(error) {
-      console.err(error.stack || error);
+    })
+    .subscribe(undefined, function(error) {
+      console.error(error.stack || error);
     }, function() {
       if (ws.readyState === ws.OPEN) {
-        Q.all(promises).then(function() {
-          console.log(tag, 'Playback complete, closing connection');
-          ws.close();
-        });
+        console.log(tag, 'Playback complete, closing connection');
+        ws.close();
       };
     });
     ws.onclose = function() {
