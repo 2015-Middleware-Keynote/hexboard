@@ -29,7 +29,7 @@ var getScanFeed = function() {
   date.setDate(date.getDate() - 1);
   date.setHours(7,30,0,0);
   console.log(date);
-  var query = Scan.find({retransmit: false, timestamp: {$gte: date}})
+  var query = Scan.find({retransmit: false, timestamp: {$gte: date}}, {_id: 0, created: 0})
     .sort({'timestamp': 1})
     .lean();
   return Rx.Node.fromStream(query.stream(), 'close')

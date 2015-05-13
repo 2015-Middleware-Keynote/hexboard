@@ -31,11 +31,11 @@ module.exports = function(server) {
         ws.send(JSON.stringify({type: 'scanBundle', data: scanBundle}));
       };
     }, function(error) {
-      console.log(error.stack || error);
+      console.err(error.stack || error);
     }, function() {
       if (ws.readyState === ws.OPEN) {
         console.log(tag, 'Playback complete, closing connection');
-        ws.close();
+        // ws.close();
       };
     });
     ws.onclose = function() {
