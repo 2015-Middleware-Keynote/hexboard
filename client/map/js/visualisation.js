@@ -273,13 +273,21 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
     streams.buffer.subscribeOnError(errorHandler);
     streams.clock.subscribeOnError(errorHandler);
 
-    Rx.Observable.zip (  // a compliacted stream manipulation that waits until the buffer is 25% full
-      Rx.Observable.from([0])
-    , streams.buffer.filter(function (percent) {
+    var bufferPartiallyFull = streams.buffer.filter(function (percent) {
         return percent > 25;
-      })
-    , function() { return 0})
-    .subscribe(function() {
+      }).map(function() {
+        return 'buffer 25% full';
+      }).take(1);
+    var timeDelay = Rx.Observable.from([0]).delay(5000).map(function() {
+      return '5000 ms'
+    });
+
+    var ready = Rx.Observable.merge(bufferPartiallyFull, timeDelay).take(1);
+
+    console.log('Buffering...');
+
+    ready.subscribe(function(readySource) {
+      console.log('Starting playback after ' + readySource);
       d3demo.playback.resume();
     })
   }
