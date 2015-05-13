@@ -41,7 +41,7 @@ var getScanFeed = function(queue) {
     , location: location
     , type: message.headers.type || 'check-in'
     , retransmit: message.headers.retransmit === 'true'
-    , timestamp: message.headers.timestamp * 1000
+    , timestamp: message.headers.timestamp
     }
     if (!event.timestamp) {
       event.timestamp = new Date().getTime();
