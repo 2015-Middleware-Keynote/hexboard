@@ -41,7 +41,7 @@ d3demo.playback = (function dataPlayback(d3, Rx) {
 
     var scans = Rx.Observable.merge(scans1, scans2).share();
 
-    var rate = getParameterByName('rate') || 50;
+    var rate = getParameterByName('rate') || 600;
     console.log('rate', rate);
 
     counter = Rx.Observable.interval(rate)  // determines the playback rate
