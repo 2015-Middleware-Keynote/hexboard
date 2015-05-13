@@ -54,7 +54,8 @@ d3demo.playback = (function dataPlayback(d3, Rx) {
       })
       .takeWhile(function(tick) {
         return tick.minutes <= END_MINUTES;
-    }).pausable(pauser).publish();
+      })
+      .pausable(pauser).publish();
 
     var clock = counter.filter(function(tick) { // reduce the counter to 5 minute increments
       return tick.timestamp % 300000 === 0;
