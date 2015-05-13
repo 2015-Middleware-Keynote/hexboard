@@ -1,7 +1,7 @@
 'use strict';
 
 var Rx = require('rx')
-  , RxNode = require('rx-node') // available as Rx.Node as well
+  , RxNode = require('rx-node')
   , convertLocation = require('./api/location/location_controllers').convertLocation
   , Scan = require('./api/scan/scan_model')
   , getUser = require('./beacon-live').getUser
@@ -33,7 +33,7 @@ var getScanFeed = function() {
   var query = Scan.find({retransmit: false, timestamp: {$gte: date}}, {_id: 0, created: 0})
     .sort({'timestamp': 1})
     .lean();
-  return Rx.Node.fromStream(query.stream(), 'close')
+  return RxNode.fromStream(query.stream(), 'close')
   .map(function(scan) {
     scan.user = getUser(scan.beaconId);
     scan.location = convertLocation(scan.locationCode);

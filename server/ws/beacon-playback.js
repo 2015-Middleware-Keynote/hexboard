@@ -22,7 +22,7 @@ module.exports = function(server) {
         }}));
       };
     });
-    var send = Rx.Observable.fromCallback(ws.send, ws);
+    var send = Rx.Observable.fromNodeCallback(ws.send, ws);
     var subscription = scans
     .bufferWithTimeOrCount(20, 100)
     .filter(function(buf) {
