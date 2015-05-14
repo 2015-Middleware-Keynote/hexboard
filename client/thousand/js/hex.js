@@ -203,6 +203,67 @@ hex = (function dataSimulator(d3, Rx) {
     .remove();
   }
 
+  var moveHighlightHorizontally = function(direction) {  // -1 left, +1 right
+    var candidates = points.filter(function(point) {
+      return !!point.doodle;
+    });
+    if (candidates.length < 1) {
+      return;
+    }
+    var start = direction > 0 ? 0 : candidates.length - 1
+      , end = direction > 0 ? candidates.length - 1 : 0;
+    var currentIndex = highlightedHexagon ? candidates.indexOf(highlightedHexagon.datum()) : null;
+    var newIndex;
+    if (currentIndex === null || currentIndex === end) {
+      newIndex = start;
+    } else {
+      newIndex = currentIndex + direction * 1;
+    }
+    return candidates[newIndex].id;
+  };
+
+  var moveHighlightVertically = function(direction) { // -1 up, +1 down
+    var candidates = points.filter(function(point) {
+      return !!point.doodle;
+    });
+    if (candidates.length < 1) {
+      return;
+    }
+    var start = direction > 0 ? 0 : candidates.length - 1
+      , end = direction > 0 ? candidates.length - 1 : 0;
+    var currentPoint = highlightedHexagon ? highlightedHexagon.datum() : null;
+    var newId;
+    if (! highlightedHexagon) {
+      newId = candidates[start].id;
+    } else {
+      var yCandidates = candidates.filter(function(point) {
+        return direction * (point.y - currentPoint.y) > 0;
+      });
+      var closest;
+      if (yCandidates.length === 0) {
+        closest = closestHexagonInRow(currentPoint, candidates, candidates[start].y);
+      } else {
+        var yStart = direction > 0 ? 0 : yCandidates.length - 1
+        var closest = closestHexagonInRow(currentPoint, yCandidates, yCandidates[yStart].y);
+      }
+      newId = closest.id;
+    };
+    return newId;
+  };
+
+  var closestHexagonInRow = function(currentPoint, yCandidates, y) {
+    var y2Candidates = yCandidates.filter(function(point) {
+      return point.y === y;
+    });
+    var closest = y2Candidates[0];
+    y2Candidates.forEach(function(closer) {
+      if (Math.abs(closer.x - currentPoint.x) < Math.abs(closest.x - currentPoint.x)) {
+        closest = closer;
+      }
+    });
+    return closest;
+  }
+
   Rx.Observable.fromEvent(document.getElementsByTagName('body')[0], 'keyup')
   .filter(function(event) {
     return [37, 38, 39, 40].some(function(keyCode) {
@@ -210,76 +271,19 @@ hex = (function dataSimulator(d3, Rx) {
     });
   })
   .tap(function(event) {
-    var closestHexagonInRow = function(currentPoint, yCandidates, y) {
-      var y2Candidates = yCandidates.filter(function(point) {
-        return point.y === y;
-      });
-      var closest = y2Candidates[0];
-      y2Candidates.forEach(function(closer) {
-        if (Math.abs(closer.x - currentPoint.x) < Math.abs(closest.x - currentPoint.x)) {
-          closest = closer;
-        }
-      });
-      return closest;
-    }
-    var candidates = points.filter(function(point) {
-      return !!point.doodle;
-    });
-    if (candidates.length < 1) {
-      return;
-    }
-    var currentPoint = highlightedHexagon ? highlightedHexagon.datum() : null;
-    var currentIndex = highlightedHexagon ? candidates.indexOf(currentPoint) : null;
     var newId;
     switch(event.keyCode) {
       case 37: // LEFT
-        var newIndex;
-        if (currentIndex === null || currentIndex === 0) {
-          newIndex = candidates.length - 1;
-        } else {
-          newIndex = currentIndex - 1;
-        }
-        newId = candidates[newIndex].id
+        newId = moveHighlightHorizontally(-1);
         break;
       case 38: // UP
-        if (! highlightedHexagon) {
-          newId = candidates[candidates.length - 1].id;
-        } else {
-          var yCandidates = candidates.filter(function(point) {
-            return point.y < currentPoint.y;
-          });
-          var closest;
-          if (yCandidates.length === 0) {
-            closest = closestHexagonInRow(currentPoint, candidates, candidates[candidates.length -1].y);
-          } else {
-            var closest = closestHexagonInRow(currentPoint, yCandidates, yCandidates[yCandidates.length -1].y);
-          }
-          newId = closest.id;
-        }
+        newId = moveHighlightVertically(-1);
         break;
       case 39: // RIGHT
-        if (currentIndex === null || currentIndex === candidates.length - 1) {
-          newIndex = 0;
-        } else {
-          newIndex = currentIndex + 1;
-        }
-        newId = candidates[newIndex].id
+        newId = moveHighlightHorizontally(1);
         break;
       case 40: // DOWN
-        if (!highlightedHexagon) {
-          newId = candidates[0].id;
-        } else {
-          var yCandidates = candidates.filter(function(point) {
-            return point.y > currentPoint.y;
-          });
-          var closest;
-          if (yCandidates.length === 0) {
-            closest = closestHexagonInRow(currentPoint, candidates, candidates[0].y);
-          } else {
-            closest = closestHexagonInRow(currentPoint, yCandidates, yCandidates[0].y);
-          }
-          newId = closest.id;
-        }
+        newId = moveHighlightVertically(1);
         break;
     };
     console.log(newId)
@@ -430,6 +434,39 @@ var messages = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/thousand', null
 .map(function(messageEvent) {
   return JSON.parse(messageEvent.data);
 }).share();
+
+messages.filter(function(message) {
+  return message.type === 'winner';
+}).tap(function(message) {
+  var action = message.data;
+  console.log('Winner action: ', action);
+  var newId;
+  switch (action) {
+    case 'left':
+      newId = moveHighlightHorizontally(-1);
+      console.log(newId)
+      highlight(newId);
+      break;
+    case 'right':
+      newId = moveHighlightHorizontally(1);
+      console.log(newId)
+      highlight(newId);
+      break;
+    case 'up':
+      newId = moveHighlightVertically(-1);
+      console.log(newId)
+      highlight(newId);
+      break;
+    case 'down':
+      newId = moveHighlightVertically(1);
+      console.log(newId)
+      highlight(newId);
+      break;
+    case 'pick':
+      console.log('pick a winner')
+      break;
+  };
+}).subscribeOnError(errorObserver);
 
 messages.filter(function(message) {
   return message.type === 'event';

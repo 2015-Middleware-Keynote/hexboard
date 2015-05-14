@@ -18,3 +18,4 @@ require('./ws/beacon-playback')(server);
 require('./ws/beacon-random')(server);
 require('./ws/thousand')(server);
 require('./ws/broker')(server);
+require('./ws/winner')(server);

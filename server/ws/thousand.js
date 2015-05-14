@@ -2,14 +2,13 @@
 
 var WebSocketServer = require('ws').Server
   , thousand = require('../thousand')
+  , winner = require('../winner')
   ;
 
 var tag = 'WS/THOUSAND';
 
 module.exports = function(server) {
   var wss = new WebSocketServer({server: server, path: '/thousand'});
-
-  var eventEmitter = thousand.doodleEmitter;
 
   var count = 0;
   var clients = {};
@@ -49,8 +48,13 @@ module.exports = function(server) {
     };
   });
 
-  eventEmitter.on('new-doodle', function(doodle) {
+  thousand.doodleEmitter.on('new-doodle', function(doodle) {
     console.log(tag, 'doodle listener invoked.');
     wss.broadcast(JSON.stringify({type: 'doodle', data: doodle}));
+  });
+
+  winner.winnerEmitter.on('action', function(action) {
+    console.log(tag, 'winner listener invoked.');
+    wss.broadcast(JSON.stringify({type: 'winner', data: action}));
   });
 };
