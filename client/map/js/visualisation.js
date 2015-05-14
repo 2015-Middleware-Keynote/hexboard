@@ -244,6 +244,7 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
   };
 
   var random = function() {
+    d3.select('#cover').style({visibility: 'visible', opacity: '0.6'});
     var playback = d3demo.playback.playback(d3demo.stomp.random);
     var streams = tap(playback.scans, playback.clockProgress, playback.bufferProgress);
     d3demo.forcemap.start();
@@ -252,9 +253,24 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
     streams.buffer.subscribeOnError(errorHandler);
     streams.clock.subscribeOnError(errorHandler);
 
-    Rx.Observable.timer(1000).subscribe(function() {
+    var bufferPartiallyFull = streams.buffer.filter(function (percent) {
+        return percent > 25;
+      }).map(function() {
+        return 'buffer 25% full';
+      }).take(1);
+    var timeDelay = Rx.Observable.from([0]).delay(5000).map(function() {
+      return '5000 ms'
+    });
+
+    var ready = Rx.Observable.merge(bufferPartiallyFull, timeDelay).take(1);
+
+    console.log('Buffering...');
+
+    ready.subscribe(function(readySource) {
+      d3.select('#cover').style({visibility: 'hidden', opacity: '0'});
+      console.log('Starting playback after ' + readySource);
       d3demo.playback.resume();
-    })
+    });
   };
 
   var live = function() {
@@ -265,6 +281,7 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
   };
 
   var playback = function() {
+    d3.select('#cover').style({visibility: 'visible', opacity: '0.6'});
     var playback = d3demo.playback.playback(d3demo.stomp.playback);
     var streams = tap(playback.scans, playback.clockProgress, playback.bufferProgress);
     d3demo.forcemap.start();
@@ -287,9 +304,10 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
     console.log('Buffering...');
 
     ready.subscribe(function(readySource) {
+      d3.select('#cover').style({visibility: 'hidden', opacity: '0'});
       console.log('Starting playback after ' + readySource);
       d3demo.playback.resume();
-    })
+    });
   }
 
   return {
