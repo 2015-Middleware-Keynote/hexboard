@@ -124,7 +124,6 @@ hex = (function dataSimulator(d3, Rx) {
     var perspective = 0.5
       , duration = 1000
       , scale = 0.2
-      , opacity = { initial: 0.01, final: 0.9};
     var p0 = {x: perspective * (p.x - c.x) + c.x, y: perspective * (p.y - c.y) + c.y};
 
     var imgsize = (size * 2) / scale;
@@ -154,9 +153,10 @@ hex = (function dataSimulator(d3, Rx) {
     p.doodle = doodle;
 
     svg.insert('path')
-      .attr('class', 'hexagon')
+      .attr('class', 'hexagon doodle')
       .attr('d', 'm' + hexagon(size/scale).join('l') + 'z')
       .attr('transform', function(d) { return 'translate(' + p0.x + ',' + p0.y + ')'; })
+      .style('fill-opacity', 1.0)
       .attr('fill', 'url(#img' + p.id + ')')
     .transition()
       .duration(duration)
