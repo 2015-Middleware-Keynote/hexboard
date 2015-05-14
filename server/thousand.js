@@ -45,7 +45,6 @@ var doodles = Rx.Observable.range(0, 200)
   });
 
 var randomDoodles = function(numDoodles) {
-  var images = ['box-cartone.png', 'cherries.png', 'fairy.png', 'johnny-automatic-skateboard.png', 'kick-scouter3.png', 'papaya.png', 'paratrooper.png', 'Segelyacht.png', 'TheStructorr-cherries.png', 'unicycle.png'];
   var doodles = Rx.Observable.range(0, numDoodles)
     .flatMap(function(x) {
       return Rx.Observable.range(0,1)
@@ -53,7 +52,7 @@ var randomDoodles = function(numDoodles) {
           var containerId = getRandomInt(0, 1026);
           var doodle = {
             containerId: containerId
-          , url: '/thousand/doodles/' + images[getRandomInt(0, images.length)]
+          , url: '/thousand/doodles/thousand-doodle' + [getRandomInt(0, 13) + '.png']
           , name: 'FirstName' + containerId + ' LastName' + containerId
           };
           return doodle;
