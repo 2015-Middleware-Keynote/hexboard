@@ -172,7 +172,7 @@ hex = (function dataSimulator(d3, Rx) {
     return JSON.parse(messageEvent.data);
   }).share();
 
-  messages.filter(function(message) {
+  var eventSubscription = messages.filter(function(message) {
     return message.type === 'event';
   })
   .tap(function(message) {
@@ -180,7 +180,7 @@ hex = (function dataSimulator(d3, Rx) {
     particle(points[event.id], event.stage);
   }).subscribeOnError(errorObserver);
 
-  messages.filter(function(message) {
+  var messageSubscription = messages.filter(function(message) {
     return message.type === 'doodle';
   })
   .tap(function(message) {
@@ -191,6 +191,11 @@ hex = (function dataSimulator(d3, Rx) {
     };
   }).subscribeOnError(errorObserver);
 
+  var dispose = function() {
+    eventSubscription.dispose();
+    messageSubscription.dispose();
+  };
+
   return {
     errorObserver: errorObserver
   , messages: messages
@@ -199,6 +204,7 @@ hex = (function dataSimulator(d3, Rx) {
   , points: points
   , hexagon: hexagon
   , svg: svg
+  , dispose: dispose
   }
 
 })(d3, Rx);

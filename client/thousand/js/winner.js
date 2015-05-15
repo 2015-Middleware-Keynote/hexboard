@@ -97,6 +97,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
   var stageWinner = function(p, index) {
     animateWinner(p, p, stageSpots[index], 0.5, 1, false, function() {
       if (winners.length === 10) {
+        hex.dispose();
         hex.controls.dispose();
         hex.highlight.unhighlight();
         displayWinners();
