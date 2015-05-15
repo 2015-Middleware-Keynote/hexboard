@@ -155,6 +155,7 @@ hex = (function dataSimulator(d3, Rx) {
     p.doodle = doodle;
 
     svg.insert('path')
+      .datum(p)
       .attr('class', 'hexagon doodle')
       .attr('d', 'm' + hexagon(honeycomb.size/scale).join('l') + 'z')
       .attr('transform', function(d) { return 'translate(' + p0.x + ',' + p0.y + ')'; })

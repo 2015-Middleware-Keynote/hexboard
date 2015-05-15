@@ -85,4 +85,33 @@ hex.controls = (function dataSimulator(d3, Rx) {
     };
   }).subscribeOnError(hex.errorObserver);
 
+  // mouse controls
+  var lastDoodle;
+  Rx.Observable.fromEvent(document.querySelector('.map'), 'mousemove')
+  .filter(function(event) {
+    return event.target.classList.contains('doodle');
+  })
+  .tap(function(event) {
+    var p = d3.select(event.target).datum();
+    if (lastDoodle === p) {
+      return;
+    };
+    var newId = p.id;
+    console.log('highlighting ', newId);
+    hex.highlight.highlight(newId);
+  })
+  .subscribeOnError(hex.errorObserver);
+
+  Rx.Observable.fromEvent(document.querySelector('.map'), 'click')
+  .filter(function(event) {
+    return event.target.classList.contains('highlight');
+  })
+  .tap(function(event) {
+    var p = d3.select(event.target).datum();
+    var newId = p.id;
+    console.log('picking ', newId);
+    hex.winner.pickWinner(newId);
+  })
+  .subscribeOnError(hex.errorObserver);
+
 })(d3, Rx);
