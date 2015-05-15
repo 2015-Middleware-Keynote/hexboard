@@ -185,7 +185,10 @@ hex = (function dataSimulator(d3, Rx) {
   })
   .tap(function(message) {
     var doodle = message.data;
-    image(points[doodle.containerId], doodle);
+    var point = points[doodle.containerId];
+    if (! point.doodle) {
+      image(point, doodle);
+    };
   }).subscribeOnError(errorObserver);
 
   return {
