@@ -4,6 +4,12 @@ var hex = hex || {};
 
 hex.controls = (function dataSimulator(d3, Rx) {
 
+  Rx.Observable.fromEvent(d3.select('#push-doodles').node(), 'click').subscribe(function() {
+    var xhr = d3.xhr('/api/doodle/random/10', function(err, res) {
+      console.log(err || res);
+    });
+  });
+
   // keyboard controls
   var keyboardSubscription = Rx.Observable.fromEvent(document.getElementsByTagName('body')[0], 'keyup')
   .filter(function(event) {

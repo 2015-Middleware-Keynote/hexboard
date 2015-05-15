@@ -167,12 +167,6 @@ hex = (function dataSimulator(d3, Rx) {
       .attr('transform', 'matrix('+scale+', 0, 0, '+scale+', '+ p.x +', '+ p.y +')');
   }
 
-  Rx.Observable.fromEvent(d3.select('#push-doodles').node(), 'click').subscribe(function() {
-    var xhr = d3.xhr('/api/doodle/random/10', function(err, res) {
-      console.log(err || res);
-    });
-  });
-
   var messages = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/thousand', null, hex.ping)
   .map(function(messageEvent) {
     return JSON.parse(messageEvent.data);
