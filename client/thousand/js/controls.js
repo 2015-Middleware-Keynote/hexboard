@@ -13,6 +13,10 @@ hex.controls = (function dataSimulator(d3, Rx) {
   })
   .tap(function(event) {
     var newId;
+    var pushButton = document.getElementById('push-doodles');
+    if (pushButton && pushButton === document.activeElement) {
+      pushButton.blur();
+    }
     switch(event.keyCode) {
       case 37: // LEFT
         newId = hex.highlight.moveHighlightHorizontally(-1);
