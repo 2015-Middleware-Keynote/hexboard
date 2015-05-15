@@ -191,6 +191,9 @@ hex = (function dataSimulator(d3, Rx) {
   };
 
   var unhighlight = function() {
+    if (! highlightedHexagon) {
+      return;
+    };
     var perspective = 1.5
       , duration = 200
       , scale = 0.2;
@@ -266,7 +269,7 @@ hex = (function dataSimulator(d3, Rx) {
 
   Rx.Observable.fromEvent(document.getElementsByTagName('body')[0], 'keyup')
   .filter(function(event) {
-    return [37, 38, 39, 40].some(function(keyCode) {
+    return [37, 38, 39, 40, 13].some(function(keyCode) {
       return keyCode == event.keyCode;
     });
   })
@@ -275,19 +278,28 @@ hex = (function dataSimulator(d3, Rx) {
     switch(event.keyCode) {
       case 37: // LEFT
         newId = moveHighlightHorizontally(-1);
+        console.log(newId)
+        highlight(newId);
         break;
       case 38: // UP
         newId = moveHighlightVertically(-1);
+        console.log(newId)
+        highlight(newId);
         break;
       case 39: // RIGHT
         newId = moveHighlightHorizontally(1);
+        console.log(newId)
+        highlight(newId);
         break;
       case 40: // DOWN
         newId = moveHighlightVertically(1);
+        console.log(newId)
+        highlight(newId);
+        break;
+      case 13: // ENTER
+        pickWinner(highlightedHexagon.datum().id)
         break;
     };
-    console.log(newId)
-    highlight(newId);
   })
   .subscribeOnError(errorObserver);
 
@@ -295,6 +307,38 @@ hex = (function dataSimulator(d3, Rx) {
   var getRandomInt = function (min, max) {
     return Math.floor(Math.random() * (max - min) + min);
   };
+
+  Rx.Observable.fromEvent(d3.select('#push-doodles').node(), 'click').subscribe(function() {
+    var xhr = d3.xhr('/api/doodle/random/10', function(err, res) {
+      console.log(err || res);
+    });
+  });
+
+  Rx.Observable.fromEvent(d3.select('#winners').node(), 'click').tap(function() {
+    winners = winners || pickWinners();
+    displayWinners(winners);
+  }).subscribeOnError(errorObserver);
+
+  Rx.Observable.fromEvent(d3.select('#stage').node(), 'click').tap(function() {
+    winners = pickWinners();
+    stageWinners(winners);
+  }).subscribeOnError(errorObserver);
+
+  var pickWinner = function(index) {
+    if (winners.length >= 10) {
+      return;
+    }
+    if (winners.some(function(point) { return point.id === index })) {
+      console.log('Doodle ', index, ' already a winner');
+      return;
+    }
+    console.log('picking winner', index);
+    var winner = points[index];
+    winners.push(winner);
+    stageWinner(winner, winners.length - 1);
+  };
+
+  var winners = [];
 
   var pickWinners = function() {
     var numWinners = 10;
@@ -310,69 +354,93 @@ hex = (function dataSimulator(d3, Rx) {
     return winners;
   };
 
-  Rx.Observable.fromEvent(d3.select('#push-doodles').node(), 'click').subscribe(function() {
-    var xhr = d3.xhr('/api/doodle/random/10', function(err, res) {
-      console.log(err || res);
-    });
+  var stageSpots = d3.range(10).map(function(spot, index) {
+    return {
+      x: (Math.floor(index / 5) * 2 -1) * (honeycomb.dimensions.x / 2 + 50) + width/2
+    , y: height / 2 + 10 * honeycomb.spacing.y / 2 * (index % 5 - 2)
+    }
   });
 
-  Rx.Observable.fromEvent(d3.select('#winners').node(), 'click').subscribe(function() {
-    var winners = pickWinners();
-    var c = {x: width / 2, y: height / 2};
-    var perspective = 1.5
-      , duration = 1000
-      , scale = 0.3
-      , opacity = { initial: 0.01, final: 0.9}
+  console.log(stageSpots);
+
+  var winnerSpots = d3.range(10).map(function(spot, index) {
+    var c = {x: width / 2, y: height / 2}
       , delta = {x: honeycomb.dimensions.x/4, y: honeycomb.dimensions.y/3}
       , offset = {x: 0, y: - 0.17}  // an adjustment to make room for the names
-      ;
 
-    var winnerSpots = d3.range(10).map(function(spot, index) {
-      if (index <= 2) {
-        return {
-          x: c.x + (index % 3 - 1) * delta.x,
-          y: c.y + (Math.floor(index / 3) - 1 + offset.y) * delta.y
-        };
-      } else if (index <= 6) {
-        return {
-          x: c.x + (index % 4 - 2 + 0.5) * delta.x,
-          y: c.y + offset.y * delta.y
-        };
-      } else {
-        return {
-          x: c.x + ((index - 1) % 3 - 1) * delta.x,
-          y: c.y + (Math.floor((index - 1) / 3) - 1 + offset.y) * delta.y
-        };
+    if (index <= 2) {
+      return {
+        x: c.x + (index % 3 - 1) * delta.x,
+        y: c.y + (Math.floor(index / 3) - 1 + offset.y) * delta.y
+      };
+    } else if (index <= 6) {
+      return {
+        x: c.x + (index % 4 - 2 + 0.5) * delta.x,
+        y: c.y + offset.y * delta.y
+      };
+    } else {
+      return {
+        x: c.x + ((index - 1) % 3 - 1) * delta.x,
+        y: c.y + (Math.floor((index - 1) / 3) - 1 + offset.y) * delta.y
+      };
+    }
+  });
+
+  var stageWinners = function(winners) {
+    winners.forEach(function(p, index) {
+      if (p) {
+        stageWinner(p, index);
       }
     });
-    console.log(winnerSpots);
+  }
 
+  var displayWinners = function(winners) {
     winners.forEach(function(p, index) {
-      if (!p) {
-        return;
+      if (p) {
+        displayWinner(p, index);
       }
+    });
+  }
 
-      var spaceIndex = p.doodle.name.indexOf(' ');
-      p.doodle.firstname = p.doodle.name.substring(0,spaceIndex);
-      p.doodle.lastname = p.doodle.name.substring(spaceIndex+1);
+  var stageWinner = function(p, index) {
+    animateWinner(p, p, stageSpots[index], 0.5, 1, false, function() {
+      if (winners.length === 10) {
+        unhighlight();
+        displayWinners(winners);
+      }
+    });
+  }
 
-      var p0 = winnerSpots[index];
-      var group = svg.insert('g')
+  var displayWinner = function(p, index) {
+    animateWinner(p, stageSpots[index], winnerSpots[index], 0.4, 1.3, true);
+  }
+
+  var animateWinner = function(p, p0, p1, zoom1, zoom2, shownames, cb) {
+    var duration = 1000
+      , scale = 0.2;
+      ;
+    var spaceIndex = p.doodle.name.indexOf(' ');
+    p.doodle.firstname = p.doodle.name.substring(0,spaceIndex);
+    p.doodle.lastname = p.doodle.name.substring(spaceIndex+1);
+
+    if (!p.group) {
+      p.group = svg.insert('g')
         .attr('class', 'winner')
-        .attr('transform', function(d) { return 'translate(' + p.x + ',' + p.y + ')'; });
+        .attr('transform', function(d) { return 'translate(' + p0.x + ',' + p0.y + ')'; });
 
-      group.insert('path')
+      p.group.insert('path')
         .attr('class', 'hexagon')
         .attr('d', 'm' + hexagon(size/scale).join('l') + 'z')
         .attr('fill', 'url(#img' + p.id + ')')
-        .attr('transform', 'matrix('+scale+', 0, 0, '+scale+', 0, 0)');
+        .attr('transform', 'matrix('+zoom1+', 0, 0, '+zoom1+', 0, 0)');
+    }
 
-      var textGroup = group.insert('g')
-        .attr('class', 'text')
-        .attr('transform', function(d) { return 'translate(0,' + size * 1.5 + ')'; });
-
+    if (shownames) {
       var textWidth = size * 3.5
         , textHeight = size * 1.3;
+      var textGroup = p.group.insert('g')
+        .attr('class', 'text')
+        .attr('transform', 'matrix('+1/zoom1+', 0, 0, '+1/zoom1+', 0, '+ size/zoom1 * 1.5 +')')
       textGroup.insert('rect')
         .attr('width', textWidth)
         .attr('height', textHeight)
@@ -391,13 +459,18 @@ hex = (function dataSimulator(d3, Rx) {
         .attr('text-anchor', 'middle')
         .attr('y', size / 1.5)
         .text(p.doodle.lastname);
+    }
 
-      group.transition()
-        .duration(duration)
-        .ease('quad-out')
-        .attr('transform', 'matrix('+1/scale+', 0, 0, '+1/scale+', '+ p0.x +', '+ p0.y +')');
-    });
-  });
+    p.group.transition()
+      .duration(duration)
+      .ease('quad-out')
+      .attr('transform', 'matrix('+zoom2+', 0, 0, '+zoom2+', '+ p1.x +', '+ p1.y +')')
+      .each('end', function() {
+        if (cb) {
+          cb();
+        }
+      });
+  }
 
 var openObserver = Rx.Observer.create(function(open) {
   var ws = open.target;
@@ -425,9 +498,7 @@ var openObserver = Rx.Observer.create(function(open) {
       }
     };
   })
-  .subscribeOnError(function(error) {
-    console.log(error);
-  });
+  .subscribeOnError(errorObserver);
 });
 
 var messages = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/thousand', null, openObserver)
@@ -438,6 +509,12 @@ var messages = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/thousand', null
 messages.filter(function(message) {
   return message.type === 'winner';
 }).tap(function(message) {
+  var doodlesPresent = points.some(function(point) {
+    return !! point.doodle;
+  });
+  if (! doodlesPresent) {
+    return;
+  }
   var action = message.data;
   console.log('Winner action: ', action);
   var newId;
@@ -463,7 +540,10 @@ messages.filter(function(message) {
       highlight(newId);
       break;
     case 'pick':
-      console.log('pick a winner')
+      if (highlightedHexagon) {
+        pickWinner(highlightedHexagon.datum().id)
+        console.log('pick a winner')
+      };
       break;
   };
 }).subscribeOnError(errorObserver);

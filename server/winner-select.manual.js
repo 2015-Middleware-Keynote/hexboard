@@ -28,4 +28,10 @@ ws.on('open', function open() {
     , msg: 'up'
     }));
   }, 2000)
+  setTimeout(function() {
+    ws.send(JSON.stringify({
+      key: 'somekey'
+    , msg: 'pick'
+    }));
+  }, 2500)
 });
