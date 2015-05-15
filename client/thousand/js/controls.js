@@ -39,7 +39,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
         hex.highlight.highlight(newId);
         break;
       case 13: // ENTER
-        hex.winner.pickWinner()
+        hex.winner.pickWinner();
         break;
     };
   })
@@ -60,27 +60,27 @@ hex.controls = (function dataSimulator(d3, Rx) {
     var newId;
     switch (action) {
       case 'left':
-        newId = moveHighlightHorizontally(-1);
-        console.log(newId)
-        highlight(newId);
+        newId = hex.highlight.moveHighlightHorizontally(-1);
+        console.log(newId);
+        hex.highlight.highlight(newId);
         break;
       case 'right':
-        newId = moveHighlightHorizontally(1);
-        console.log(newId)
-        highlight(newId);
+        newId = hex.highlight.moveHighlightHorizontally(1);
+        console.log(newId);
+        hex.highlight.highlight(newId);
         break;
       case 'up':
-        newId = moveHighlightVertically(-1);
-        console.log(newId)
-        highlight(newId);
+        newId = hex.highlight.moveHighlightVertically(-1);
+        console.log(newId);
+        hex.highlight.highlight(newId);
         break;
       case 'down':
-        newId = moveHighlightVertically(1);
-        console.log(newId)
-        highlight(newId);
+        newId = hex.highlight.moveHighlightVertically(1);
+        console.log(newId);
+        hex.highlight.highlight(newId);
         break;
       case 'pick':
-        pickWinner()
+        hex.winner.pickWinner();
         break;
     };
   }).subscribeOnError(hex.errorObserver);
