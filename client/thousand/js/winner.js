@@ -50,7 +50,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
   var stageSpots = d3.range(10).map(function(spot, index) {
     return {
-      x: (Math.floor(index / 5) * 2 -1) * (hex.honeycomb.dimensions.x / 2 + 50) + hex.content.x/2
+      x: (Math.floor(index / 5) * 2 - 1) * (hex.honeycomb.dimensions.x / 2 + 50) + hex.content.x/2
     , y: hex.content.y / 2 + 10 * hex.honeycomb.spacing.y / 2 * (index % 5 - 2)
     }
   });
@@ -62,17 +62,17 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
     if (index <= 2) {
       return {
-        x: c.x + (index % 3 - 1) * delta.x,
+        x: c.x + (index - 1) * delta.x,
         y: c.y + (Math.floor(index / 3) - 1 + offset.y) * delta.y
       };
     } else if (index <= 6) {
       return {
-        x: c.x + (index % 4 - 2 + 0.5) * delta.x,
+        x: c.x + (index - 4.5) * delta.x,
         y: c.y + offset.y * delta.y
       };
     } else {
       return {
-        x: c.x + ((index - 1) % 3 - 1) * delta.x,
+        x: c.x + (index - 8) * delta.x,
         y: c.y + (Math.floor((index - 1) / 3) - 1 + offset.y) * delta.y
       };
     }
