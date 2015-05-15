@@ -4,8 +4,8 @@ var hex = hex || {};
 
 hex.winner = (function dataSimulator(d3, Rx) {
   Rx.Observable.fromEvent(d3.select('#winners').node(), 'click').tap(function() {
-    winners = pickWinners();
-    stageWinners(winners);
+    pickWinners();
+    stageWinners();
   }).subscribeOnError(hex.errorObserver);
 
   // Returns a random integer between min included) and max (excluded)
@@ -78,7 +78,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
     }
   });
 
-  var stageWinners = function(winners) {
+  var stageWinners = function() {
     winners.forEach(function(p, index) {
       if (p) {
         stageWinner(p, index);
@@ -86,7 +86,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
     });
   }
 
-  var displayWinners = function(winners) {
+  var displayWinners = function() {
     winners.forEach(function(p, index) {
       if (p) {
         displayWinner(p, index);
@@ -99,7 +99,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
       if (winners.length === 10) {
         hex.controls.dispose();
         hex.highlight.unhighlight();
-        displayWinners(winners);
+        displayWinners();
       }
     });
   }
