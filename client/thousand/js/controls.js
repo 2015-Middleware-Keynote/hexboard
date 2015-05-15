@@ -5,7 +5,7 @@ var hex = hex || {};
 hex.controls = (function dataSimulator(d3, Rx) {
 
   // keyboard controls
-  Rx.Observable.fromEvent(document.getElementsByTagName('body')[0], 'keyup')
+  var keyboardSubscription = Rx.Observable.fromEvent(document.getElementsByTagName('body')[0], 'keyup')
   .filter(function(event) {
     return [37, 38, 39, 40, 13].some(function(keyCode) {
       return keyCode == event.keyCode;
@@ -46,7 +46,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
   .subscribeOnError(hex.errorObserver);
 
   // websocket controls
-  hex.messages.filter(function(message) {
+  var websocketSubscription = hex.messages.filter(function(message) {
     return message.type === 'winner';
   }).tap(function(message) {
     var doodlesPresent = hex.points.some(function(point) {
@@ -87,7 +87,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
 
   // mouse controls
   var lastDoodle;
-  Rx.Observable.fromEvent(document.querySelector('.map'), 'mousemove')
+  var mouseSubscription = Rx.Observable.fromEvent(document.querySelector('.map'), 'mousemove')
   .filter(function(event) {
     return event.target.classList.contains('doodle');
   })
@@ -113,5 +113,15 @@ hex.controls = (function dataSimulator(d3, Rx) {
     hex.winner.pickWinner(newId);
   })
   .subscribeOnError(hex.errorObserver);
+
+  var dispose = function() {
+    keyboardSubscription.dispose();
+    websocketSubscription.dispose();
+    mouseSubscription.dispose();
+  };
+
+  return {
+    dispose: dispose
+  }
 
 })(d3, Rx);

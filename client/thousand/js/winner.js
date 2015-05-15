@@ -13,6 +13,8 @@ hex.winner = (function dataSimulator(d3, Rx) {
     return Math.floor(Math.random() * (max - min) + min);
   };
 
+  var winners = [];
+
   var pickWinner = function(index) {
     if (arguments.length === 0) {
       var highlightedHexagon = hex.highlight.getHighlightedHexagon();
@@ -34,20 +36,16 @@ hex.winner = (function dataSimulator(d3, Rx) {
     stageWinner(winner, winners.length - 1);
   };
 
-  var winners = [];
-
   var pickWinners = function() {
     var numWinners = 10;
     var candidates = hex.points.filter(function(point) {
       return point.doodle;
     });
 
-    var winners = d3.range(numWinners).map(function(currentValue, index) {
+    d3.range(numWinners - winners.length).map(function(currentValue, index) {
       var index = getRandomInt(0, candidates.length);
-      return candidates.splice(index, 1)[0];
+      winners.push(candidates.splice(index, 1)[0]);
     });
-
-    return winners;
   };
 
   var stageSpots = d3.range(10).map(function(spot, index) {
@@ -99,6 +97,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
   var stageWinner = function(p, index) {
     animateWinner(p, p, stageSpots[index], 0.5, 1, false, function() {
       if (winners.length === 10) {
+        hex.controls.dispose();
         hex.highlight.unhighlight();
         displayWinners(winners);
       }
@@ -168,5 +167,6 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
   return {
     pickWinner: pickWinner
+  , winners: winners
   }
 })(d3, Rx);
