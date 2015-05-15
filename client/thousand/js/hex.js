@@ -173,64 +173,35 @@ hex = (function dataSimulator(d3, Rx) {
     });
   });
 
-var openObserver = Rx.Observer.create(function(open) {
-  var ws = open.target;
-  var lastPong = new Date().getTime();
-  var ttl = 5000;
-  var pinger = Rx.Observable.interval(ttl)
-  var ping = JSON.stringify({
-    type: 'ping'
-  });
-  Rx.Observable.interval(ttl)
-  .tap(function() {
-    if (ws.readyState === ws.OPEN) {
-      ws.send(ping);
-      console.log(">>> PING");
-      if (new Date().getTime() - lastPong > ttl * 3) {
-        ws.close();
-        throw new Error('Server has gone more than ' + 3 * ttl + 'ms without a response');
-      }
-    };
-    ws.onmessage = function(messageEvent) {
-      var message = JSON.parse(messageEvent.data);
-      if (message.type === 'pong') {
-        lastPong = new Date().getTime();
-        console.log("<<< PONG");
-      }
-    };
+  var messages = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/thousand', null, hex.ping)
+  .map(function(messageEvent) {
+    return JSON.parse(messageEvent.data);
+  }).share();
+
+  messages.filter(function(message) {
+    return message.type === 'event';
   })
-  .subscribeOnError(errorObserver);
-});
+  .tap(function(message) {
+    var event = message.data;
+    particle(points[event.id], event.stage);
+  }).subscribeOnError(errorObserver);
 
-var messages = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/thousand', null, openObserver)
-.map(function(messageEvent) {
-  return JSON.parse(messageEvent.data);
-}).share();
+  messages.filter(function(message) {
+    return message.type === 'doodle';
+  })
+  .tap(function(message) {
+    var doodle = message.data;
+    image(points[doodle.containerId], doodle);
+  }).subscribeOnError(errorObserver);
 
-messages.filter(function(message) {
-  return message.type === 'event';
-})
-.tap(function(message) {
-  var event = message.data;
-  particle(points[event.id], event.stage);
-}).subscribeOnError(errorObserver);
-
-messages.filter(function(message) {
-  return message.type === 'doodle';
-})
-.tap(function(message) {
-  var doodle = message.data;
-  image(points[doodle.containerId], doodle);
-}).subscribeOnError(errorObserver);
-
-return {
-  errorObserver: errorObserver
-, messages: messages
-, honeycomb: honeycomb
-, content: content
-, points: points
-, hexagon: hexagon
-, svg: svg
-}
+  return {
+    errorObserver: errorObserver
+  , messages: messages
+  , honeycomb: honeycomb
+  , content: content
+  , points: points
+  , hexagon: hexagon
+  , svg: svg
+  }
 
 })(d3, Rx);
