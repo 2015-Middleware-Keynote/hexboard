@@ -4,6 +4,13 @@ var rawfeed = rawfeed || {};
 
 d3demo.layout = (function dataSimulator(d3, Rx) {
 
+  var getParameterByName=  function (name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+  };
+
   var display = {
     x: Math.max(document.documentElement.clientWidth, window.innerWidth) || 1920
   , y: Math.max(document.documentElement.clientHeight, window.innerHeight) - 4 - 39
@@ -240,25 +247,28 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
   });
 
   var focus = true;
-  window.onblur = function() {
-    focus = false;
-    setTimeout(function() {
-      if (!focus) {
-        subscribtion.dispose();
-        console.log(subscribtion);
-        d3.select('#cover').style({visibility: 'visible', opacity: '0.6'});
-      };
-    }, 2000);
-  }
-
-  window.onfocus = function() {
-    focus = true;
-    if (subscribtion.isStopped) {
-      subscribtion = mergedFeed.subscribeOnError(function(err) {
-        console.log(err.stack ? err.stack : err);
-      });
-      d3.select('#cover').style({visibility: 'hidden', opacity: '0'});
+  var pauseTime = getParameterByName('pauseTime') || 2000;
+  if (pauseTime > 0) {
+    window.onblur = function() {
+      focus = false;
+      setTimeout(function() {
+        if (!focus) {
+          subscribtion.dispose();
+          console.log(subscribtion);
+          d3.select('#cover').style({visibility: 'visible', opacity: '0.6'});
+        };
+      }, pauseTime);
     };
-  }
+
+    window.onfocus = function() {
+      focus = true;
+      if (subscribtion.isStopped) {
+        subscribtion = mergedFeed.subscribeOnError(function(err) {
+          console.log(err.stack ? err.stack : err);
+        });
+        d3.select('#cover').style({visibility: 'hidden', opacity: '0'});
+      };
+    };
+  };
 
 })(d3, Rx);
