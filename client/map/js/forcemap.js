@@ -70,8 +70,8 @@ d3demo.forcemap = (function visualisation(d3, Rx) {
           return d.focus === -1
             ? 0
             : d.selected
-              ? d.present ? -100 : -40
-              : d.present ? -14 : -2;
+              ? d.present ? -120 : -60
+              : d.present ? -10 : -2;
         });
 
     nodes = svg.selectAll('circle.user')
@@ -82,12 +82,12 @@ d3demo.forcemap = (function visualisation(d3, Rx) {
           .attr('class', 'user')
           .attr("cx", function(d) { return d.x; })
           .attr("cy", function(d) { return d.y; })
-          .attr('r', function(d) { return d.present ? 8 : 2});
+          .attr('r', function(d) { return d.present ? 5 : 2});
 
     force.on('tick', stepForce);
   };
 
-  var stepSize = d3demo.config.playback.rate > 100 ? 0.1 : 0.2;
+  var stepSize = 0.2 //d3demo.config.playback.rate > 100 ? 0.1 : 0.2;
   var stepForce = function(event) {
     var k = stepSize * event.alpha;
     // Push nodes toward their designated focus.
@@ -111,7 +111,7 @@ d3demo.forcemap = (function visualisation(d3, Rx) {
          .attr('r', function(d) {
            return d.selected
              ? d.present ? 20 : 14
-             : d.present ? 8 : 3;
+             : d.present ? 5 : 2;
           })
          .style('fill', function(d) {
            if (d.present) {
