@@ -122,6 +122,7 @@ hex = (function dataSimulator(d3, Rx) {
   };
 
   function image(p, doodle) {
+    console.log('Adding doodle:', doodle.submissionId, 'for cuid: ', doodle.cuid);
     var c = {x: content.x / 2, y: content.y / 2};
     var perspective = 0.5
       , duration = 1000

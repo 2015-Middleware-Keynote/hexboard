@@ -35,11 +35,14 @@ module.exports = exports = {
           if (err) {
             next(err);
           };
-          eventEmitter.emit('new-doodle', {
+          var doodle = {
             containerId: containerId
           , url: '/api/doodle/' + containerId
           , name: req.query.name
-          })
+          , cuid: req.query.cuid
+          , submissionId: req.query.submission_id
+          };
+          eventEmitter.emit('new-doodle', doodle);
           return res.json({
             url:'http://beacon.jbosskeynote.com/api/doodle/'+containerId
           , name:req.query.name
