@@ -31,6 +31,8 @@ module.exports = function(server) {
       .flatMap(function(scanBundle) {
         if (ws.readyState === ws.OPEN) {
           return send(JSON.stringify({type: 'scanBundle', data: scanBundle}));
+        } else {
+          return Rx.Observable.empty;
         };
       })
       .subscribe(undefined, function(error) {
