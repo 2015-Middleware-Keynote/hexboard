@@ -60,8 +60,7 @@ module.exports = function(server) {
 
   var feed = process.env.NODE_ENV === 'production'
     ? '/queue/Consumer.bl_prod.VirtualTopic.beaconEvents_processed'
-    : '/queue/Consumer.bl_dev.VirtualTopic.beaconEvents_processed';
-  // var feed = '/topic/VirtualTopic.beaconEvents_processed';
+    : '/topic/VirtualTopic.beaconEvents_processed';
 
   live.getScanFeed(feed).subscribe(function(scan) {
     // console.log(tag, 'user', scan.user.name, 'location', scan.location.name);
