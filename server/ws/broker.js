@@ -20,18 +20,11 @@ module.exports = function(server) {
       } else if (ws.readyState === ws.CLOSED) {
         console.log(tag, 'Peer #' + ws.id + ' disconnected from /broker.');
         delete clients[ws.id];
-        if (Object.keys(clients).length == 0) {
-          console.log(tag, 'Disposing of broker subscription');
-          subscription.dispose();
-        }
       }
     };
   };
 
   wss.on('connection', function connection(ws) {
-    if (Object.keys(clients).length == 0) {
-      subscribe();
-    }
     var id = count++;
     clients[id] = ws;
     ws.id = id;
@@ -44,15 +37,10 @@ module.exports = function(server) {
     console.log(tag, 'Peer #' + id + ' connected to /broker.');
   });
 
-  var subscription;
-
-  var subscribe = function() {
-    subscription = broker.eventFeed()
-    .tap(function(event) {
-      wss.broadcast(JSON.stringify(event));
-    })
-    .subscribeOnError(function(err) {
-      console.log(tag, err);
-    });
-  };
+  broker.eventFeed().tap(function(event) {
+    wss.broadcast(JSON.stringify(event));
+  })
+  .subscribeOnError(function(err) {
+    console.log(tag, err);
+  });
 };

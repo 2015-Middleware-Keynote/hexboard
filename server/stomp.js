@@ -32,7 +32,7 @@ var connection = Rx.Observable.create(function (observer) {
 var feeds = {};
 
 var getStompFeed = function(queue) {
-  if (! feeds[queue] ) {
+  if (!feeds[queue] ) {
     feeds[queue] = connection.flatMap(function(client) {
       return Rx.Observable.create(function (observer) {
         console.log(tag, 'Subscribing to ' + queue + '...');
@@ -53,6 +53,19 @@ var getStompFeed = function(queue) {
   return feeds[queue];
 };
 
+var getBeaconEventsFeed = function() {
+  var feed = '/topic/beaconEvents';
+  return getStompFeed(feed);
+};
+
+var getBeaconEventsProcessedFeed = function() {
+  var feed = process.env.NODE_ENV === 'production'
+    ? '/queue/Consumer.bl_prod.VirtualTopic.beaconEvents_processed'
+    : '/topic/VirtualTopic.beaconEvents_processed';
+  return getStompFeed(feed);
+};
+
 module.exports = {
-  getStompFeed: getStompFeed
+  getBeaconEventsFeed: getBeaconEventsFeed
+, getBeaconEventsProcessedFeed: getBeaconEventsProcessedFeed
 };

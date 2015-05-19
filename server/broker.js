@@ -99,7 +99,7 @@ var interval = 500;
 var num = 500 * interval / 1000;
 
 var beaconEventsLive = function() {
-  return stomp.getStompFeed('/topic/beaconEvents')
+  return stomp.getBeaconEventsFeed()
   .bufferWithTime(interval).map(function(buf) {
     return {
       type: 'beaconEvents',
@@ -113,7 +113,7 @@ var beaconEventsLive = function() {
 };
 
 var beaconEventsProcessedLive = function() {
-  return stomp.getStompFeed('/topic/VirtualTopic.beaconEvents_processed')
+  return stomp.getBeaconEventsProcessedFeed()
     .map(function(message) {
       return {
         type: message.headers.type,

@@ -30,8 +30,8 @@ var getUser = function(idInt) {
   return users[index];
 }
 
-var getScanFeed = function(queue) {
-  return stomp.getStompFeed(queue).map(function(message) {
+var getScanFeed = function() {
+  return stomp.getBeaconEventsProcessedFeed().map(function(message) {
     var location = convertLocation(message.headers.location_id);
     var id = JSON.parse(message.headers.user_id);
     var user = id[0]*10 + id[1];
