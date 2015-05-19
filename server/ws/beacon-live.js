@@ -58,7 +58,10 @@ module.exports = function(server) {
     });
   }
 
-  live.getScanFeed('/topic/beaconEvents_processed').subscribe(function(scan) {
+  var feed = '/queue/Consumer.bl_dev.VirtualTopic.beaconEvents_processed';
+  // var feed = '/topic/VirtualTopic.beaconEvents_processed';
+
+  live.getScanFeed(feed).subscribe(function(scan) {
     // console.log(tag, 'user', scan.user.name, 'location', scan.location.name);
     saveScan(scan);
     wss.broadcast(JSON.stringify({type: 'scan', data: scan}));
