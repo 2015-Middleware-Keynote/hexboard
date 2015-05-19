@@ -71,7 +71,7 @@ d3demo.forcemap = (function visualisation(d3, Rx) {
             ? 0
             : d.selected
               ? d.present ? -100 : -40
-              : d.present ? -25 : -5;
+              : d.present ? -14 : -2;
         });
 
     nodes = svg.selectAll('circle.user')
