@@ -58,7 +58,7 @@ module.exports = function(server) {
     });
   }
 
-  var feed = process.NODE_ENV === 'production'
+  var feed = process.env.NODE_ENV === 'production'
     ? '/queue/Consumer.bl_prod.VirtualTopic.beaconEvents_processed'
     : '/queue/Consumer.bl_dev.VirtualTopic.beaconEvents_processed';
   // var feed = '/topic/VirtualTopic.beaconEvents_processed';
