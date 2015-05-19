@@ -14,7 +14,7 @@ var lastIndex = 0;
 
 var users = [];
 // initialize the users
-for (var i = 0; i < 200; i++) {
+for (var i = 0; i < 300; i++) {
   users.push({
     id: i
   , name: i === 13 ? 'Burr Sutter' : 'Firstname' + i + ' Lastname' + i
