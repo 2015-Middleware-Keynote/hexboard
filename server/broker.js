@@ -82,7 +82,7 @@ var enqueueCountsFeed = function() {
           }
         }
       }),
-    getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=beaconEvents_processed/EnqueueCount')
+    getEnqueueCount('/hawtio/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Topic,destinationName=VirtualTopic.beaconEvents_processed/EnqueueCount')
       .map(function(count) {
         return {
           type: 'enqueueCount',
@@ -113,7 +113,7 @@ var beaconEventsLive = function() {
 };
 
 var beaconEventsProcessedLive = function() {
-  return stomp.getStompFeed('/topic/beaconEvents_processed')
+  return stomp.getStompFeed('/topic/VirtualTopic.beaconEvents_processed')
     .map(function(message) {
       return {
         type: message.headers.type,
