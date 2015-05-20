@@ -44,16 +44,21 @@ var doodles = Rx.Observable.range(0, 200)
       .delay(getRandomInt(0, 10000));
   });
 
+var submissionCount = 0;
+
 var randomDoodles = function(numDoodles) {
   var doodles = Rx.Observable.range(0, numDoodles)
     .flatMap(function(x) {
+      var imageIndex = getRandomInt(0, 13);
       return Rx.Observable.range(0,1)
         .map(function() {
           var containerId = getRandomInt(0, 1026);
           var doodle = {
             containerId: containerId
-          , url: '/thousand/doodles/thousand-doodle' + [getRandomInt(0, 13) + '.png']
+          , url: '/thousand/doodles/thousand-doodle' + imageIndex + '.png'
           , name: 'FirstName' + containerId + ' LastName' + containerId
+          , cuid: imageIndex
+          , submissionId: submissionCount++
           };
           return doodle;
         })

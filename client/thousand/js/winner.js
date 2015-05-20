@@ -15,6 +15,12 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
   var winners = [];
 
+  var isAlreadyWinner = function(point) {
+    return winners.some(function(winner) {
+      return 'cuid' in winner.doodle && winner.doodle.cuid === point.doodle.cuid;
+    });
+  };
+
   var pickWinner = function(index) {
     if (arguments.length === 0) {
       var highlightedHexagon = hex.highlight.getHighlightedHexagon();
@@ -44,7 +50,10 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
     d3.range(numWinners - winners.length).map(function(currentValue, index) {
       var index = getRandomInt(0, candidates.length);
-      winners.push(candidates.splice(index, 1)[0]);
+      winners.push(candidates[index]);
+      candidates = candidates.filter(function(point) {
+        return ! isAlreadyWinner(point);
+      });
     });
   };
 
@@ -96,7 +105,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
   var stageWinner = function(p, index) {
     animateWinner(p, p, stageSpots[index], 0.5, 1, false, function() {
-      if (winners.length === 10) {
+      if (winners.length === 10 && index === 9) {
         hex.dispose();
         hex.controls.dispose();
         hex.highlight.unhighlight();
@@ -107,6 +116,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
   var displayWinner = function(p, index) {
     animateWinner(p, stageSpots[index], winnerSpots[index], 0.4, 1.3, true);
+    console.log('Winner name:', p.doodle.name, 'cuid:', p.doodle.cuid, 'submission:', p.doodle.submissionId);
   }
 
   var animateWinner = function(p, p0, p1, zoom1, zoom2, shownames, cb) {
@@ -168,6 +178,6 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
   return {
     pickWinner: pickWinner
-  , winners: winners
+  , isAlreadyWinner: isAlreadyWinner
   }
 })(d3, Rx);

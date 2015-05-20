@@ -62,13 +62,21 @@ hex.highlight = (function dataSimulator(d3, Rx) {
     return closest;
   }
 
-  var moveHighlightHorizontally = function(direction) {  // -1 left, +1 right
-    var candidates = hex.points.filter(function(point) {
-      return !!point.doodle;
+  var getCandidates = function() {
+    return hex.points.filter(function(point) {
+      if (point.doodle) {
+        return ! hex.winner.isAlreadyWinner(point);
+      } else {
+        return false;
+      };
     });
+  }
+
+  var moveHighlightHorizontally = function(direction) {  // -1 left, +1 right
+    var candidates = getCandidates();
     if (candidates.length < 1) {
       return;
-    }
+    };
     var start = direction > 0 ? 0 : candidates.length - 1
       , end = direction > 0 ? candidates.length - 1 : 0;
     var currentIndex = highlightedHexagon ? candidates.indexOf(highlightedHexagon.datum()) : null;
@@ -82,12 +90,10 @@ hex.highlight = (function dataSimulator(d3, Rx) {
   };
 
   var moveHighlightVertically = function(direction) { // -1 up, +1 down
-    var candidates = hex.points.filter(function(point) {
-      return !!point.doodle;
-    });
+    var candidates = getCandidates();
     if (candidates.length < 1) {
       return;
-    }
+    };
     var start = direction > 0 ? 0 : candidates.length - 1
       , end = direction > 0 ? candidates.length - 1 : 0;
     var currentPoint = highlightedHexagon ? highlightedHexagon.datum() : null;
