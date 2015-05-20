@@ -2,6 +2,7 @@
 
 var Rx = require('rx')
   , locations = require('./api/location/location_controllers').locations
+  , userController = require('./api/user/user.js').getUsers
   ;
 
 var GENERAL_SESSIONS_ID = 1
@@ -27,15 +28,6 @@ var getRandom = function (min, max) {
 
 var getRandomInt = function (min, max) {
   return Math.floor(getRandom(min,max));
-};
-
-var users = [];
-// initialize the users
-for (var i = 0; i < 200; i++) {
-  users.push({
-    id: i
-  , name: i === 13 ? 'Burr Sutter' : 'Firstname' + i + ' Lastname' + i
-  });
 };
 
 var locationWeights = [4, 0, 0, 0, 30, 80, 30, 20, 50, 50, 35, 35];
@@ -133,6 +125,7 @@ var intervalFromEvents = function(events) {
 };
 
 var randomScans = counter.flatMap(function(tick) {
+  var users = getUsers();
   var scans = [];
   var rush = (tick.minutes + 5) % 60;
   if (rush > 30) { rush = 60 - rush};
@@ -158,7 +151,6 @@ var reset = function() {
 module.exports = {
     startTimestamp: EVENT_DATE + START_MINUTES * 60 * 1000
   , endTimestamp: EVENT_DATE + END_MINUTES * 60 * 1000
-  , users: users
   , reset: reset
   , scans: randomScans
 }

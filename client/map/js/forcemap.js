@@ -42,22 +42,20 @@ d3demo.forcemap = (function visualisation(d3, Rx) {
 
     // define the data
     dataNodes = [];
-    d3demo.layout.users.forEach(function(user) {
+    dataNodes = d3.range(300).map(function(index) {
       var x = getRandomInt(foci[0].x - 10, foci[0].x + 10)
         , y = getRandomInt(height+50, height + 300);
       // x = 200, y= 200;
-      var newNode = {
-        id: user.id,
+      return {
+        id: index,
         x: x,
         y: y,
         x_i: x,
         y_i: y,
         focus: -1,
-        present: false,
-        user: user
-      }
-      dataNodes[user.id] = newNode;
-    })
+        present: false
+      };
+    });
 
     //create a force layout object and define its properties
     force = d3.layout.force()
@@ -132,7 +130,7 @@ d3demo.forcemap = (function visualisation(d3, Rx) {
 
   var getNodeById = function(id) {
    return nodes.filter(function(d) {
-     return d.user.id == id;
+     return d.id == id;
    });
   };
 
@@ -142,6 +140,9 @@ d3demo.forcemap = (function visualisation(d3, Rx) {
 
   var getNodesByName = function(str) {
     return nodes.filter(function(d) {
+      if (!d.user) {
+        return false;
+      }
       return d.user.name.toLowerCase().indexOf(str.toLowerCase()) > -1
         || d.user.id && d.user.id.toString().toLowerCase().indexOf(str.toString().toLowerCase()) > -1
         || d.beaconId && d.beaconId.toString().toLowerCase().indexOf(str.toString().toLowerCase()) > -1;

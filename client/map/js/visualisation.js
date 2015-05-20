@@ -4,7 +4,7 @@ var d3demo = d3demo || {};
 
 d3demo.visualisation = (function visualisation(d3, Rx) {
   var checkinNode = function(movement) {
-    var dataNode = d3demo.forcemap.getDataNodeById(movement.user.id);
+    var dataNode = movement.dataNode;
     dataNode.beaconId = movement.beaconId;
     dataNode.present = true;
     dataNode.exiting = false;
@@ -18,7 +18,7 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
   };
 
   var checkoutNode = function(checkout) {
-    var dataNode = d3demo.forcemap.getDataNodeById(checkout.user.id);
+    var dataNode = checkout.dataNode;
     dataNode.present = false;
     dataNode.exiting = false;
     dataNode.checkOutTime = checkout.timestamp;
@@ -29,7 +29,7 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
   };
 
   var removeNode = function(departure) {
-    var dataNode = d3demo.forcemap.getDataNodeById(departure.user.id);
+    var dataNode = departure.dataNode;
     if (dataNode.focus < 0) { // already removed
       return;
     }
@@ -65,6 +65,7 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
     });
     d3.timer(function() {
       selectedNodes.classed('selected', function(d) { return d.selected; });
+      d3demo.forcemap.start();
       return true;
     });
   };
@@ -195,10 +196,13 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
     };
 
     scans = scansStream.tap(function(scan) {
+      scan.dataNode = d3demo.forcemap.getDataNodeById(scan.user.id);
+      if (!scan.dataNode.user) {
+        scan.dataNode.user = scan.user;
+      }
       if (scan.retransmit) {
-        var dataNode = d3demo.forcemap.getDataNodeById(scan.user.id);
-        if (dataNode.focus === scan.location.id) {
-          d3demo.forcemap.particle(dataNode);
+        if (scan.dataNode.focus === scan.location.id) {
+          d3demo.forcemap.particle(scan.dataNode);
           d3demo.forcemap.start();
           return;
         };

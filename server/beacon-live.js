@@ -1,43 +1,23 @@
 'use strict';
 
 var Rx = require('rx')
+  , request = require('request')
   , convertLocation = require('./api/location/location_controllers').convertLocation
   , stomp = require('./stomp')
   , WebSocket = require('ws')
   , debuglog = require('debuglog')('stomp')
+  , getUser = require('./api/user/user.js').getUser
   ;
 
 var tag = 'LIVE';
 
-var idMap = {};
-var lastIndex = 0;
-
-var users = [];
-// initialize the users
-for (var i = 0; i < 300; i++) {
-  users.push({
-    id: i
-  , name: i === 13 ? 'Burr Sutter' : 'Firstname' + i + ' Lastname' + i
-  });
-};
-
-var getUser = function(idInt) {
-  if (! (idInt in idMap)) {
-    idMap[idInt] = lastIndex;
-    lastIndex++;
-  }
-  var index = idMap[idInt];
-  return users[index];
-}
-
 var getScanFeed = function() {
   return stomp.getBeaconEventsProcessedFeed().map(function(message) {
     var location = convertLocation(message.headers.location_id);
-    var id = JSON.parse(message.headers.user_id);
-    var user = id[0]*10 + id[1];
+    var beaconId = message.headers.user_id;
     var event = {
-      user: getUser(id)
-    , beaconId: message.headers.user_id
+      user: getUser(beaconId)
+    , beaconId: beaconId
     , locationCode: message.headers.location_id
     , location: location
     , type: message.headers.type || 'check-in'
@@ -52,7 +32,5 @@ var getScanFeed = function() {
 };
 
 module.exports = {
-  users: users
-, getUser: getUser
-, getScanFeed: getScanFeed
+  getScanFeed: getScanFeed
 };

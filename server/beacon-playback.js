@@ -4,7 +4,7 @@ var Rx = require('rx')
   , RxNode = require('rx-node')
   , convertLocation = require('./api/location/location_controllers').convertLocation
   , Scan = require('./api/scan/scan_model')
-  , getUser = require('./beacon-live').getUser
+  , userController = require('./api/user/user.js').getUser
   , debuglog = require('debuglog')('stomp')
   ;
 

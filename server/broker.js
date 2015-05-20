@@ -2,33 +2,11 @@
 
 var Rx = require('rx')
   , stomp = require('./stomp')
-  , WebSocket = require('ws')
   , debuglog = require('debuglog')('stomp')
   , request = require('request')
   ;
 
 var tag = 'BROKER';
-
-var idMap = {};
-var lastIndex = 0;
-
-var users = [];
-// initialize the users
-for (var i = 0; i < 200; i++) {
-  users.push({
-    id: i
-  , name: i === 13 ? 'Burr Sutter' : 'Firstname' + i + ' Lastname' + i
-  });
-};
-
-var getUser = function(idInt) {
-  if (! (idInt in idMap)) {
-    idMap[idInt] = lastIndex;
-    lastIndex++;
-  }
-  var index = idMap[idInt];
-  return users[index];
-};
 
 var getEnqueueCount = function(url) {
   return Rx.Observable.create(function (observer) {
