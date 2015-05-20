@@ -2,7 +2,6 @@
 
 var WebSocketServer = require('ws').Server
   , live = require('../beacon-live')
-  , Scan = require('../api/scan/scan_model')
   , restoreScans = require('../restorescans').restoreScans
   ;
 
@@ -42,25 +41,9 @@ module.exports = function(server) {
     console.log(tag, 'Peer #' + id + ' connected to /live.');
   });
 
-  var saveScan = function(scan) {
-    Scan.create({
-      beaconId: scan.beaconId
-    , locationCode: scan.locationCode
-    , type: scan.type
-    , retransmit: scan.retransmit
-    , timestamp: scan.timestamp
-    }).then(function (createdScan) {
-      // console.log(tag, 'Saved scan for beacon: ', createdScan.beaconId);
-      // process.stdout.write('.');
-      return;
-    }, function(error) {
-      console.log(tag, 'Error saving scan: ', error);
-    });
-  }
-
-  live.getScanFeed().subscribe(function(scan) {
-    // console.log(tag, 'user', scan.user.name, 'location', scan.location.name);
-    saveScan(scan);
+  live.scanFeed.tap(function(scan) {
     wss.broadcast(JSON.stringify({type: 'scan', data: scan}));
+  }).subscribeOnError(function(err) {
+    console.log(err.stack || err);
   });
 }

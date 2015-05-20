@@ -41,6 +41,7 @@
     "rx-node": "^1.0.0",
     "stompjs": "^2.3.3",
     "underscore": "^1.8.3",
+    "unifiedpush-node-sender": "^0.7.0",
     "ws": "^0.7.1"
   }
 }
