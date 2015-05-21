@@ -59,11 +59,10 @@ var notification = function(scan) {
   // Fire and forget
   agSender.Sender(pushUrl).send(message, settings)
     .on('success', function(response) {
-      console.log('agSender success called', response );
-      debuglog('agSender success called', response );
+      debuglog('agSender success called', response);
     })
     .on('error', function(err) {
-      console.log(tag, 'Error:', err);
+      console.log(tag, 'agSender Error:', err);
     });
 };
 
