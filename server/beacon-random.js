@@ -2,7 +2,7 @@
 
 var Rx = require('rx')
   , locations = require('./api/location/location_controllers').locations
-  , userController = require('./api/user/user.js').getUsers
+  , getUsers = require('./api/user/user.js').getUsers
   ;
 
 var GENERAL_SESSIONS_ID = 1
@@ -30,7 +30,10 @@ var getRandomInt = function (min, max) {
   return Math.floor(getRandom(min,max));
 };
 
-var locationWeights = [4, 0, 0, 0, 30, 80, 30, 20, 50, 50, 35, 35];
+var locationWeights = [
+  4, 0, 0, 0, 30, 80,
+  30, 20, 50, 50, 35, 30,
+  10, 10, 65];
 var getLocationWeight = function(location, minutes) {
   if (location.id === GENERAL_SESSIONS_ID && KEYNOTE_1_START_MINUTES - 10 <= minutes && minutes <= KEYNOTE_1_START_MINUTES + 10) {
     return 6000;

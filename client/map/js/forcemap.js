@@ -38,7 +38,7 @@ d3demo.forcemap = (function visualisation(d3, Rx) {
     // makes it possible to restart the layout without refreshing the page
     svg.selectAll('*').remove();
 
-    foci = d3demo.layout.locations;
+    foci = d3demo.layout.getLocations();
 
     // define the data
     dataNodes = [];
