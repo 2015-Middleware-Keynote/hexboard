@@ -86,7 +86,7 @@ d3demo.visualisation = (function visualisation(d3, Rx) {
       div.select('.name_v').text(data.user.name);
       div.select('.checkin_v').text(formatTime(data.checkInTime));
       div.select('.checkout_v').text(formatTime(data.checkOutTime));
-      div.select('.location_v').text(d3demo.layout.locations[data.focus].name);
+      div.select('.location_v').text(d3demo.layout.getLocations()[data.focus].name);
       return true;
     });
   };
