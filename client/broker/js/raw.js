@@ -45,11 +45,11 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     .attr('width', width)
     .attr('height', height);
 
-  function particleIn(index) {
+  function particleIn() {
     var offset = getRandomInt(0, 100);
     var start = {x: -10, y: 50 + offset * height / 100};
     var particle = svg.insert('circle')
-        .datum({index: index, position: start, offset: offset})
+        .datum({position: start, offset: offset})
         .attr('cx', start.x)
         .attr('cy', start.y)
         .attr('r', 20)
@@ -198,22 +198,29 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     };
   });
 
+  var generatePlaybackInterval = function(replayInterval, messageInterval, numEvents) {
+    var numIntervals = messageInterval / replayInterval;
+    var numPerInterval = numEvents / numIntervals;
+    return Rx.Observable.interval(replayInterval).take(numIntervals).flatMap(function() {
+      return Rx.Observable.range(0, numPerInterval)
+    });
+  }
+
   var beaconEventsFeed = feed.filter(function(message) {
     return message.type === 'beaconEvents'
-  }).flatMap(function(message) {
+  }).flatMap(function(message, x) {
     beaconEventsCount += message.data.num;
-    return Rx.Observable.range(0, message.data.num).flatMap(function(x2) {
-      var index = message.data.num * message.data.x + x2;
-      var delay = Math.floor(message.data.interval * x2 / message.data.num);
-      return Rx.Observable.from([index]).delay(delay);
-    })
+    // var num = message.data.num;
+    var num = Math.min(message.data.num, 400 * message.data.interval / 1000);
+    return generatePlaybackInterval(20, message.data.interval, num).map(function() {
+      return x;
+    });
   })
-  .tap(function(index) {
-    particleIn(index);
+  .tap(function(x) {
+    particleIn();
   })
-  .filter(function(index) {
-    return index % 50 === 0
-  }).tap(function(index) {
+  .distinctUntilChanged()
+  .tap(function() {
     window.requestAnimationFrame(function() {
       d3.select('.amq-input .count').text(numeral(beaconEventsCount).format('0,0'));
     });
@@ -223,10 +230,14 @@ d3demo.layout = (function dataSimulator(d3, Rx) {
     return message.type === 'beaconEventsProcessed';
   })
   .flatMap(function(message) {
-    return Rx.Observable.from(message.data.messages).flatMap(function(event, x2) {
-      var delay = Math.floor(message.data.interval * x2 / message.data.num) * 4;
-      return Rx.Observable.from([event]).delay(delay);
-    })
+    var playbackInterval = generatePlaybackInterval(20, message.data.interval, message.data.num);
+    return Rx.Observable.zip(
+      playbackInterval
+    , Rx.Observable.from(message.data.messages)
+    , function(x, message) {
+        return message;
+      }
+    );
   })
   .tap(function(event) {
     particleOut(event);

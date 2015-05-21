@@ -73,7 +73,7 @@ var enqueueCountsFeed = function() {
   );
 };
 
-var interval = 500;
+var interval = 100;
 var num = 500 * interval / 1000;
 
 var beaconEventsLive = function() {
