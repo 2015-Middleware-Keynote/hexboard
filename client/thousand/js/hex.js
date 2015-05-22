@@ -178,7 +178,7 @@ hex = (function dataSimulator(d3, Rx) {
   })
   .tap(function(message) {
     var event = message.data;
-    particle(points[event.id], event.stage);
+    particle(points[parseInt(event.id)], event.stage);
   }).subscribeOnError(errorObserver);
 
   var messageSubscription = messages.filter(function(message) {

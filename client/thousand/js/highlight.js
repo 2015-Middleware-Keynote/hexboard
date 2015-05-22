@@ -90,19 +90,17 @@ hex.highlight = (function dataSimulator(d3, Rx) {
     } else {
       newIndex = currentIndex + direction * 1;
     }
-    console.log('currentIndex', currentIndex);
-    console.log('newIndex', newIndex);
     return candidates[newIndex].id;
   };
 
   var moveHighlightVertically = function(direction) { // -1 up, +1 down
-    var candidates = getCandidates();
+    var currentPoint = highlightedHexagon ? highlightedHexagon.datum() : null;
+    var candidates = getCandidates(currentPoint);
     if (candidates.length < 1) {
       return;
     };
     var start = direction > 0 ? 0 : candidates.length - 1
       , end = direction > 0 ? candidates.length - 1 : 0;
-    var currentPoint = highlightedHexagon ? highlightedHexagon.datum() : null;
     var newId;
     if (! highlightedHexagon) {
       newId = candidates[start].id;
