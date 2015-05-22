@@ -10,6 +10,11 @@ hex.controls = (function dataSimulator(d3, Rx) {
     });
   });
 
+  var winnerSocket = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/winner');
+  winnerSocket.subscribeOnError(function(err) {
+    console.log(err.stack || err);
+  });
+
   // keyboard controls
   var keyboardSubscription = Rx.Observable.fromEvent(document.getElementsByTagName('body')[0], 'keyup')
   .filter(function(event) {
@@ -25,27 +30,19 @@ hex.controls = (function dataSimulator(d3, Rx) {
     }
     switch(event.keyCode) {
       case 37: // LEFT
-        newId = hex.highlight.moveHighlightHorizontally(-1);
-        console.log(newId)
-        hex.highlight.highlight(newId);
+      winnerSocket.onNext(JSON.stringify({key: 'test', msg: 'left'}));
         break;
       case 38: // UP
-        newId = hex.highlight.moveHighlightVertically(-1);
-        console.log(newId)
-        hex.highlight.highlight(newId);
+        winnerSocket.onNext(JSON.stringify({key: 'test', msg: 'up'}));
         break;
       case 39: // RIGHT
-        newId = hex.highlight.moveHighlightHorizontally(1);
-        console.log(newId)
-        hex.highlight.highlight(newId);
+        winnerSocket.onNext(JSON.stringify({key: 'test', msg: 'right'}));
         break;
       case 40: // DOWN
-        newId = hex.highlight.moveHighlightVertically(1);
-        console.log(newId)
-        hex.highlight.highlight(newId);
+        winnerSocket.onNext(JSON.stringify({key: 'test', msg: 'down'}));
         break;
       case 13: // ENTER
-        hex.winner.pickWinner();
+        winnerSocket.onNext(JSON.stringify({key: 'test', msg: 'pick'}));
         break;
     };
   })
