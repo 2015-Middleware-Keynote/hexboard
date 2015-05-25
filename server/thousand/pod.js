@@ -21,7 +21,7 @@ var config   = cc().add({
 // Allow self-signed SSL
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-var url = 'https://' + config.get('openshift_server') + '/api/v1beta2/watch/pods'
+var url = 'https://' + config.get('openshift_server') + '/api/v1beta3/watch/pods'
 var options = {
   'method' : 'get'
  ,'uri'    : url
@@ -35,12 +35,9 @@ function podIdToURL(id){
   return "doodle-"+id+"-app-summit3.apps.summit.paas.ninja"
 }
 
-function podId(pod){
-  return pod.object.desiredState.manifest.containers[0].name
-}
-function podNumber(pod){
-  var num = pod.object.desiredState.manifest.containers[0].name.match(/[0-9][0-9]*/)
-  return num[0]
+function podNumber(name){
+  var num = name.match(/[0-9][0-9]*/);
+  return num[0];
 }
 function verifyPodAvailable(pod, retries_remaining){
   //verify that the app is responding to web requests
@@ -50,15 +47,18 @@ function verifyPodAvailable(pod, retries_remaining){
 }
 
 var parseData = function(update){
-  if(update.object.desiredState.manifest.containers[0].name != 'deployment'){
+  var podName = update.object.spec.containers[0].name;
+  if (podName.indexOf('doodle') !== 0) {
+    console.log('Ignoring update for container name:', update.object.spec.containers[0].name);
+  } else {
     //bundle the pod data
     update.data = {
-      id: podNumber(update),
-      name: podId(update),
-      hostname: podId(update) + '-summit3.apps.summit.paas.ninja',
+      id: podNumber(podName),
+      name: podName,
+      hostname: podName + '-summit3.apps.summit.paas.ninja',
       stage: update.type,
       type: 'event',
-      creationTimestamp: new Date(update.object.creationTimestamp)
+      creationTimestamp: new Date(update.object.metadata.creationTimestamp)
     }
     if(update.type == 'ADDED'){
       update.data.stage = 1;
@@ -90,7 +90,15 @@ var getLiveStream = function() {
   // stream.pipe(fs.createWriteStream('pods-create.log'));
   return RxNode.fromStream(stream.pipe(split()))
   .map(function(data) {
-    return parseData(JSON.parse(data));
+    // console.log(JSON.stringify(JSON.parse(data), null, 4));
+    try {
+      var parsed = parseData(JSON.parse(data));
+      return parsed;
+    } catch (error) {
+      console.log(error);
+      console.log(JSON.stringify(JSON.parse(data), null, 4));
+      throw error;
+    }
   }).filter(function(parsed) {
     return parsed && parsed.data && parsed.data.stage;
   }).map(function(parsed) {
