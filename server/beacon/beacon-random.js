@@ -1,8 +1,8 @@
 'use strict';
 
 var Rx = require('rx')
-  , locations = require('./api/location/location_controllers').locations
-  , getUsers = require('./api/user/user.js').getUsers
+  , locations = require('../api/location/location_controllers').locations
+  , getUsers = require('../api/user/user.js').getUsers
   ;
 
 var GENERAL_SESSIONS_ID = 1

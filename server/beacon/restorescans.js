@@ -1,9 +1,9 @@
 'use strict';
 
 var Rx = require('rx')
-  , convertLocation = require('./api/location/location_controllers').convertLocation
-  , Scan = require('./api/scan/scan_model')
-  , getUser = require('./api/user/user').getUser
+  , convertLocation = require('../api/location/location_controllers').convertLocation
+  , Scan = require('../api/scan/scan_model')
+  , getUser = require('../api/user/user').getUser
   ;
 
 var restoreScans = function() {

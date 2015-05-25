@@ -18,10 +18,10 @@ console.log(tag, log);
 var dataInit = Rx.Observable.forkJoin(
   user.userInit
 ).tapOnCompleted(function() {
-  require('./ws/beacon-live')(server);
-  require('./ws/beacon-playback')(server);
-  require('./ws/beacon-random')(server);
-  require('./ws/broker')(server);
+  require('./beacon/ws/beacon-live')(server);
+  require('./beacon/ws/beacon-playback')(server);
+  require('./beacon/ws/beacon-random')(server);
+  require('./beacon/ws/broker')(server);
   require('./thousand/ws/thousand')(server);
   require('./thousand/ws/winner')(server);
 })

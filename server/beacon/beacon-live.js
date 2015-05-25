@@ -1,13 +1,13 @@
 'use strict';
 
 var Rx = require('rx')
-  , Scan = require('./api/scan/scan_model')
+  , Scan = require('../api/scan/scan_model')
   , request = require('request')
-  , convertLocation = require('./api/location/location_controllers').convertLocation
+  , convertLocation = require('../api/location/location_controllers').convertLocation
   , stomp = require('./stomp')
   , WebSocket = require('ws')
   , debuglog = require('debuglog')('stomp')
-  , getUser = require('./api/user/user.js').getUser
+  , getUser = require('../api/user/user.js').getUser
   , agSender = require( 'unifiedpush-node-sender' )
   ;
 

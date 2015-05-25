@@ -4,11 +4,11 @@ process.env.DB_URL = 'mongodb://localhost/beaconlocation-test'
 
 var _ = require('underscore')
   , app = require('./main/app')
-  , Scan = require('./api/scan/scan_model')
+  , Scan = require('../api/scan/scan_model')
   , mongoose = require('mongoose')
   , should = require('should')
   , restorescans = require('./restorescans')
-  , locations = require('./api/location/location_controllers').locations
+  , locations = require('../api/location/location_controllers').locations
   ;
 
 
