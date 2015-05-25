@@ -1,7 +1,7 @@
 'use strict';
 
 var WebSocketServer = require('ws').Server
-  , winner = require('../winner')
+  , thousandEmitter = require('../thousandEmitter')
   ;
 
 var tag = 'WS/WINNER';
@@ -20,7 +20,7 @@ module.exports = function(server) {
       if (message.msg === 'ping') {
         ws.send(JSON.stringify({msg: 'pong'}));
       } else {
-        winner.winnerEmitter.emit('action', message.msg);
+        thousandEmitter.emit('action', message.msg);
       }
     });
     ws.onclose = function() {

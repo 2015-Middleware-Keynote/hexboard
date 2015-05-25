@@ -21,9 +21,9 @@ var dataInit = Rx.Observable.forkJoin(
   require('./ws/beacon-live')(server);
   require('./ws/beacon-playback')(server);
   require('./ws/beacon-random')(server);
-  require('./ws/thousand')(server);
   require('./ws/broker')(server);
-  require('./ws/winner')(server);
+  require('./thousand/ws/thousand')(server);
+  require('./thousand/ws/winner')(server);
 })
 .subscribeOnError(function(err) {
   console.log(err.stack || err);

@@ -1,8 +1,10 @@
 'use strict';
 
 var WebSocketServer = require('ws').Server
-  , thousand = require('../thousand')
-  , winner = require('../winner')
+  , random = require('../random')
+  , pod = require('../pod')
+  , playback = require('../playback')
+  , thousandEmitter = require('../thousandEmitter')
   ;
 
 var tag = 'WS/THOUSAND';
@@ -25,16 +27,28 @@ module.exports = function(server) {
     };
   };
 
+  var eventFeed = process.env.ACCESS_TOKEN ? pod.events : playback.events
+
   wss.on('connection', function connection(ws) {
     var id = count++;
     clients[id] = ws;
     ws.id = id;
     console.log(tag, '/thousand connection');
     var subscription;
-    subscription = thousand.events.subscribe(function(event) {
-      if (ws.readyState === ws.OPEN) {
-        ws.send(JSON.stringify({type: 'event', data: event}));
-      };
+    // subscription = random.events.tap(function(event) {
+    //   if (ws.readyState === ws.OPEN) {
+    //     ws.send(JSON.stringify({type: 'event', data: event}));
+    //   };
+    // })
+    // .subscribeOnError(function(err) {
+    //   console.log(err.stack || err);
+    // });
+    subscription = eventFeed().tap(function(pod) {
+      console.log('pod event, id:', pod.id, 'stage:', pod.stage, 'creationTimestamp', pod.creationTimestamp);
+      ws.send(JSON.stringify({type: 'event', data: pod}));
+    })
+    .subscribeOnError(function(err) {
+      console.log(err.stack || err);
     });
     ws.on('message', function(data, flags) {
       var message = JSON.parse(data);
@@ -48,12 +62,12 @@ module.exports = function(server) {
     };
   });
 
-  thousand.doodleEmitter.on('new-doodle', function(doodle) {
+  thousandEmitter.on('new-doodle', function(doodle) {
     console.log(tag, 'doodle listener invoked.');
     wss.broadcast(JSON.stringify({type: 'doodle', data: doodle}));
   });
 
-  winner.winnerEmitter.on('action', function(action) {
+  thousandEmitter.on('action', function(action) {
     console.log(tag, 'winner listener invoked.');
     wss.broadcast(JSON.stringify({type: 'winner', data: action}));
   });

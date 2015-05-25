@@ -2,8 +2,8 @@
 
 var fs = require('fs')
   , os = require('os')
-  , thousand = require('../../thousand')
-  , eventEmitter = thousand.doodleEmitter
+  , randomDoodles = require('../../thousand/random').randomDoodles
+  , thousandEmitter = require('../../thousand/thousandEmitter')
   ;
 
 var tag = 'API/THOUSAND';
@@ -42,7 +42,7 @@ module.exports = exports = {
           , cuid: req.query.cuid
           , submissionId: req.query.submission_id
           };
-          eventEmitter.emit('new-doodle', doodle);
+          thousandEmitter.emit('new-doodle', doodle);
           return res.json({
             url:'http://beacon.jbosskeynote.com/api/doodle/'+containerId
           , name:req.query.name
@@ -62,9 +62,9 @@ module.exports = exports = {
 
   randomDoodles: function(req, res, next) {
     var numDoodles = req.params.numDoodles;
-    thousand.randomDoodles(numDoodles)
+    randomDoodles(numDoodles)
       .subscribe(function(doodle) {
-        eventEmitter.emit('new-doodle', doodle);
+        thousandEmitter.emit('new-doodle', doodle);
       }, function(error) {
         next(error)
       }, function() {

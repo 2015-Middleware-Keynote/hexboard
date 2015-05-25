@@ -1,10 +1,12 @@
-'use strict';
-
 var Rx = require('rx')
-  , EventEmitter = require("events").EventEmitter
+  , cc           = require('config-multipaas')
+  , fs       = require('fs')
+  , request = require('request')
   ;
 
 var tag = 'THOUSAND';
+var pod_statuses = []
+var submissionCount = 0;
 
 // Returns a random integer between min included) and max (excluded)
 var getRandomInt = function (min, max) {
@@ -51,10 +53,8 @@ var randomDoodles = function(numDoodles) {
   return doodles;
 }
 
-var doodleEmitter = new EventEmitter();
 
 module.exports = {
-  events: events
+  events : randomEvents
 , randomDoodles: randomDoodles
-, doodleEmitter: doodleEmitter
 };
