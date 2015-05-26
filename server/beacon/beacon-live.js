@@ -6,7 +6,7 @@ var Rx = require('rx')
   , convertLocation = require('../api/location/location_controllers').convertLocation
   , stomp = require('./stomp')
   , WebSocket = require('ws')
-  , debuglog = require('debuglog')('stomp')
+  , debuglog = require('debuglog')('live')
   , getUser = require('../api/user/user.js').getUser
   , agSender = require( 'unifiedpush-node-sender' )
   ;

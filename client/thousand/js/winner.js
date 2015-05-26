@@ -6,7 +6,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
   Rx.Observable.fromEvent(d3.select('#winners').node(), 'click').tap(function() {
     pickWinners();
     stageWinners();
-  }).subscribeOnError(hex.errorObserver);
+  }).subscribeOnError(hex.ui.errorObserver);
 
   // Returns a random integer between min included) and max (excluded)
   var getRandomInt = function (min, max) {
@@ -37,14 +37,14 @@ hex.winner = (function dataSimulator(d3, Rx) {
       return;
     }
     console.log('picking winner', index);
-    var winner = hex.points[index];
+    var winner = hex.ui.points[index];
     winners.push(winner);
     stageWinner(winner, winners.length - 1);
   };
 
   var pickWinners = function() {
     var numWinners = 10;
-    var candidates = hex.points.filter(function(point) {
+    var candidates = hex.ui.points.filter(function(point) {
       return point.doodle;
     });
 
@@ -59,14 +59,14 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
   var stageSpots = d3.range(10).map(function(spot, index) {
     return {
-      x: (Math.floor(index / 5) * 2 - 1) * (hex.honeycomb.dimensions.x / 2 + 50) + hex.content.x/2
-    , y: hex.content.y / 2 + 10 * hex.honeycomb.spacing.y / 2 * (index % 5 - 2)
+      x: (Math.floor(index / 5) * 2 - 1) * (hex.ui.honeycomb.dimensions.x / 2 + 50) + hex.ui.content.x/2
+    , y: hex.ui.content.y / 2 + 10 * hex.ui.honeycomb.spacing.y / 2 * (index % 5 - 2)
     }
   });
 
   var winnerSpots = d3.range(10).map(function(spot, index) {
-    var c = {x: hex.content.x / 2, y: hex.content.y / 2}
-      , delta = {x: hex.honeycomb.dimensions.x/4, y: hex.honeycomb.dimensions.y/3}
+    var c = {x: hex.ui.content.x / 2, y: hex.ui.content.y / 2}
+      , delta = {x: hex.ui.honeycomb.dimensions.x/4, y: hex.ui.honeycomb.dimensions.y/3}
       , offset = {x: 0, y: - 0.17}  // an adjustment to make room for the names
 
     if (index <= 2) {
@@ -106,7 +106,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
   var stageWinner = function(p, index) {
     animateWinner(p, p, stageSpots[index], 0.5, 1, false, function() {
       if (winners.length === 10 && index === 9) {
-        hex.dispose();
+        hex.ui.dispose();
         hex.controls.dispose();
         hex.highlight.unhighlight();
         displayWinners();
@@ -128,28 +128,28 @@ hex.winner = (function dataSimulator(d3, Rx) {
     p.doodle.lastname = p.doodle.name.substring(spaceIndex+1);
 
     if (!p.group) {
-      p.group = hex.svg.insert('g')
+      p.group = hex.ui.svg.insert('g')
         .attr('class', 'winner')
         .attr('transform', function(d) { return 'translate(' + p0.x + ',' + p0.y + ')'; });
 
       p.group.insert('path')
         .attr('class', 'hexagon')
-        .attr('d', 'm' + hex.hexagon(hex.honeycomb.size/scale).join('l') + 'z')
+        .attr('d', 'm' + hex.ui.hexagon(hex.ui.honeycomb.size/scale).join('l') + 'z')
         .attr('fill', 'url(#img' + p.id + ')')
         .attr('transform', 'matrix('+zoom1+', 0, 0, '+zoom1+', 0, 0)');
     }
 
     if (shownames) {
-      var textWidth = hex.honeycomb.size * 3.5
-        , textHeight = hex.honeycomb.size * 1.3;
+      var textWidth = hex.ui.honeycomb.size * 3.5
+        , textHeight = hex.ui.honeycomb.size * 1.3;
       var textGroup = p.group.insert('g')
         .attr('class', 'text')
-        .attr('transform', 'matrix('+1/zoom1+', 0, 0, '+1/zoom1+', 0, '+ hex.honeycomb.size/zoom1 * 1.5 +')')
+        .attr('transform', 'matrix('+1/zoom1+', 0, 0, '+1/zoom1+', 0, '+ hex.ui.honeycomb.size/zoom1 * 1.5 +')')
       textGroup.insert('rect')
         .attr('width', textWidth)
         .attr('height', textHeight)
         .attr('x', -textWidth / 2)
-        .attr('y', -hex.honeycomb.size / 2.2)
+        .attr('y', -hex.ui.honeycomb.size / 2.2)
         .attr('rx', 3)
         .attr('ry', 3);
 
@@ -161,7 +161,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
       textGroup.insert('text')
         .attr('class', 'lastname')
         .attr('text-anchor', 'middle')
-        .attr('y', hex.honeycomb.size / 1.5)
+        .attr('y', hex.ui.honeycomb.size / 1.5)
         .text(p.doodle.lastname);
     }
 

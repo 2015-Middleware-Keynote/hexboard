@@ -2,7 +2,7 @@
 
 var hex = hex || {};
 
-hex = (function dataSimulator(d3, Rx) {
+hex.ui = (function dataSimulator(d3, Rx) {
   var errorObserver = function(error) {
     console.error(error.stack || error);
   };
@@ -168,7 +168,24 @@ hex = (function dataSimulator(d3, Rx) {
       .attr('transform', 'matrix('+scale+', 0, 0, '+scale+', '+ p.x +', '+ p.y +')');
   }
 
-  var messages = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/thousand', null, hex.ping)
+  var openObserver = Rx.Observer.create(
+    function(open) {
+      var ws = open.target;
+      ws.send(JSON.stringify({
+        type: 'subscribe'
+      , feed: hex.datafeed
+      }));
+      hex.ping.onNext(open);
+    }
+  , function (err) {
+      hex.ping.onError(err);
+    }
+  , function() {
+      hex.ping.onCompleted();
+    }
+  );
+
+  var messages = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/thousand', null, openObserver)
   .map(function(messageEvent) {
     return JSON.parse(messageEvent.data);
   }).share();
@@ -179,6 +196,18 @@ hex = (function dataSimulator(d3, Rx) {
   .tap(function(message) {
     var event = message.data;
     particle(points[parseInt(event.id)], event.stage);
+  }).subscribeOnError(errorObserver);
+
+  var errorSubscription = messages.filter(function(message) {
+    return message.type === 'error';
+  })
+  .tap(function(message) {
+    var error = message.data;
+    var errorMessage = 'Error requesting data from OpenShift:\n' + error.code + ': ' + error.message;
+    errorMessage += '\n\nUpdate the OAuth token of the UI deployment to see live data';
+    console.error(errorMessage);
+    alert(errorMessage);
+
   }).subscribeOnError(errorObserver);
 
   var messageSubscription = messages.filter(function(message) {

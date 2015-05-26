@@ -5,6 +5,7 @@ var WebSocketServer = require('ws').Server
   , pod = require('../pod')
   , playback = require('../playback')
   , thousandEmitter = require('../thousandEmitter')
+  , debuglog = require('debuglog')('thousand')
   ;
 
 var tag = 'WS/THOUSAND';
@@ -27,40 +28,52 @@ module.exports = function(server) {
     };
   };
 
-  var eventFeed = process.env.ACCESS_TOKEN ? pod.events : playback.events
-
   wss.on('connection', function connection(ws) {
     var id = count++;
     clients[id] = ws;
     ws.id = id;
     console.log(tag, '/thousand connection');
     var subscription;
-    // subscription = random.events.tap(function(event) {
-    //   if (ws.readyState === ws.OPEN) {
-    //     ws.send(JSON.stringify({type: 'event', data: event}));
-    //   };
-    // })
-    // .subscribeOnError(function(err) {
-    //   console.log(err.stack || err);
-    // });
-    subscription = eventFeed().tap(function(pod) {
-      console.log('pod event, id:', pod.id, 'stage:', pod.stage, 'creationTimestamp', pod.creationTimestamp);
-      ws.send(JSON.stringify({type: 'event', data: pod}));
-    })
-    .subscribeOnError(function(err) {
-      console.log(err.stack || err);
-    });
     ws.on('message', function(data, flags) {
       var message = JSON.parse(data);
+      if (message.type === 'subscribe') {
+        console.log('Subscribe event:', message)
+        subscription = subscribeToPodEvents(ws, message.feed);
+      };
       if (message.type === 'ping') {
         ws.send(JSON.stringify({type: 'pong'}));
-      }
+      };
     });
     ws.onclose = function() {
       console.log(tag, 'Onclose: disposing /thousand subscriptions');
       subscription && subscription.dispose();
     };
   });
+
+  var subscribeToPodEvents = function(ws, feed) {
+    var eventFeed;
+    switch (feed) {
+      case 'live':
+        eventFeed = pod.events();
+        break;
+      case 'random':
+        eventFeed = random.events;
+        break;
+      case 'playback':
+      default:
+        eventFeed = playback.events();
+        break;
+    }
+    var subscription = eventFeed.tap(function(pod) {
+      debuglog('pod event, id:', pod.id, 'stage:', pod.stage, 'creationTimestamp', pod.creationTimestamp);
+      ws.send(JSON.stringify({type: 'event', data: pod}));
+    })
+    .subscribeOnError(function(err) {
+      ws.send(JSON.stringify({type: 'error', data: err}));
+      console.log('err:', err)
+    });
+    return subscription;
+  };
 
   thousandEmitter.on('new-doodle', function(doodle) {
     console.log(tag, 'doodle listener invoked.');

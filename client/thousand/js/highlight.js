@@ -18,11 +18,11 @@ hex.highlight = (function dataSimulator(d3, Rx) {
       , scale = 0.2
       , zoom = 0.5;
 
-    var p = hex.points[index];
-    highlightedHexagon = hex.svg.insert('path');
+    var p = hex.ui.points[index];
+    highlightedHexagon = hex.ui.svg.insert('path');
     highlightedHexagon
       .attr('class', 'hexagon highlight')
-      .attr('d', 'm' + hex.hexagon(hex.honeycomb.size/scale).join('l') + 'z')
+      .attr('d', 'm' + hex.ui.hexagon(hex.ui.honeycomb.size/scale).join('l') + 'z')
       .attr('transform', 'matrix('+scale+', 0, 0, '+scale+', '+ p.x +', '+ p.y +')')
       .attr('fill', 'url(#img' + p.id + ')')
       .style('fill-opacity', 1.0)
@@ -63,7 +63,7 @@ hex.highlight = (function dataSimulator(d3, Rx) {
   }
 
   var getCandidates = function(currentPoint) {
-    return hex.points.filter(function(point) {
+    return hex.ui.points.filter(function(point) {
       if (currentPoint && currentPoint.id === point.id) {
         return true;
       }

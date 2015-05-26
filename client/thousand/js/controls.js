@@ -11,9 +11,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
   });
 
   var winnerSocket = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/winner');
-  winnerSocket.subscribeOnError(function(err) {
-    console.log(err.stack || err);
-  });
+  winnerSocket.subscribeOnError(hex.ui.errorHandler);
 
   // keyboard controls
   var keyboardSubscription = Rx.Observable.fromEvent(document.getElementsByTagName('body')[0], 'keyup')
@@ -46,13 +44,13 @@ hex.controls = (function dataSimulator(d3, Rx) {
         break;
     };
   })
-  .subscribeOnError(hex.errorObserver);
+  .subscribeOnError(hex.ui.errorObserver);
 
   // websocket controls
-  var websocketSubscription = hex.messages.filter(function(message) {
+  var websocketSubscription = hex.ui.messages.filter(function(message) {
     return message.type === 'winner';
   }).tap(function(message) {
-    var doodlesPresent = hex.points.some(function(point) {
+    var doodlesPresent = hex.ui.points.some(function(point) {
       return !! point.doodle;
     });
     if (! doodlesPresent) {
@@ -86,7 +84,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
         hex.winner.pickWinner();
         break;
     };
-  }).subscribeOnError(hex.errorObserver);
+  }).subscribeOnError(hex.ui.errorObserver);
 
   // mouse controls
   var lastDoodle;
@@ -103,7 +101,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
     console.log('highlighting ', newId);
     hex.highlight.highlight(newId);
   })
-  .subscribeOnError(hex.errorObserver);
+  .subscribeOnError(hex.ui.errorObserver);
 
   Rx.Observable.fromEvent(document.querySelector('.map'), 'click')
   .filter(function(event) {
@@ -115,7 +113,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
     console.log('picking ', newId);
     hex.winner.pickWinner(newId);
   })
-  .subscribeOnError(hex.errorObserver);
+  .subscribeOnError(hex.ui.errorObserver);
 
   var dispose = function() {
     keyboardSubscription.dispose();

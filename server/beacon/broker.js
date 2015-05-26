@@ -2,7 +2,7 @@
 
 var Rx = require('rx')
   , stomp = require('./stomp')
-  , debuglog = require('debuglog')('stomp')
+  , debuglog = require('debuglog')('broker')
   , request = require('request')
   ;
 

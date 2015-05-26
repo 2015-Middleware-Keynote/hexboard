@@ -6,6 +6,8 @@ var Rx = require('rx')
 var idMap = {};
 var users = [];
 
+var tag = 'USER';
+
 var userInit = Rx.Observable.create(function (observer) {
   console.log('Getting registration users');
   request.get({

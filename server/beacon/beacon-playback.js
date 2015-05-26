@@ -5,7 +5,7 @@ var Rx = require('rx')
   , convertLocation = require('../api/location/location_controllers').convertLocation
   , Scan = require('../api/scan/scan_model')
   , getUser = require('../api/user/user.js').getUser
-  , debuglog = require('debuglog')('stomp')
+  , debuglog = require('debuglog')('playback')
   ;
 
 var tag = 'PLAYBACK';

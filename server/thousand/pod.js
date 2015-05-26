@@ -87,12 +87,40 @@ var parseData = function(update){
 var getLiveStream = function() {
   console.log('options', options);
   var stream = request(options);
+
+  var response = Rx.Observable.create(function(observer) {
+    stream.on('response', function(response) {
+      if (response.statusCode === 200) {
+        observer.onNext(response.statusCode)
+      } else {
+        stream.on('data', function(data) {
+          var message;
+          try {
+            var data = JSON.parse(data);
+            message = data.message;
+          } catch(e) {
+            message = data.toString();
+          }
+          observer.onError({
+            code: response.statusCode
+          , message: message
+          });
+        });
+      }
+    });
+    stream.on('error', function(error) {
+      console.log('error:',error);
+      observer.onError(error);
+    });
+  })
   // stream.pipe(fs.createWriteStream('pods-create.log'));
-  return RxNode.fromStream(stream.pipe(split()))
+  return response.flatMap(function() {
+    return RxNode.fromStream(stream.pipe(split()))
+  })
   .map(function(data) {
-    // console.log(JSON.stringify(JSON.parse(data), null, 4));
+    var json = JSON.parse(data);
     try {
-      var parsed = parseData(JSON.parse(data));
+      var parsed = parseData(json);
       return parsed;
     } catch (error) {
       console.log(error);
@@ -106,23 +134,7 @@ var getLiveStream = function() {
   });
 };
 
-var podEventFeed = function () {
-  if (process.env.ACCESS_TOKEN) {
-    console.log('live');
-    return getLiveStream();
-  } else {
-    console.log('replaying');
-    logEvents.subscribeOnError(function(err) {
-      console.log(err.stack || err);
-    });
-    replayProgress.subscribeOnError(function(err) {
-      console.log(err.stack || err);
-    });
-    return replay;
-  }
-};
-
 module.exports = {
-  events: podEventFeed
+  events: getLiveStream
 , parseData : parseData
 };
