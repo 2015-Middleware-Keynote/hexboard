@@ -131,15 +131,15 @@ hex.ui = (function dataSimulator(d3, Rx) {
     var p0 = {x: perspective * (p.x - c.x) + c.x, y: perspective * (p.y - c.y) + c.y};
     var newColor = stage !== 4 ? color(stage): 'url(#redhat'+p.id+')';
     svg.insert('path')
-      .attr('class', 'hexagon')
-      .attr('d', 'm' + hexagon(honeycomb.size/scale).join('l') + 'z')
-      .attr('transform', function(d) { return 'translate(' + p0.x + ',' + p0.y + ')'; })
+      .attr('class', 'hexagon falling')
+      .attr('d', 'm' + hexagon(honeycomb.size).join('l') + 'z')
+      .attr('transform', function(d) { return 'matrix('+1/scale+', 0, 0, '+1/scale+', '+ p0.x +', '+ p0.y +')'; })
       .style('fill', function(d) { return newColor; })
       .style('fill-opacity', opacity.initial)
     .transition()
       .duration(duration)
       .ease('quad-out')
-      .attr('transform', 'matrix('+scale+', 0, 0, '+scale+', '+ p.x +', '+ p.y +')')
+      .attr('transform', 'translate(' + p.x + ',' + p.y + ')')
       .style('fill-opacity', opacity.final)
       .remove();
     hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })

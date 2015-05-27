@@ -5216,6 +5216,10 @@ body {
   stroke: #fff;
   stroke-width: 1.5px;
 }
+.hexagon.falling {
+  stroke: rgba(255, 255, 255, 0.5);
+  stroke-width: 1.5px;
+}
 .doodle rect {
   fill: white;
   fill-opacity: 1.0;
