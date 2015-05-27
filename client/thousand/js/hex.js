@@ -95,14 +95,10 @@ hex.ui = (function dataSimulator(d3, Rx) {
 
     pattern.append('image')
       .attr('xlink:href', '/thousand/img/redhat.svg')
-      // .attr('width', honeycomb.dimensions.x * .9)
-      // .attr('height', honeycomb.dimensions.y * .9)
-      // .attr('x', -point.x + 5 * honeycomb.size )
-      // .attr('y', -point.y + 2 * honeycomb.size );
-      .attr('width', honeycomb.dimensions.x * 2)
+      .attr('width', honeycomb.dimensions.x)
       .attr('height', honeycomb.dimensions.y)
-      .attr('x', -point.x + honeycomb.dimensions.x /5 )
-      .attr('y', -point.y - honeycomb.size );
+      .attr('x', -point.x + 3 * honeycomb.size )
+      .attr('y', -point.y - 1.1 * honeycomb.size );
   });
 
   svg.append('clipPath')
