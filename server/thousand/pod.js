@@ -58,6 +58,7 @@ var parseData = function(update){
       hostname: podName + '-summit3.apps.summit.paas.ninja',
       stage: update.type,
       type: 'event',
+      timestamp: new Date(),
       creationTimestamp: new Date(update.object.metadata.creationTimestamp)
     }
     if(update.type == 'ADDED'){
@@ -113,8 +114,8 @@ var getLiveStream = function() {
       observer.onError(error);
     });
   })
-  // stream.pipe(fs.createWriteStream('pods-create.log'));
-  return response.flatMap(function() {
+  // stream.pipe();
+  var liveStream = response.flatMap(function() {
     return RxNode.fromStream(stream.pipe(split()))
   })
   .map(function(data) {
@@ -129,7 +130,10 @@ var getLiveStream = function() {
     }
   }).filter(function(parsed) {
     return parsed && parsed.data && parsed.data.stage;
-  }).map(function(parsed) {
+  }).shareReplay(undefined, 500);
+
+  RxNode.writeToStream(liveStream, fs.createWriteStream('pods-create.log'));
+  return liveStream.map(function(parsed) {
     return parsed.data;
   });
 };
