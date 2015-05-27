@@ -22,7 +22,8 @@ Execute the following commands in your local clone of this repository:
 
 = To run the project:
 
-the project has 2 pieces:
+The project has 2 pieces:
+
 * Beacon-location demo
 ** Mongo is required
 * Thousand-container demo
@@ -31,11 +32,11 @@ the project has 2 pieces:
 Note: Mongo is optional only on Node 0.10.  Node 0.12 will fail hard if it can't connect to mongo.
 
 == Start mongo
-Download mongod from the mongodb website, and place ```mongod``` on your path:
+Download mongod from the mongodb website, and place `mongod` on your path:
 https://www.mongodb.org/
 
-run ```gulp mongo``` in it's own terminal to start mongo (make sure no other instances of mongo are running)
+run `gulp mongo` in it's own terminal to start mongo (make sure no other instances of mongo are running)
 
 == Start the project
 
-run ```gulp``` in it's own terminal
+run `gulp` in it's own terminal
