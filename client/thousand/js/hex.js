@@ -178,7 +178,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
       , scale = 0.2
     var p0 = {x: perspective * (p.x - c.x) + c.x, y: perspective * (p.y - c.y) + c.y};
 
-    var imgsize = (honeycomb.size * 2) / scale;
+    var imgsize = (honeycomb.size * 2);
     var pattern = defs.append('pattern')
       .attr('id', 'img' + p.id)
       .attr('class', 'sketch')
@@ -206,16 +206,37 @@ hex.ui = (function dataSimulator(d3, Rx) {
 
     svg.insert('path')
       .datum(p)
-      .attr('class', 'hexagon sketch')
-      .attr('d', 'm' + hexagon(honeycomb.size/scale).join('l') + 'z')
-      .attr('transform', function(d) { return 'translate(' + p0.x + ',' + p0.y + ')'; })
+      .attr('class', 'hexagon sketch falling')
+      .attr('d', 'm' + hexagon(honeycomb.size).join('l') + 'z')
+      .attr('transform', function(d) { return 'matrix('+1/scale+', 0, 0, '+1/scale+', '+ p0.x +', '+ p0.y +')'})
       .style('fill-opacity', 1.0)
       .attr('fill', 'url(#img' + p.id + ')')
     .transition()
       .duration(duration)
       .ease('quad-in')
-      .attr('transform', 'matrix('+scale+', 0, 0, '+scale+', '+ p.x +', '+ p.y +')');
-  }
+      .attr('transform', 'translate(' + p.x + ',' + p.y + ')')
+      .remove();
+
+    hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
+      .transition()
+      .duration(duration)
+      .ease('linear')
+      .attr('class', 'hexagon sketch')
+      .attr('transform', function(d) {return 'matrix(1, 0, 0, 1, '+ d.x +', '+ d.y +')'}) // finish off any half-flipped hexagons
+      .styleTween('fill', function(d, i, a) {
+        return function(t) {
+          return t < 1 ? a : 'url(#img' + d.id + ')';
+        };
+      });
+  };
+
+  var removeSketch = function(p) {
+    hex.highlight.unhighlight();
+    delete p.sketch;
+    hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
+      .style('fill', color(4))
+      .attr('class', 'hexagon');
+  };
 
   var openObserver = Rx.Observer.create(
     function(open) {
@@ -290,6 +311,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
   , svg: svg
   , dispose: dispose
   , flipAll: flipAll
+  , removeSketch: removeSketch
   }
 
 })(d3, Rx);

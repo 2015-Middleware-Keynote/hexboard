@@ -111,7 +111,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
     var p = d3.select(event.target).datum();
     var newId = p.id;
     console.log('picking ', newId);
-    hex.winner.pickWinner(newId);
+    hex.ui.removeSketch(p);
   })
   .subscribeOnError(hex.ui.errorObserver);
 

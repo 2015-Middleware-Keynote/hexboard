@@ -38,6 +38,9 @@ hex.winner = (function dataSimulator(d3, Rx) {
     }
     console.log('picking winner', index);
     var winner = hex.ui.points[index];
+    if (!winner.sketch) {
+      return;
+    };
     winners.push(winner);
     stageWinner(winner, winners.length - 1);
   };
@@ -49,6 +52,9 @@ hex.winner = (function dataSimulator(d3, Rx) {
     });
 
     d3.range(numWinners - winners.length).map(function(currentValue, index) {
+      if (candidates.length === 0) {
+        return;
+      };
       var index = getRandomInt(0, candidates.length);
       winners.push(candidates[index]);
       candidates = candidates.filter(function(point) {
@@ -104,7 +110,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
   }
 
   var stageWinner = function(p, index) {
-    animateWinner(p, p, stageSpots[index], 0.5, 1, false, function() {
+    animateWinner(p, p, stageSpots[index], 1, 2.5, false, function() {
       if (winners.length === 10 && index === 9) {
         hex.ui.dispose();
         hex.controls.dispose();
@@ -115,13 +121,12 @@ hex.winner = (function dataSimulator(d3, Rx) {
   }
 
   var displayWinner = function(p, index) {
-    animateWinner(p, stageSpots[index], winnerSpots[index], 0.4, 1.3, true);
+    animateWinner(p, stageSpots[index], winnerSpots[index], 1, 3.5, true);
     console.log('Winner name:', p.sketch.name, 'cuid:', p.sketch.cuid, 'submission:', p.sketch.submissionId);
   }
 
   var animateWinner = function(p, p0, p1, zoom1, zoom2, shownames, cb) {
     var duration = 1000
-      , scale = 0.2;
       ;
     var spaceIndex = p.sketch.name.indexOf(' ');
     p.sketch.firstname = p.sketch.name.substring(0,spaceIndex);
@@ -134,7 +139,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
       p.group.insert('path')
         .attr('class', 'hexagon')
-        .attr('d', 'm' + hex.ui.hexagon(hex.ui.honeycomb.size/scale).join('l') + 'z')
+        .attr('d', 'm' + hex.ui.hexagon(hex.ui.honeycomb.size).join('l') + 'z')
         .attr('fill', 'url(#img' + p.id + ')')
         .attr('transform', 'matrix('+zoom1+', 0, 0, '+zoom1+', 0, 0)');
     }

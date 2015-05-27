@@ -5230,11 +5230,15 @@ body {
 .hexagon.sketch,
 .hexagon.highlight {
   stroke: #39a5dc;
-  stroke-width: 2px;
+  stroke-width: 2.0px;
+}
+.hexagon.sketch.falling {
+  stroke: rgba(57, 165, 220, 0.2);
+  stroke-width: 1.5px;
 }
 .winner .hexagon {
-  stroke: #004368;
-  stroke-width: 2px;
+  stroke: rgba(0, 67, 104, 0.5);
+  stroke-width: 1.5px;
 }
 .winner text {
   fill: #004368;
