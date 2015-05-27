@@ -66,17 +66,21 @@ module.exports = function(server) {
     }
     var subscription = eventFeed.tap(function(pod) {
       debuglog('pod event, id:', pod.id, 'stage:', pod.stage, 'creationTimestamp', pod.creationTimestamp);
-      ws.send(JSON.stringify({type: 'event', data: pod}));
+      if (ws.readyState === ws.OPEN) {
+        ws.send(JSON.stringify({type: 'event', data: pod}));
+      };
     })
     .subscribeOnError(function(err) {
-      ws.send(JSON.stringify({type: 'error', data: err}));
-      console.log('err:', err)
+      console.log('err:', err);
+      if (ws.readyState === ws.OPEN) {
+        ws.send(JSON.stringify({type: 'error', data: err}));
+      };
     });
     return subscription;
   };
 
   thousandEmitter.on('new-sketch', function(sketch) {
-    console.log(tag, 'sketch listener invoked.');
+    // console.log(tag, 'sketch listener invoked.');
     wss.broadcast(JSON.stringify({type: 'sketch', data: sketch}));
   });
 

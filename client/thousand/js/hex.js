@@ -122,6 +122,27 @@ hex.ui = (function dataSimulator(d3, Rx) {
       .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; })
       .style('fill', function(d) { return color(0); });
 
+  function flipAll() {
+    var newColor = color(4),
+        duration = 1000,
+        scale2 = 100;
+    hexagons
+      .transition()
+      .duration(duration)
+      .ease('cubic-in-out')
+      .attrTween('transform', function(d, i, a) {
+        return function(t) {
+          var scale = 1-4*t*(1-t);
+          return 'matrix('+scale+', 0, 0, 1, '+ d.x +', '+ d.y +')'
+        }
+      })
+      .styleTween('fill', function(d, i, a) {
+        return function(t) {
+          return t < 0.5 ? a : newColor;
+        };
+      });
+  }
+
   function particle(p, stage) {
     var c = {x: content.x / 2, y: content.y / 2};
     var perspective = 1.5
@@ -145,8 +166,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
     hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
       .transition()
       .duration(duration)
-      .ease('quad-in')
-      .styleTween('fill', function(d) { return  newColor; })
+      .ease('linear')
       .styleTween('fill', function(d, i, a) {
         return function(t) {
           return t < 1 ? a : newColor;
@@ -243,6 +263,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
 
   }).subscribeOnError(errorObserver);
 
+  var firstImage = true;
   var messageSubscription = messages.filter(function(message) {
     return message.type === 'sketch';
   })
@@ -250,6 +271,10 @@ hex.ui = (function dataSimulator(d3, Rx) {
     var sketch = message.data;
     var point = points[sketch.containerId];
     if (! point.sketch) {
+      if (firstImage) {
+        firstImage = false;
+        flipAll();
+      }
       image(point, sketch);
     };
   }).subscribeOnError(errorObserver);
@@ -268,6 +293,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
   , hexagon: hexagon
   , svg: svg
   , dispose: dispose
+  , flipAll: flipAll
   }
 
 })(d3, Rx);
