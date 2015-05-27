@@ -15,6 +15,6 @@ To run the project execute the following commands in your local clone of this re
 [source, bash]
 ----
 > npm install
-> bower isntall
+> bower install
 > gulp
 ----
