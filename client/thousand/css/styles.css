@@ -5220,6 +5220,9 @@ body {
   fill: white;
   fill-opacity: 1.0;
 }
+.shadowman rect {
+  fill: black;
+}
 .hexagon.doodle,
 .hexagon.highlight {
   stroke: #39a5dc;

@@ -77,6 +77,34 @@ hex.ui = (function dataSimulator(d3, Rx) {
 
   var defs = svg.append('defs');
 
+  points.forEach(function(point) {
+    var pattern = defs.append('pattern')
+      .attr('id', 'redhat' + point.id)
+      .attr('class', 'shadowman')
+      .attr('patternUnits', 'userSpaceOnUse')
+      .attr('width', honeycomb.size*2)
+      .attr('height', honeycomb.size*2)
+      .attr('x', -honeycomb.size)
+      .attr('y', -honeycomb.size);
+
+    pattern.append('rect')
+      .attr('width', honeycomb.dimensions.x)
+      .attr('height', honeycomb.dimensions.y)
+      .attr('x', -point.x + honeycomb.size)
+      .attr('y', -point.y + honeycomb.size);
+
+    pattern.append('image')
+      .attr('xlink:href', '/thousand/img/redhat.svg')
+      // .attr('width', honeycomb.dimensions.x * .9)
+      // .attr('height', honeycomb.dimensions.y * .9)
+      // .attr('x', -point.x + 5 * honeycomb.size )
+      // .attr('y', -point.y + 2 * honeycomb.size );
+      .attr('width', honeycomb.dimensions.x * 2)
+      .attr('height', honeycomb.dimensions.y)
+      .attr('x', -point.x + honeycomb.dimensions.x /5 )
+      .attr('y', -point.y - honeycomb.size );
+  });
+
   svg.append('clipPath')
       .attr('id', 'clip')
     .append('rect')
@@ -101,7 +129,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
       , scale = 0.4
       , opacity = { initial: 0.01, final: 0.9};
     var p0 = {x: perspective * (p.x - c.x) + c.x, y: perspective * (p.y - c.y) + c.y};
-    var newColor = color(stage);
+    var newColor = stage !== 4 ? color(stage): 'url(#redhat'+p.id+')';
     svg.insert('path')
       .attr('class', 'hexagon')
       .attr('d', 'm' + hexagon(honeycomb.size/scale).join('l') + 'z')
@@ -118,7 +146,12 @@ hex.ui = (function dataSimulator(d3, Rx) {
       .transition()
       .duration(duration)
       .ease('quad-in')
-      .style('fill', function(d) { return  newColor; })
+      .styleTween('fill', function(d) { return  newColor; })
+      .styleTween('fill', function(d, i, a) {
+        return function(t) {
+          return t < 1 ? a : newColor;
+        };
+      })
   };
 
   function image(p, doodle) {
