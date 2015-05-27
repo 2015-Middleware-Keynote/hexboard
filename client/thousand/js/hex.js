@@ -154,8 +154,8 @@ hex.ui = (function dataSimulator(d3, Rx) {
       })
   };
 
-  function image(p, doodle) {
-    console.log('Adding doodle:', doodle.submissionId, 'for cuid: ', doodle.cuid);
+  function image(p, sketch) {
+    console.log('Adding sketch:', sketch.submissionId, 'for cuid: ', sketch.cuid);
     var c = {x: content.x / 2, y: content.y / 2};
     var perspective = 0.5
       , duration = 1000
@@ -165,7 +165,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
     var imgsize = (honeycomb.size * 2) / scale;
     var pattern = defs.append('pattern')
       .attr('id', 'img' + p.id)
-      .attr('class', 'doodle')
+      .attr('class', 'sketch')
       .attr('patternUnits', 'userSpaceOnUse')
       .attr('width', imgsize)
       .attr('height', imgsize)
@@ -179,18 +179,18 @@ hex.ui = (function dataSimulator(d3, Rx) {
       .attr('y', 0);
 
     pattern.append('image')
-      .attr('xlink:href', doodle.url)
+      .attr('xlink:href', sketch.url)
       .attr('width', imgsize)
       .attr('height', imgsize)
       .attr('x', 0)
       .attr('y', 0);
 
-    doodle.pattern = pattern;
-    p.doodle = doodle;
+    sketch.pattern = pattern;
+    p.sketch = sketch;
 
     svg.insert('path')
       .datum(p)
-      .attr('class', 'hexagon doodle')
+      .attr('class', 'hexagon sketch')
       .attr('d', 'm' + hexagon(honeycomb.size/scale).join('l') + 'z')
       .attr('transform', function(d) { return 'translate(' + p0.x + ',' + p0.y + ')'; })
       .style('fill-opacity', 1.0)
@@ -244,13 +244,13 @@ hex.ui = (function dataSimulator(d3, Rx) {
   }).subscribeOnError(errorObserver);
 
   var messageSubscription = messages.filter(function(message) {
-    return message.type === 'doodle';
+    return message.type === 'sketch';
   })
   .tap(function(message) {
-    var doodle = message.data;
-    var point = points[doodle.containerId];
-    if (! point.doodle) {
-      image(point, doodle);
+    var sketch = message.data;
+    var point = points[sketch.containerId];
+    if (! point.sketch) {
+      image(point, sketch);
     };
   }).subscribeOnError(errorObserver);
 

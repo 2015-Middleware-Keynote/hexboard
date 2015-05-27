@@ -5220,14 +5220,14 @@ body {
   stroke: rgba(255, 255, 255, 0.5);
   stroke-width: 1.5px;
 }
-.doodle rect {
+.sketch rect {
   fill: white;
   fill-opacity: 1.0;
 }
 .shadowman rect {
   fill: black;
 }
-.hexagon.doodle,
+.hexagon.sketch,
 .hexagon.highlight {
   stroke: #39a5dc;
   stroke-width: 2px;

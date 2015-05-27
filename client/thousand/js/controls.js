@@ -4,8 +4,8 @@ var hex = hex || {};
 
 hex.controls = (function dataSimulator(d3, Rx) {
 
-  Rx.Observable.fromEvent(d3.select('#push-doodles').node(), 'click').subscribe(function() {
-    var xhr = d3.xhr('/api/doodle/random/10', function(err, res) {
+  Rx.Observable.fromEvent(d3.select('#push-sketches').node(), 'click').subscribe(function() {
+    var xhr = d3.xhr('/api/sketch/random/10', function(err, res) {
       console.log(err || res);
     });
   });
@@ -22,7 +22,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
   })
   .tap(function(event) {
     var newId;
-    var pushButton = document.getElementById('push-doodles');
+    var pushButton = document.getElementById('push-sketches');
     if (pushButton && pushButton === document.activeElement) {
       pushButton.blur();
     }
@@ -50,10 +50,10 @@ hex.controls = (function dataSimulator(d3, Rx) {
   var websocketSubscription = hex.ui.messages.filter(function(message) {
     return message.type === 'winner';
   }).tap(function(message) {
-    var doodlesPresent = hex.ui.points.some(function(point) {
-      return !! point.doodle;
+    var sketchesPresent = hex.ui.points.some(function(point) {
+      return !! point.sketch;
     });
-    if (! doodlesPresent) {
+    if (! sketchesPresent) {
       return;
     }
     var action = message.data;
@@ -90,7 +90,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
   var lastDoodle;
   var mouseSubscription = Rx.Observable.fromEvent(document.querySelector('.map'), 'mousemove')
   .filter(function(event) {
-    return event.target.classList.contains('doodle');
+    return event.target.classList.contains('sketch');
   })
   .tap(function(event) {
     var p = d3.select(event.target).datum();

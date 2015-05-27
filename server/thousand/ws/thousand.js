@@ -75,9 +75,9 @@ module.exports = function(server) {
     return subscription;
   };
 
-  thousandEmitter.on('new-doodle', function(doodle) {
-    console.log(tag, 'doodle listener invoked.');
-    wss.broadcast(JSON.stringify({type: 'doodle', data: doodle}));
+  thousandEmitter.on('new-sketch', function(sketch) {
+    console.log(tag, 'sketch listener invoked.');
+    wss.broadcast(JSON.stringify({type: 'sketch', data: sketch}));
   });
 
   thousandEmitter.on('action', function(action) {

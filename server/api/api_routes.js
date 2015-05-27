@@ -3,7 +3,7 @@
 var userController = require('./user/user_controllers.js')
   , scanController = require('./scan/scan_controllers.js')
   , locationController = require('./location/location_controllers.js')
-  , doodleController = require('./thousand/doodle_controller.js')
+  , sketchController = require('./thousand/sketch_controller.js')
   , supportController = require('./support/support_controller.js')
   ;
 
@@ -18,9 +18,14 @@ module.exports = exports = function (router) {
   router.route('/locations').get(locationController.getAll);
   router.route('/location/:id').get(locationController.getLocation);
 
-  router.route('/doodle/:containerId').get(doodleController.getImage);
-  router.route('/doodle/:containerId').post(doodleController.receiveImage);
-  router.route('/doodle/random/:numDoodles').get(doodleController.randomDoodles);
+  router.route('/sketch/:containerId').get(sketchController.getImage);
+  router.route('/sketch/:containerId').post(sketchController.receiveImage);
+  router.route('/sketch/random/:numSketches').get(sketchController.randomSketches);
 
   router.route('/support').post(supportController.receiveFeedback);
+
+  // Deprecated routes
+  router.route('/doodle/:containerId').get(sketchController.getImage);
+  router.route('/doodle/:containerId').post(sketchController.receiveImage);
+  router.route('/doodle/random/:numSketches').get(sketchController.randomSketches);
 }

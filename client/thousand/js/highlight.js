@@ -67,7 +67,7 @@ hex.highlight = (function dataSimulator(d3, Rx) {
       if (currentPoint && currentPoint.id === point.id) {
         return true;
       }
-      if (point.doodle) {
+      if (point.sketch) {
         return ! hex.winner.isAlreadyWinner(point);
       } else {
         return false;

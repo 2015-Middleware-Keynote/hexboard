@@ -17,7 +17,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
   var isAlreadyWinner = function(point) {
     return winners.some(function(winner) {
-      return 'cuid' in winner.doodle && winner.doodle.cuid === point.doodle.cuid;
+      return 'cuid' in winner.sketch && winner.sketch.cuid === point.sketch.cuid;
     });
   };
 
@@ -45,7 +45,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
   var pickWinners = function() {
     var numWinners = 10;
     var candidates = hex.ui.points.filter(function(point) {
-      return point.doodle;
+      return point.sketch;
     });
 
     d3.range(numWinners - winners.length).map(function(currentValue, index) {
@@ -116,16 +116,16 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
   var displayWinner = function(p, index) {
     animateWinner(p, stageSpots[index], winnerSpots[index], 0.4, 1.3, true);
-    console.log('Winner name:', p.doodle.name, 'cuid:', p.doodle.cuid, 'submission:', p.doodle.submissionId);
+    console.log('Winner name:', p.sketch.name, 'cuid:', p.sketch.cuid, 'submission:', p.sketch.submissionId);
   }
 
   var animateWinner = function(p, p0, p1, zoom1, zoom2, shownames, cb) {
     var duration = 1000
       , scale = 0.2;
       ;
-    var spaceIndex = p.doodle.name.indexOf(' ');
-    p.doodle.firstname = p.doodle.name.substring(0,spaceIndex);
-    p.doodle.lastname = p.doodle.name.substring(spaceIndex+1);
+    var spaceIndex = p.sketch.name.indexOf(' ');
+    p.sketch.firstname = p.sketch.name.substring(0,spaceIndex);
+    p.sketch.lastname = p.sketch.name.substring(spaceIndex+1);
 
     if (!p.group) {
       p.group = hex.ui.svg.insert('g')
@@ -156,13 +156,13 @@ hex.winner = (function dataSimulator(d3, Rx) {
       textGroup.insert('text')
         .attr('class', 'firstname')
         .attr('text-anchor', 'middle')
-        .text(p.doodle.firstname);
+        .text(p.sketch.firstname);
 
       textGroup.insert('text')
         .attr('class', 'lastname')
         .attr('text-anchor', 'middle')
         .attr('y', hex.ui.honeycomb.size / 1.5)
-        .text(p.doodle.lastname);
+        .text(p.sketch.lastname);
     }
 
     p.group.transition()

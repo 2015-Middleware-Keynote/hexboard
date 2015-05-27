@@ -32,7 +32,7 @@ var options = {
 }
 
 function podIdToURL(id){
-  return "doodle-"+id+"-app-summit3.apps.summit.paas.ninja"
+  return "sketch-"+id+"-app-summit3.apps.summit.paas.ninja"
 }
 
 function podNumber(name){
@@ -48,7 +48,7 @@ function verifyPodAvailable(pod, retries_remaining){
 
 var parseData = function(update){
   var podName = update.object.spec.containers[0].name;
-  if (podName.indexOf('doodle') !== 0) {
+  if (podName.indexOf('sketch') !== 0) {
     console.log('Ignoring update for container name:', update.object.spec.containers[0].name);
   } else {
     //bundle the pod data

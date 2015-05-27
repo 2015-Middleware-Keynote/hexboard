@@ -32,29 +32,29 @@ var randomEvents = Rx.Observable.range(0, 1026)
 
 var submissionCount = 0;
 
-var randomDoodles = function(numDoodles) {
-  var doodles = Rx.Observable.range(0, numDoodles)
+var randomSketches = function(numSketches) {
+  var sketches = Rx.Observable.range(0, numSketches)
     .flatMap(function(x) {
       var imageIndex = getRandomInt(0, 13);
       return Rx.Observable.range(0,1)
         .map(function() {
           var containerId = getRandomInt(0, 1026);
-          var doodle = {
+          var sketch = {
             containerId: containerId
-          , url: '/thousand/doodles/thousand-doodle' + imageIndex + '.png'
+          , url: '/thousand/sketches/thousand-sketch' + imageIndex + '.png'
           , name: 'FirstName' + containerId + ' LastName' + containerId
           , cuid: imageIndex
           , submissionId: submissionCount++
           };
-          return doodle;
+          return sketch;
         })
         .delay(getRandomInt(0, 1000));
     });
-  return doodles;
+  return sketches;
 }
 
 
 module.exports = {
   events : randomEvents
-, randomDoodles: randomDoodles
+, randomSketches: randomSketches
 };

@@ -5,13 +5,13 @@ var random = require('./random')
 var randomDoodles = function(req, res, next) {
   var numDoodles = req.params.numDoodles;
   random.randomDoodles(numDoodles)
-    .subscribe(function(doodle) {
-      thousandEmitter.emit('new-doodle', doodle);
+    .subscribe(function(sketch) {
+      thousandEmitter.emit('new-sketch', sketch);
     }, function(error) {
       next(error)
     }, function() {
-      console.log(numDoodles + ' doodles pushed');
-      res.json({msg: numDoodles + ' doodles pushed'});
+      console.log(numDoodles + ' sketches pushed');
+      res.json({msg: numDoodles + ' sketches pushed'});
     });
 }
 
@@ -31,7 +31,7 @@ var receiveImage = function(req, res, next) {
     next(err);
   });
   req.on('end', function() {
-    var filename = 'doodle.png';
+    var filename = 'sketch.png';
     fs.open('./static/img/' + filename, 'w', function(err, fd) {
       if (err) {
         next(err);
@@ -40,16 +40,16 @@ var receiveImage = function(req, res, next) {
         if (err) {
           next(err);
         };
-        var doodle = {
-          url: 'http://localhost'+'/img/doodle.png'
+        var sketch = {
+          url: 'http://localhost'+'/img/sketch.png'
         , username: req.query.username
         , cuid: req.query.cuid
         , containerId: req.query.cuid
         , submissionId: req.query.submission_id
         }
-        console.log(doodle);
-        thousandEmitter.emit('new-doodle', doodle)
-        return res.json(doodle)
+        console.log(sketch);
+        thousandEmitter.emit('new-sketch', sketch)
+        return res.json(sketch)
       });
     })
   });

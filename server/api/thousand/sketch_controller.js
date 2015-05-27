@@ -2,7 +2,7 @@
 
 var fs = require('fs')
   , os = require('os')
-  , randomDoodles = require('../../thousand/random').randomDoodles
+  , randomSketches = require('../../thousand/random').randomSketches
   , thousandEmitter = require('../../thousand/thousandEmitter')
   ;
 
@@ -25,7 +25,7 @@ module.exports = exports = {
       next(err);
     });
     req.on('end', function() {
-      var filename = 'thousand-doodle' + containerId + 'png';
+      var filename = 'thousand-sketch' + containerId + 'png';
       fs.open(os.tmpdir() + '/' + filename, 'w', function(err, fd) {
         if (err) {
           next(err);
@@ -35,16 +35,16 @@ module.exports = exports = {
           if (err) {
             next(err);
           };
-          var doodle = {
+          var sketch = {
             containerId: containerId
-          , url: '/api/doodle/' + containerId
+          , url: '/api/sketch/' + containerId
           , name: req.query.name
           , cuid: req.query.cuid
           , submissionId: req.query.submission_id
           };
-          thousandEmitter.emit('new-doodle', doodle);
+          thousandEmitter.emit('new-sketch', sketch);
           return res.json({
-            url:'http://beacon.jbosskeynote.com/api/doodle/'+containerId
+            url:'http://www.jbosskeynote.com/api/sketch/'+containerId
           , name:req.query.name
           });
         });
@@ -54,22 +54,22 @@ module.exports = exports = {
 
   getImage: function(req, res, next) {
     var containerId = parseInt(req.params.containerId);
-    var filename = 'thousand-doodle' + containerId + 'png';
+    var filename = 'thousand-sketch' + containerId + 'png';
     fs.createReadStream(os.tmpdir() + '/' + filename, {
       'bufferSize': 4 * 1024
     }).pipe(res);
   },
 
-  randomDoodles: function(req, res, next) {
-    var numDoodles = req.params.numDoodles;
-    randomDoodles(numDoodles)
-      .subscribe(function(doodle) {
-        thousandEmitter.emit('new-doodle', doodle);
+  randomSketches: function(req, res, next) {
+    var numSketches = req.params.numSketches;
+    randomSketches(numSketches)
+      .subscribe(function(sketch) {
+        thousandEmitter.emit('new-sketch', sketch);
       }, function(error) {
         next(error)
       }, function() {
-        console.log(tag, numDoodles + ' doodles pushed');
-        res.json({msg: numDoodles + ' doodles pushed'});
+        console.log(tag, numSketches + ' sketches pushed');
+        res.json({msg: numSketches + ' sketches pushed'});
       });
   }
 };
