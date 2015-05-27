@@ -84,6 +84,11 @@ module.exports = function(server) {
     wss.broadcast(JSON.stringify({type: 'sketch', data: sketch}));
   });
 
+  thousandEmitter.on('remove-sketch', function(conatinerId) {
+    console.log(tag, 'sketch removal listener invoked.');
+    wss.broadcast(JSON.stringify({type: 'remove', data: {index: conatinerId}}));
+  });
+
   thousandEmitter.on('action', function(action) {
     console.log(tag, 'winner listener invoked.');
     wss.broadcast(JSON.stringify({type: 'winner', data: action}));

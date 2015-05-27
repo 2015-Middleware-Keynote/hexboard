@@ -25,7 +25,7 @@ module.exports = exports = {
       next(err);
     });
     req.on('end', function() {
-      var filename = 'thousand-sketch' + containerId + 'png';
+      var filename = 'thousand-sketch' + containerId + '.png';
       fs.open(os.tmpdir() + '/' + filename, 'w', function(err, fd) {
         if (err) {
           next(err);
@@ -54,10 +54,18 @@ module.exports = exports = {
 
   getImage: function(req, res, next) {
     var containerId = parseInt(req.params.containerId);
-    var filename = 'thousand-sketch' + containerId + 'png';
+    var filename = 'thousand-sketch' + containerId + '.png';
     fs.createReadStream(os.tmpdir() + '/' + filename, {
       'bufferSize': 4 * 1024
     }).pipe(res);
+  },
+
+  removeImage: function(req, res, next) {
+    var containerId = parseInt(req.params.containerId);
+    var filename = 'thousand-sketch' + containerId + '.png';
+    thousandEmitter.emit('remove-sketch', containerId);
+    fs.createReadStream('./server/api/thousand/censored.png').pipe(fs.createWriteStream(os.tmpdir() + '/' + filename));
+    res.send('removed');
   },
 
   randomSketches: function(req, res, next) {

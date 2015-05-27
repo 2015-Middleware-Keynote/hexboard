@@ -296,6 +296,18 @@ hex.ui = (function dataSimulator(d3, Rx) {
     };
   }).subscribeOnError(errorObserver);
 
+  var messageSubscription = messages.filter(function(message) {
+    return message.type === 'remove';
+  })
+  .tap(function(message) {
+    var point = points.filter(function(point) {
+      return point.id === message.data.index;
+    });
+    if (point.length && point[0].sketch) {
+      removeSketch(point[0]);
+    };
+  }).subscribeOnError(errorObserver);
+
   var dispose = function() {
     eventSubscription.dispose();
     messageSubscription.dispose();

@@ -109,9 +109,13 @@ hex.controls = (function dataSimulator(d3, Rx) {
   })
   .tap(function(event) {
     var p = d3.select(event.target).datum();
-    var newId = p.id;
-    console.log('picking ', newId);
-    hex.ui.removeSketch(p);
+    var index = p.id;
+    var xhr = d3.xhr('/api/sketch/' + p.id);
+    xhr.send('DELETE', function(err, res) {
+      console.log('removing ', index);
+      console.log(err || res);
+    });
+    // hex.ui.removeSketch(p);
   })
   .subscribeOnError(hex.ui.errorObserver);
 
