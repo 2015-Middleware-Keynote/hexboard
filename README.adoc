@@ -17,7 +17,7 @@ Execute the following commands in your local clone of this repository:
 [source, bash]
 ----
 > npm install
-> bower isntall
+> bower install
 ----
 
 = To run the project:
