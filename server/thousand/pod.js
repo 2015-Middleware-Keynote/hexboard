@@ -50,7 +50,7 @@ function verifyPodAvailable(pod, retries_remaining){
 
 var parseData = function(update){
   var podName = update.object.spec.containers[0].name;
-  if (podName.indexOf('sketch') !== 0) {
+  if (podName.indexOf('doodle') !== 0) {
     console.log('Ignoring update for container name:', update.object.spec.containers[0].name);
   } else {
     //bundle the pod data
@@ -90,6 +90,8 @@ var parseData = function(update){
 var getLiveStream = function() {
   console.log('options', options);
   var stream = request(options);
+  stream.pipe(fs.createWriteStream('./server/thousand/pods-create-raw.log'))
+  var writeStream = fs.createWriteStream('./server/thousand/pods-create-parsed.log');
 
   var response = Rx.Observable.create(function(observer) {
     stream.on('response', function(response) {
@@ -122,22 +124,28 @@ var getLiveStream = function() {
   })
   .map(function(data) {
     var json = JSON.parse(data);
+    // console.log(json);
     try {
       var parsed = parseData(json);
       return parsed;
     } catch (error) {
-      console.log(error);
+      console.log('**************** Error', error);
       console.log(JSON.stringify(JSON.parse(data), null, 4));
       throw error;
     }
-  }).filter(function(parsed) {
+  })
+  .tap(function(parsed) {
+    writeStream.write(JSON.stringify(parsed) + '\n');
+  })
+  .filter(function(parsed) {
+    console.log(parsed.data);
     return parsed && parsed.data && parsed.data.stage;
-  }).shareReplay(undefined, 500);
-
-  RxNode.writeToStream(liveStream, fs.createWriteStream('pods-create.log'));
-  return liveStream.map(function(parsed) {
+  })
+  .map(function(parsed) {
     return parsed.data;
   });
+
+  return liveStream;
 };
 
 module.exports = {

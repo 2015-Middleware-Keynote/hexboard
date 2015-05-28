@@ -15,7 +15,6 @@ var tag = 'PLAYBACK';
 // Read, parse, and sort the pod evetns from a file
 var eventReplay = function() {
   var fileStream = fs.createReadStream('./server/thousand/pods-create.log')
-    .pipe(split())
     .pipe(filter(function(data) {
       return data.length > 0;
     }))
@@ -26,9 +25,6 @@ var eventReplay = function() {
     }))
     .pipe(filter(function(parsed) {
       return parsed && parsed.data && parsed.data.stage;
-    }))
-    .pipe(sort(function(a, b) {
-      return a.data.creationTimestamp.getTime() - b.data.creationTimestamp.getTime();
     }));
 
   var logEvents = RxNode.fromStream(fileStream).share();
