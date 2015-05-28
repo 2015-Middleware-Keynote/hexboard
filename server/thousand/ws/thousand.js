@@ -60,7 +60,7 @@ module.exports = function(server) {
     var eventFeed;
     switch (feed) {
       case 'live':
-        eventFeed = pod.events();
+        eventFeed = pod.eventStream;
         break;
       case 'random':
         eventFeed = random.events;
