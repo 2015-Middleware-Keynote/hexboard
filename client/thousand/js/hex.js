@@ -17,8 +17,8 @@ hex.ui = (function dataSimulator(d3, Rx) {
     size: 20
   };
   honeycomb.spacing = {
-      x: honeycomb.size * 2 * Math.sin(Math.PI*2/3)
-    , y: honeycomb.size * (1 + Math.cos(Math.PI/3))
+      x: honeycomb.size * 2 * Math.sin(Math.PI*2/3) + .5
+    , y: honeycomb.size * (1 + Math.cos(Math.PI/3)) + .5
   };
 
   honeycomb.dimensions = {

@@ -5214,11 +5214,10 @@ body {
 }
 .hexagon {
   stroke: #fff;
-  stroke-width: 1.5px;
+  stroke-width: 0.5px;
 }
 .hexagon.falling {
   stroke: rgba(255, 255, 255, 0.5);
-  stroke-width: 1.5px;
 }
 .sketch rect {
   fill: white;
@@ -5231,18 +5230,18 @@ body {
   stroke: rgba(204, 0, 0, 0.7);
   stroke-width: 2.0px;
 }
-.hexagon.sketch,
-.hexagon.highlight {
+hexagon.highlight {
   stroke: rgba(0, 136, 206, 0.8);
   stroke-width: 2.0px;
 }
+.hexagon.sketch {
+  stroke: rgba(0, 136, 206, 0.8);
+}
 .hexagon.sketch.falling {
   stroke: rgba(57, 165, 220, 0.2);
-  stroke-width: 1.5px;
 }
 .winner .hexagon {
   stroke: rgba(0, 67, 104, 0.5);
-  stroke-width: 1.5px;
 }
 .winner text {
   fill: #004368;
