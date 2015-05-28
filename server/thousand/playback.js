@@ -1,3 +1,5 @@
+'use strict';
+
 var Rx = require('rx')
   , RxNode = require('rx-node')
   , split = require('split')

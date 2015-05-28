@@ -1,3 +1,5 @@
+'use strict';
+
 var Rx = require('rx')
   , cc           = require('config-multipaas')
   , fs       = require('fs')
