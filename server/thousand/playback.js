@@ -14,12 +14,13 @@ var tag = 'PLAYBACK';
 
 // Read, parse, and sort the pod evetns from a file
 var eventReplay = function() {
-  var fileStream = fs.createReadStream('./server/thousand/pods-create.log')
+  var fileStream = fs.createReadStream('./server/thousand/pods-create-parsed.log')
+    .pipe(split())
     .pipe(filter(function(data) {
       return data.length > 0;
     }))
     .pipe(through2.obj(function (chunk, enc, callback) {
-      var event = parseData(JSON.parse(chunk))
+      var event = JSON.parse(chunk)
       this.push(event);
       callback()
     }))
@@ -35,7 +36,7 @@ var eventReplay = function() {
 
   // An observable triggerred by <interval> changes in logEvents
   var replayProgress = logEvents.flatMap(function(event) {
-    var timestamp = event.data.creationTimestamp.getTime(); // ms
+    var timestamp = new Date(event.data.timestamp).getTime(); // ms
     (!startTime) && (startTime = timestamp);
     var scanInterval = Math.floor((timestamp - startTime) / interval);
     (!previousInterval) && (previousInterval == scanInterval - 1);

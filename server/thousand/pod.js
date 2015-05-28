@@ -90,8 +90,8 @@ var parseData = function(update){
 var getLiveStream = function() {
   console.log('options', options);
   var stream = request(options);
-  stream.pipe(fs.createWriteStream('./server/thousand/pods-create-raw.log'))
-  var writeStream = fs.createWriteStream('./server/thousand/pods-create-parsed.log');
+  // stream.pipe(fs.createWriteStream('./server/thousand/pods-create-raw.log'))
+  // var writeStream = fs.createWriteStream('./server/thousand/pods-create-parsed.log');
 
   var response = Rx.Observable.create(function(observer) {
     stream.on('response', function(response) {
@@ -134,9 +134,9 @@ var getLiveStream = function() {
       throw error;
     }
   })
-  .tap(function(parsed) {
-    writeStream.write(JSON.stringify(parsed) + '\n');
-  })
+  // .tap(function(parsed) {
+  //   writeStream.write(JSON.stringify(parsed) + '\n');
+  // })
   .filter(function(parsed) {
     console.log(parsed.data);
     return parsed && parsed.data && parsed.data.stage;
