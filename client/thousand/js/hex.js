@@ -164,8 +164,9 @@ hex.ui = (function dataSimulator(d3, Rx) {
       .duration(duration)
       .ease('linear')
       .styleTween('fill', function(d, i, a) {
+        var fill = d.sketch ? a : newColor;
         return function(t) {
-          return t < 1 ? a : newColor;
+          return t < 1 ? a : fill;
         };
       })
   };

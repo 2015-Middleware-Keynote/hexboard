@@ -10,6 +10,14 @@ hex.controls = (function dataSimulator(d3, Rx) {
     });
   });
 
+  Rx.Observable.fromEvent(d3.select('#remove-sketches').node(), 'click').subscribe(function() {
+    var xhr = d3.xhr('/api/sketch/all');
+    xhr.send('DELETE', function(err, res) {
+      console.log('removing all sketches');
+      console.log(err || res);
+    });
+  });
+
   var winnerSocket = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/winner');
   winnerSocket.subscribeOnError(hex.ui.errorHandler);
 

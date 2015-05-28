@@ -6,6 +6,8 @@ var WebSocketServer = require('ws').Server
   , playback = require('../playback')
   , thousandEmitter = require('../thousandEmitter')
   , debuglog = require('debuglog')('thousand')
+  , Rx = require('rx')
+  , sketches = require('../sketches')
   ;
 
 var tag = 'WS/THOUSAND';
@@ -34,6 +36,18 @@ module.exports = function(server) {
     ws.id = id;
     console.log(tag, '/thousand connection');
     var subscription;
+    var sketchesAvailable = sketches.list.filter(function(data) {
+      return data.sketch;
+    });
+    Rx.Observable.zip(
+      Rx.Observable.from(sketchesAvailable)
+    , Rx.Observable.interval(10).take(sketchesAvailable.length)
+    , function(data, x) { return data.sketch }
+    ).tap(function(sketch) {
+      ws.send(JSON.stringify({type: 'sketch', data: sketch}));
+    }).subscribeOnError(function(err) {
+      console.log(err);
+    });
     ws.on('message', function(data, flags) {
       var message = JSON.parse(data);
       if (message.type === 'subscribe') {
@@ -81,12 +95,24 @@ module.exports = function(server) {
 
   thousandEmitter.on('new-sketch', function(sketch) {
     // console.log(tag, 'sketch listener invoked.');
+    sketches.list[sketch.containerId].sketch = sketch;
     wss.broadcast(JSON.stringify({type: 'sketch', data: sketch}));
   });
 
-  thousandEmitter.on('remove-sketch', function(conatinerId) {
+  thousandEmitter.on('remove-all', function() {
+    var sketchesAvailable = sketches.list.filter(function(data) {
+      return data.sketch;
+    })
+    .forEach(function(data) {
+      wss.broadcast(JSON.stringify({type: 'remove', data: {index: data.sketch.containerId}}));
+    })
+    sketches.clear();
+  });
+
+  thousandEmitter.on('remove-sketch', function(containerId) {
     console.log(tag, 'sketch removal listener invoked.');
-    wss.broadcast(JSON.stringify({type: 'remove', data: {index: conatinerId}}));
+    delete sketches.list[containerId].sketch;
+    wss.broadcast(JSON.stringify({type: 'remove', data: {index: containerId}}));
   });
 
   thousandEmitter.on('action', function(action) {

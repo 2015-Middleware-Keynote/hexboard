@@ -61,11 +61,17 @@ module.exports = exports = {
   },
 
   removeImage: function(req, res, next) {
-    var containerId = parseInt(req.params.containerId);
-    var filename = 'thousand-sketch' + containerId + '.png';
-    thousandEmitter.emit('remove-sketch', containerId);
-    fs.createReadStream('./server/api/thousand/censored.png').pipe(fs.createWriteStream(os.tmpdir() + '/' + filename));
-    res.send('removed');
+    var containerId = req.params.containerId;
+    if (containerId === 'all') {
+      thousandEmitter.emit('remove-all');
+      res.send('removed all');
+    } else {
+      containerId = parseInt(containerId);
+      var filename = 'thousand-sketch' + containerId + '.png';
+      thousandEmitter.emit('remove-sketch', containerId);
+      fs.createReadStream('./server/api/thousand/censored.png').pipe(fs.createWriteStream(os.tmpdir() + '/' + filename));
+      res.send('removed');
+    };
   },
 
   randomSketches: function(req, res, next) {
