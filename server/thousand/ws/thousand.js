@@ -39,15 +39,7 @@ module.exports = function(server) {
     var sketchesAvailable = sketches.list.filter(function(data) {
       return data.sketch;
     });
-    Rx.Observable.zip(
-      Rx.Observable.from(sketchesAvailable)
-    , Rx.Observable.interval(10).take(sketchesAvailable.length)
-    , function(data, x) { return data.sketch }
-    ).tap(function(sketch) {
-      ws.send(JSON.stringify({type: 'sketch', data: sketch}));
-    }).subscribeOnError(function(err) {
-      console.log(err);
-    });
+    ws.send(JSON.stringify({type: 'sketch-bundle', data: sketchesAvailable}));
     ws.on('message', function(data, flags) {
       var message = JSON.parse(data);
       if (message.type === 'subscribe') {

@@ -174,17 +174,10 @@ hex.ui = (function dataSimulator(d3, Rx) {
       })
   };
 
-  function image(p, sketch) {
-    console.log('Adding sketch:', sketch.submissionId, 'for cuid: ', sketch.cuid);
-    var c = {x: content.x / 2, y: content.y / 2};
-    var perspective = 0.5
-      , duration = 1000
-      , scale = 0.2
-    var p0 = {x: perspective * (p.x - c.x) + c.x, y: perspective * (p.y - c.y) + c.y};
-
+  var createBackground = function(sketch) {
     var imgsize = (honeycomb.size * 2);
     var pattern = defs.append('pattern')
-      .attr('id', 'img' + p.id)
+      .attr('id', 'img' + sketch.containerId)
       .attr('class', 'sketch')
       .attr('patternUnits', 'userSpaceOnUse')
       .attr('width', imgsize)
@@ -206,6 +199,17 @@ hex.ui = (function dataSimulator(d3, Rx) {
       .attr('y', 0);
 
     sketch.pattern = pattern;
+  }
+
+  var image = function(p, sketch) {
+    console.log('Adding sketch:', sketch.submissionId, 'for cuid: ', sketch.cuid);
+    var c = {x: content.x / 2, y: content.y / 2};
+    var perspective = 0.5
+      , duration = 1000
+      , scale = 0.2
+    var p0 = {x: perspective * (p.x - c.x) + c.x, y: perspective * (p.y - c.y) + c.y};
+
+    createBackground(sketch);
     p.sketch = sketch;
 
     svg.insert('path')
@@ -301,6 +305,31 @@ hex.ui = (function dataSimulator(d3, Rx) {
         flipAll();
       }
       image(point, sketch);
+    };
+  }).subscribeOnError(errorObserver);
+
+  var messageSubscription = messages.filter(function(message) {
+    return message.type === 'sketch-bundle';
+  })
+  .flatMap(function(message) {
+    return message.data;
+  })
+  .tap(function(data) {
+    var sketch = data.sketch;
+    var point = points[sketch.containerId];
+    if (! point.sketch) {
+      if (firstImage) {
+        firstImage = false;
+        if (points.some(function(point) {
+          return point.stage === 4;
+        }))
+        flipAll();
+      }
+      createBackground(sketch);
+      point.sketch = sketch;
+      hexagons.filter(function(d) { return d.x === point.x && d.y === point.y; })
+        .attr('class', 'hexagon sketch')
+        .style('fill', 'url(#img' + point.id + ')');
     };
   }).subscribeOnError(errorObserver);
 
