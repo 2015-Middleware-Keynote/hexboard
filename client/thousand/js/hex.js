@@ -222,7 +222,9 @@ hex.ui = (function dataSimulator(d3, Rx) {
       .transition()
       .duration(duration)
       .ease('linear')
-      .attr('class', 'hexagon sketch')
+      .each('end', function() {
+        d3.select(this).attr('class', 'hexagon sketch')
+      })
       .attr('transform', function(d) {return 'matrix(1, 0, 0, 1, '+ d.x +', '+ d.y +')'}) // finish off any half-flipped hexagons
       .styleTween('fill', function(d, i, a) {
         return function(t) {
