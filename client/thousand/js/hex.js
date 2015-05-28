@@ -7,6 +7,8 @@ hex.ui = (function dataSimulator(d3, Rx) {
     console.error(error.stack || error);
   };
 
+  var firstImage = true;
+
   var display = {
     x: Math.max(document.documentElement.clientWidth, window.innerWidth) || 1920
   , y: Math.max(document.documentElement.clientHeight, window.innerHeight) - 4 - 39
@@ -134,7 +136,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
       })
       .styleTween('fill', function(d, i, a) {
         return function(t) {
-          return t < 0.5 ? a : newColor;
+          return t < 0.5 ? a : color(d.stage);
         };
       });
   }
@@ -146,7 +148,8 @@ hex.ui = (function dataSimulator(d3, Rx) {
       , scale = 0.4
       , opacity = { initial: 0.01, final: 0.9};
     var p0 = {x: perspective * (p.x - c.x) + c.x, y: perspective * (p.y - c.y) + c.y};
-    var newColor = stage !== 4 ? color(stage): 'url(#redhat'+p.id+')';
+    p.stage = stage;
+    var newColor = stage === 4 && firstImage ? 'url(#redhat'+p.id+')': color(stage);
     svg.insert('path')
       .attr('class', 'hexagon falling')
       .attr('d', 'm' + hexagon(honeycomb.size).join('l') + 'z')
@@ -283,7 +286,6 @@ hex.ui = (function dataSimulator(d3, Rx) {
 
   }).subscribeOnError(errorObserver);
 
-  var firstImage = true;
   var messageSubscription = messages.filter(function(message) {
     return message.type === 'sketch';
   })
