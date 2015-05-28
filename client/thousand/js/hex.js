@@ -295,6 +295,9 @@ hex.ui = (function dataSimulator(d3, Rx) {
     if (! point.sketch) {
       if (firstImage) {
         firstImage = false;
+        if (points.some(function(point) {
+          return point.stage === 4;
+        }))
         flipAll();
       }
       image(point, sketch);
