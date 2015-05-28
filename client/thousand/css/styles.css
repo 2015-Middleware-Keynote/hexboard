@@ -5227,9 +5227,13 @@ body {
 .shadowman rect {
   fill: black;
 }
+.hexagon.inspect {
+  stroke: rgba(204, 0, 0, 0.7);
+  stroke-width: 2.0px;
+}
 .hexagon.sketch,
 .hexagon.highlight {
-  stroke: #39a5dc;
+  stroke: rgba(0, 136, 206, 0.8);
   stroke-width: 2.0px;
 }
 .hexagon.sketch.falling {

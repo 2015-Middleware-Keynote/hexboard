@@ -98,14 +98,14 @@ hex.controls = (function dataSimulator(d3, Rx) {
       return;
     };
     var newId = p.id;
-    console.log('highlighting ', newId);
-    hex.highlight.highlight(newId);
+    console.log('inspecting ', newId);
+    hex.inspect.highlight(newId);
   })
   .subscribeOnError(hex.ui.errorObserver);
 
   Rx.Observable.fromEvent(document.querySelector('.map'), 'click')
   .filter(function(event) {
-    return event.target.classList.contains('highlight');
+    return event.target.classList.contains('inspect');
   })
   .tap(function(event) {
     var p = d3.select(event.target).datum();

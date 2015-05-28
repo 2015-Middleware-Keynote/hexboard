@@ -231,7 +231,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
   };
 
   var removeSketch = function(p) {
-    hex.highlight.unhighlight();
+    hex.inspect.unhighlight();
     delete p.sketch;
     hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
       .style('fill', color(4))
