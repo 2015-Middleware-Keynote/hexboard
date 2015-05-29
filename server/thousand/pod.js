@@ -7,52 +7,69 @@ var Rx = require('rx')
   , fs = require('fs')
   , thousandEmitter = require('./thousandEmitter')
   , request = require('request')
+  , _ = require('underscore')
   ;
 
 var tag = 'POD';
 
 // Config
-var config   = cc().add({
-  oauth_token: process.env.ACCESS_TOKEN || false,
-  namespace: process.env.NAMESPACE || 'demo1',
-  openshift_server: process.env.OPENSHIFT_SERVER || 'openshift-master.summit.paas.ninja:8443'
-})
+var config = {
+  live: {
+    oauthToken: process.env.ACCESS_TOKEN_LIVE || false,
+    namespace: process.env.NAMESPACE_LIVE || 'demo2',
+    openshiftServer: process.env.OPENSHIFT_SERVER || 'openshift-master.summit.paas.ninja:8443'
+  },
+  preStart: {
+    oauthToken: process.env.ACCESS_TOKEN_PRESTART || false,
+    namespace: process.env.NAMESPACE_PRESTART || 'demo3',
+    openshiftServer: process.env.OPENSHIFT_SERVER || 'openshift-master.summit.paas.ninja:8443'
+  }
+};
 
 // Allow self-signed SSL
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-var url = 'https://' + config.get('openshift_server') + '/api/v1beta3/watch/namespaces/' + config.get('namespace') + '/pods'
-var options = {
-  'method' : 'get'
- ,'uri'    : url
- ,'qs'     : {}
- ,'rejectUnauthorized': false
- ,'strictSSL': false
- ,'auth'   : {'bearer': config.get('oauth_token') }
+var url = {
+  watchLivePods: 'https://' + config.live.openshiftServer + '/api/v1beta3/watch/namespaces/' + config.live.namespace + '/pods',
+  listPreStartPods: 'https://' + config.preStart.openshiftServer + '/api/v1beta3/namespaces/' + config.preStart.namespace + '/pods'
 }
 
-function podIdToURL(id){
+var options = {
+  base: {
+    'method' : 'get'
+  //  ,'url'    : null
+   ,'qs'     : {}
+   ,'rejectUnauthorized': false
+   ,'strictSSL': false
+  //  ,'auth'   : null
+  }
+};
+
+options.watchLivePods = _.extend({url: url.watchLivePods, auth: {bearer: config.live.oauthToken }}, options.base);
+options.listPreStartPods = _.extend({url: url.listPreStartPods, auth: {bearer: config.preStart.oauthToken }}, options.base);
+
+function podIdToURL(id) {
   return "sketch-"+id+"-app-summit3.apps.summit.paas.ninja"
-}
+};
 
 var idMap = {};
 var lastId = 0;
 
-function podNumber(name){
+function podNumber(name) {
   var num = name.match(/[a-z0-9]*$/);
   var stringId = num[0];
   if (! idMap[stringId]) {
     idMap[stringId] = ++lastId;
   }
   return idMap[stringId];
-}
+};
 
-function verifyPodAvailable(pod, retries_remaining){
+function verifyPodAvailable(pod, retries_remaining) {
   //verify that the app is responding to web requests
   //retry up to N times
   console.log("live: " + pod.data.name);
   thousandEmitter.emit('pod-event', pod.data);
-}
+};
 
 var parseData = function(update) {
   var podName = update.object.spec.containers[0].name;
@@ -87,7 +104,7 @@ var parseData = function(update) {
     }
   }
   return update;
-}
+};
 
 
 
@@ -96,8 +113,8 @@ var parseData = function(update) {
 
 var lastResourceVersion;
 var connect = Rx.Observable.create(function(observer) {
-  console.log('options', options);
-  var stream = request(options);
+  console.log('options', options.watchLivePods);
+  var stream = request(options.watchLivePods);
   var lines = stream.pipe(split());
   stream.on('response', function(response) {
     if (response.statusCode === 200) {
@@ -134,7 +151,7 @@ var connect = Rx.Observable.create(function(observer) {
   return errors.scan(0, function(errorCount, err) {
     console.log('Connection error:', err)
     if (err === 'retry') {
-      options.qs.resourceVersion = lastResourceVersion; // get only updates
+      options.watchLivePods.qs.resourceVersion = lastResourceVersion; // get only updates
       return true;
     } else {
       throw err;
@@ -169,8 +186,57 @@ var parsedStream = liveStream.map(function(json) {
   return parsed && parsed.data && parsed.data.stage && parsed.data.id <= 1025;
 });
 
+var getActivePreStartPods = Rx.Observable.create(function(observer) {
+  console.log('options', options.listPreStartPods);
+  request(options.listPreStartPods, function(error, response, body) {
+    if (error) {
+      observer.onError({
+        msg: error
+      });
+    };
+    if (response.statusCode === 200) {
+      try {
+        var json = JSON.parse(body);
+        if (json.kind === 'PodList') {
+          observer.onNext(json.items);
+          observer.onCompleted();
+        } else {
+          observer.onError({
+            msg: 'Returned value wasn\'t a PodList',
+            data: json
+          });
+        };
+      } catch(e) {
+        observer.onError({
+          msg: e
+        });
+      }
+    } else {
+      observer.onError({
+        code: response.statusCode,
+        msg: body
+      });
+    };
+  });
+})
+.retryWhen(function(errors) {
+  var maxRetries = 5;
+  return errors.scan(0, function(errorCount, err) {
+    console.log('Error:', err);
+    if (err.code && err.code === 403) {
+      return maxRetries;
+    };
+    return errorCount + 1;
+  })
+  .takeWhile(function(errorCount) {
+    return errorCount < maxRetries;
+  })
+  .delay(200);
+});
+
 module.exports = {
   rawStream: liveStream
 , eventStream: parsedStream
 , parseData : parseData
+, getActivePreStartPods: getActivePreStartPods
 };
