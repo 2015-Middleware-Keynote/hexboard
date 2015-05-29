@@ -4,9 +4,23 @@ var fs = require('fs')
   , os = require('os')
   , randomSketches = require('../../thousand/random').randomSketches
   , thousandEmitter = require('../../thousand/thousandEmitter')
+  , request = require('request')
   ;
 
 var tag = 'API/THOUSAND';
+
+var postImageToPod = function(sketch, filename, url, callback) {
+  var url = 'http://sketch-1-pod-demo3.apps.summit.paas.ninja' + '/doodle?username='+sketch.name+'&cuid='+sketch.cuid+'&submission='+sketch.submissionId;
+  var readStream = fs.createReadStream(filename);
+  readStream.pipe(request.put(url, function (err, res, body) {
+    if (err) {
+      throw new Error(err);
+    }
+    console.log('res', res.body);
+    callback(res.body);
+  }));
+
+};
 
 module.exports = exports = {
   receiveImage: function(req, res, next) {
@@ -43,10 +57,9 @@ module.exports = exports = {
           , submissionId: req.query.submission_id
           };
           thousandEmitter.emit('new-sketch', sketch);
-          return res.json({
-            url:'http://www.jbosskeynote.com/api/sketch/'+containerId
-          , name:req.query.name
-          });
+          postImageToPod(sketch, os.tmpdir() + '/' + filename, '', function(msg) {
+            return res.send(msg);
+          })
         });
       })
     });
