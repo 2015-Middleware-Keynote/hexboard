@@ -5,6 +5,13 @@ var gulp = require('gulp')
 var envFile = process.env.NODE_ENV === 'production' ? 'production.env' : 'development.env';
 env(__dirname + '/env/' + envFile);
 
+var secretEnvFile = process.env.HOME + '/demo2015-ui.env';
+try {
+  secretEnvFile && env(secretEnvFile);
+} catch(error) {
+  // no env file to set.
+}
+
 var opts = require('./tasks/gulp-config.js')(gulp, {});
 
 require('./tasks/bower.js')(gulp, opts);
