@@ -14,7 +14,7 @@ var tag = 'POD';
 // Config
 var config   = cc().add({
   oauth_token: process.env.ACCESS_TOKEN || false,
-  namespace: process.env.NAMESPACE || 'demo2',
+  namespace: process.env.NAMESPACE || 'demo1',
   openshift_server: process.env.OPENSHIFT_SERVER || 'openshift-master.summit.paas.ninja:8443'
 })
 
