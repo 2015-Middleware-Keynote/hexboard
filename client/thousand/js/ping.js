@@ -19,7 +19,7 @@ hex.ping = (function dataSimulator(d3, Rx) {
     .tap(function() {
       if (ws.readyState === ws.OPEN) {
         ws.send(ping);
-        console.log(">>> PING");
+        // console.log(">>> PING");
         if (new Date().getTime() - lastPong > ttl * 3) {
           ws.close();
           throw new Error('Server has gone more than ' + 3 * ttl + 'ms without a response');
@@ -29,7 +29,7 @@ hex.ping = (function dataSimulator(d3, Rx) {
         var message = JSON.parse(messageEvent.data);
         if (message.type === 'pong') {
           lastPong = new Date().getTime();
-          console.log("<<< PONG");
+          // console.log("<<< PONG");
         }
       };
     })
