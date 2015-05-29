@@ -56,7 +56,7 @@ var eventReplay = function() {
   // Zip the buffered events to an interval for real-time playback
   var replay = Rx.Observable.zip(
     bufferedEvents
-  , Rx.Observable.interval(interval/10) // ms
+  , Rx.Observable.interval(interval) // ms
   , function(podEvents, index) { return podEvents}
   )
   .flatMap(function(podEvents) {

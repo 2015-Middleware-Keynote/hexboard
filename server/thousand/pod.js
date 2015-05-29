@@ -160,7 +160,7 @@ var liveStream = connect.flatMap(function(stream) {
 .filter(function(json) {
   return json;
 })
-.shareReplay(undefined, 200);
+.shareReplay();
 
 var parsedStream = liveStream.map(function(json) {
   return parseData(json);
