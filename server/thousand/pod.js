@@ -72,6 +72,9 @@ function verifyPodAvailable(pod, retries_remaining) {
 };
 
 var parseData = function(update) {
+  if (! (update && update.object && update.object.spec && update.object.spec.containers && update.object.spec.containers.length > 0)) {
+    return update;
+  };
   var podName = update.object.spec.containers[0].name;
   if (podName.indexOf('sketch') !== 0 || !update.object.status || !update.object.status.phase) {
     // console.log('Ignoring update for container name:', update.object.spec.containers[0].name);
@@ -115,7 +118,7 @@ var lastResourceVersion;
 var connect = Rx.Observable.create(function(observer) {
   console.log('options', options.watchLivePods);
   var stream = request(options.watchLivePods);
-  var lines = stream.pipe(split());
+  var lines = stream; //.pipe(split());
   stream.on('response', function(response) {
     if (response.statusCode === 200) {
       console.log('Connection success');
@@ -133,26 +136,29 @@ var connect = Rx.Observable.create(function(observer) {
           code: response.statusCode
         , message: message
         };
+        if (error.code === 401 || error.code === 403) {
+          error.type = 'auth';
+        };
         console.log(error);
         observer.onError(error);
       });
-    }
+    };
   });
   stream.on('error', function(error) {
     console.log('error:',error);
     observer.onError(error);
   });
   stream.on('end', function() {
-    console.log('request terminated, retrying');
-    observer.onError('retry');
+    observer.onError({type: 'end', msg: 'Request terminated.'});
   });
 })
 .retryWhen(function(errors) {
   return errors.scan(0, function(errorCount, err) {
     console.log('Connection error:', err)
-    if (err === 'retry') {
+    if (err.type && err.type === 'end') {
+      console.log('Attmepting a re-connect (#' + errorCount + ')');
       options.watchLivePods.qs.resourceVersion = lastResourceVersion; // get only updates
-      return true;
+      return errorCount + 1;
     } else {
       throw err;
     }

@@ -79,8 +79,8 @@ module.exports = function(server) {
       };
     })
     .subscribeOnError(function(err) {
-      console.log('err:', err);
-      if (ws.readyState === ws.OPEN) {
+      console.log(err.stack || err);
+      if (err.type && err.type === 'auth' && ws.readyState === ws.OPEN) {
         ws.send(JSON.stringify({type: 'error', data: err}));
       };
     });

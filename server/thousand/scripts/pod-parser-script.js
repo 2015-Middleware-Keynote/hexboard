@@ -7,14 +7,16 @@ var Rx = require('rx')
   , pod = require('../pod')
   , request = require('request')
   , fs = require('fs')
+  , os = require('os')
   , through2 = require('through2')
   , split = require('split')
   , filter = require('stream-filter')
   ;
 
 var tag = 'PODPARSER';
-var rawStream    = fs.createReadStream('./server/thousand/pods-create-raw.log');
-var parsedStream = fs.createWriteStream('./server/thousand/pods-create-parsed.log');
+var logDir = process.env.LOG_DIR || os.tmpdir();
+var rawStream    = fs.createReadStream(logDir + '/pods-create-raw.log');
+var parsedStream = fs.createWriteStream(logDir + '/pods-create-parsed.log');
 
 rawStream
   .pipe(split())
