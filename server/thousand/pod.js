@@ -232,11 +232,33 @@ var getActivePreStartPods = Rx.Observable.create(function(observer) {
     return errorCount < maxRetries;
   })
   .delay(200);
+})
+.flatMap(function(items) {
+  return items;
+})
+.filter(function(object) {
+  // console.log(object);
+  return (object.status.phase === 'Running' && object.status.Condition[0].type == 'Ready' && object.status.Condition[0].status === 'True')
 });
+
+var getFromPod = function(podName) {
+  // /api/v1beta3/proxy/namespaces/{namespaces}/pods/{name}
+  var localurl = 'https://' + config.preStart.openshiftServer + '/api/v1beta3/namespaces/demo3/pods/'+ podName +'/proxy/';
+  // var localurl = 'https://' + config.preStart.openshiftServer + '/api/v1beta3/proxy/namespaces/demo3/pods/' + podName;
+  var localoptions = _.extend({url: localurl, auth: {bearer: config.preStart.oauthToken }}, options.base);
+  console.log('options', localoptions);
+  request(localoptions, function(error, response, body) {
+    console.log(error);
+    // console.log(response);
+    console.log(body);
+  });
+};
+
 
 module.exports = {
   rawStream: liveStream
 , eventStream: parsedStream
 , parseData : parseData
 , getActivePreStartPods: getActivePreStartPods
+, getFromPod: getFromPod
 };
