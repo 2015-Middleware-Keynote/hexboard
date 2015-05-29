@@ -81,6 +81,7 @@ var parseData = function(update){
   // stream.pipe(fs.createWriteStream('./server/thousand/pods-create-raw.log'))
   // var writeStream = fs.createWriteStream('./server/thousand/pods-create-parsed.log');
 
+var lastResourceVersion;
 var connect = Rx.Observable.create(function(observer) {
   console.log('options', options);
   var stream = request(options);
@@ -120,7 +121,7 @@ var connect = Rx.Observable.create(function(observer) {
   return errors.scan(0, function(errorCount, err) {
     console.log('Connection error:', err)
     if (err === 'retry') {
-      options.qs.resourceVersion = 0; // get only updates
+      options.qs.resourceVersion = lastResourceVersion; // get only updates
       return true;
     } else {
       throw err;
@@ -135,6 +136,7 @@ var liveStream = connect.flatMap(function(stream) {
 .map(function(data) {
   try {
     var json = JSON.parse(data);
+    lastResourceVersion = json.object.metadata.resourceVersion;
     json.timestamp = new Date();
     return json;
   } catch(e) {
