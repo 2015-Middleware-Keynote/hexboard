@@ -5,11 +5,13 @@ var Rx = require('rx')
   , pod = require('../pod')
   , request = require('request')
   , fs = require('fs')
+  , os = require('os')
   ;
 
 var tag = 'PODLOGGER';
-var rawStream    = fs.createWriteStream('./server/thousand/pods-create-raw.log');
-var parsedStream = fs.createWriteStream('./server/thousand/pods-create-parsed.log');
+var logDir = process.env.LOG_DIR || os.tmpdir();
+var rawStream    = fs.createWriteStream(logDir + '/pods-create-raw.log');
+var parsedStream = fs.createWriteStream(logDir + '/pods-create-parsed.log');
 
 pod.rawStream.tap(function(raw) {
   console.log('raw');

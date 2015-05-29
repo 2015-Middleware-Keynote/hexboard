@@ -4,6 +4,7 @@ var Rx = require('rx')
   , RxNode = require('rx-node')
   , split = require('split')
   , fs = require('fs')
+  , os = require('os')
   , sort = require('sort-stream2')
   , filter = require('stream-filter')
   , through2 = require('through2')
@@ -13,8 +14,9 @@ var Rx = require('rx')
 var tag = 'PLAYBACK';
 
 // Read, parse, and sort the pod evetns from a file
+var logDir = process.env.LOG_DIR || os.tmpdir();
 var eventReplay = function() {
-  var fileStream = fs.createReadStream('./server/thousand/pods-create-parsed.log')
+  var fileStream = fs.createReadStream(logDir + '/pods-create-parsed.log')
     .pipe(split())
     .pipe(filter(function(data) {
       return data.length > 0;
