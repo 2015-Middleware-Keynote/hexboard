@@ -46,9 +46,9 @@ function verifyPodAvailable(pod, retries_remaining){
   thousandEmitter.emit('pod-event', pod.data);
 }
 
-var parseData = function(update){
+var parseData = function(update) {
   var podName = update.object.spec.containers[0].name;
-  if (podName.indexOf('doodle') !== 0) {
+  if (podName.indexOf('doodle') !== 0 || !update.object.status || !update.object.status.phase) {
     // console.log('Ignoring update for container name:', update.object.spec.containers[0].name);
   } else {
     //bundle the pod data
@@ -61,16 +61,19 @@ var parseData = function(update){
       timestamp: new Date(),
       creationTimestamp: new Date(update.object.metadata.creationTimestamp)
     }
-    if(update.type == 'ADDED'){
+    if (update.object.status.phase === 'Pending' && ! update.object.spec.host) {
       update.data.stage = 1;
     }
-    else if(update.type == 'MODIFIED'){
+    else if (update.object.status.phase === 'Pending' && update.object.spec.host) {
       update.data.stage = 2;
     }
-    else if(update.type == 'DELETED'){
+    else if (update.object.status.phase === 'Running' && update.object.status.Condition[0].type == 'Ready' && update.object.status.Condition[0].status === 'False') {
       update.data.stage = 3;
-    }else{
-      console.log("New data type found:" + JSON.stringify(update))
+    }
+    else if (update.object.status.phase === 'Running' && update.object.status.Condition[0].type == 'Ready' && update.object.status.Condition[0].status === 'True') {
+      update.data.stage = 4;
+    } else {
+      console.log("New data type found:" + JSON.stringify(update, null, '  '))
     }
   }
   return update;
@@ -156,7 +159,6 @@ var parsedStream = liveStream.map(function(json) {
   return parsed && parsed.data && parsed.data.stage && parsed.data.id <= 1025;
 })
 .map(function(parsed) {
-  // console.log(parsed.data);
   return parsed.data;
 });
 

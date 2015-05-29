@@ -13,6 +13,7 @@
   <script>
     var hex = hex || {};
     hex.datafeed = 'live';
+    hex.shadowman = false;
   </script>
   <script defer src="../lib/d3/d3.js"></script>
   <script defer src="../lib/rxjs/dist/rx.lite.js"></script>
@@ -71,11 +72,11 @@
 
   <div class="legend">
     <ul>
-      <li class="scaer">awaiting</li>
-      <li class="deque">pending</li>
-      <li class="chein">running</li>
-      <li class="cheout">live</li>
-      <li class="retnsmit">ready</li>
+      <li class="scaer">empty</li>
+      <li class="deque">awaiting</li>
+      <li class="chein">pending</li>
+      <li class="cheout">running</li>
+      <li class="retnsmit">live</li>
     </ul>
   </div><!-- legend -->
 
