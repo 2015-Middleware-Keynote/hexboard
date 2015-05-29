@@ -7,17 +7,20 @@ var Rx = require('rx')
 
 var tag = 'STOMP';
 
+var username = process.env.AMQ_USER || '';
+var password = process.env.AMQ_PASSWORD || '';
+
 var connection = Rx.Observable.create(function (observer) {
   console.log(tag, new Date());
   console.log(tag, 'Connecting...');
-  var client = Stomp.overWS('ws://52.10.252.216:61614', ['v12.stomp']);
+  var client = Stomp.overWS('ws://184.72.167.147:61614', ['v12.stomp']);
   // client.heartbeat = {outgoing: 0, incoming: 0}; // a workaround for the failing heart-beat
   // client.heartbeat.incoming = 20000;
   client.debug = function(m) {
     debuglog(new Date());
     debuglog(m);
   };
-  client.connect('admin', 'admin', function(frame) {
+  client.connect(username, password, function(frame) {
     debuglog(frame.toString());
     observer.onNext(client);
   }, function(error) {

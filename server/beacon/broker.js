@@ -8,14 +8,16 @@ var Rx = require('rx')
 
 var tag = 'BROKER';
 
+var username = process.env.AMQ_USER || '';
+var password = process.env.AMQ_PASSWORD || '';
 var getEnqueueCount = function(url) {
   return Rx.Observable.create(function (observer) {
   request.get({
-    baseUrl: 'http://broker.jbosskeynote.com:8181/',
+    baseUrl: 'http://184.72.167.147:8181/',
     url: url,
     auth: {
-      user: 'admin',
-      pass: 'admin'
+      user: username,
+      pass: password
     },
     headers: {
       'User-Agent' : 'curl'
