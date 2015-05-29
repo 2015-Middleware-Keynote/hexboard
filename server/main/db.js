@@ -30,8 +30,10 @@ module.exports = exports = function (app) {
   process.on('SIGINT', gracefulExit).on('SIGTERM', gracefulExit);
 
   try {
-    console.log(tag, 'Trying to connect to DB ' + dbUrl);
-    mongoose.connect(dbUrl);
+    if (process.env.MONGO_ENABLED !== 'false') {
+      console.log(tag, 'Trying to connect to DB ' + dbUrl);
+      mongoose.connect(dbUrl);
+    };
   } catch (err) {
     console.log(tag, 'Sever initialization failed ' , err.message);
   }
