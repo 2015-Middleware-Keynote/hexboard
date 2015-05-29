@@ -21,11 +21,11 @@ var config   = cc().add({
 // Allow self-signed SSL
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-var url = 'https://' + config.get('openshift_server') + '/api/v1beta3/watch/pods'
+var url = 'https://' + config.get('openshift_server') + '/api/v1beta3/watch/namespaces/' + config.get('namespace') + '/pods'
 var options = {
   'method' : 'get'
  ,'uri'    : url
- ,'qs'     : {'namespace': config.get('namespace')}
+ ,'qs'     : {}
  ,'rejectUnauthorized': false
  ,'strictSSL': false
  ,'auth'   : {'bearer': config.get('oauth_token') }
@@ -157,9 +157,6 @@ var parsedStream = liveStream.map(function(json) {
 })
 .filter(function(parsed) {
   return parsed && parsed.data && parsed.data.stage && parsed.data.id <= 1025;
-})
-.map(function(parsed) {
-  return parsed.data;
 });
 
 module.exports = {
