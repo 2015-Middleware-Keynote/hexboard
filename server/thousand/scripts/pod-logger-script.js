@@ -2,7 +2,7 @@
 
 var Rx = require('rx')
   , RxNode = require('rx-node')
-  , pod = require('./pod')
+  , pod = require('../pod')
   , request = require('request')
   , fs = require('fs')
   ;

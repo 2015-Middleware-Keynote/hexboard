@@ -35,10 +35,18 @@ function podIdToURL(id){
   return "sketch-"+id+"-app-summit3.apps.summit.paas.ninja"
 }
 
+var idMap = {};
+var lastId = 0;
+
 function podNumber(name){
-  var num = name.match(/[0-9][0-9]*/);
-  return num[0];
+  var num = name.match(/[a-z0-9]*$/);
+  var stringId = num[0];
+  if (! idMap[stringId]) {
+    idMap[stringId] = ++lastId;
+  }
+  return idMap[stringId];
 }
+
 function verifyPodAvailable(pod, retries_remaining){
   //verify that the app is responding to web requests
   //retry up to N times
@@ -48,17 +56,19 @@ function verifyPodAvailable(pod, retries_remaining){
 
 var parseData = function(update) {
   var podName = update.object.spec.containers[0].name;
-  if (podName.indexOf('doodle') !== 0 || !update.object.status || !update.object.status.phase) {
+  if (podName.indexOf('sketch') !== 0 || !update.object.status || !update.object.status.phase) {
     // console.log('Ignoring update for container name:', update.object.spec.containers[0].name);
   } else {
+    var replicaName = update.object.metadata.name;
     //bundle the pod data
+    // console.log('name',update.object.spec.containers[0].name, update.object.metadata.name)
     update.data = {
-      id: podNumber(podName),
+      id: podNumber(replicaName),
       name: podName,
       hostname: podName + '-summit3.apps.summit.paas.ninja',
       stage: update.type,
       type: 'event',
-      timestamp: new Date(),
+      timestamp: update.timestamp,
       creationTimestamp: new Date(update.object.metadata.creationTimestamp)
     }
     if (update.object.status.phase === 'Pending' && ! update.object.spec.host) {
