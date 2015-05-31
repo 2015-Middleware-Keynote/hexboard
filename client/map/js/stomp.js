@@ -2,11 +2,20 @@
 
 var d3demo = d3demo || {};
 
+var retryFunction = function(errors) {
+  return errors.scan(0, function(errorCount, err) {
+    console.log('Attmepting a re-connect (#' + errorCount + ')');
+    return errorCount + 1;
+  })
+  .takeWhile(function(errorCount) {
+    return errorCount < 50;
+  })
+  .delay(500);
+};
+
 d3demo.stomp = (function stompFeed(d3, Rx) {
   var live = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/live')
-  .retryWhen(function(errors) {
-    return errors.delay(5000);
-  })
+  .retryWhen(retryFunction)
   .map(function(json) {
     return JSON.parse(json.data);
   })
@@ -17,17 +26,13 @@ d3demo.stomp = (function stompFeed(d3, Rx) {
   });
 
   var playback = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/playback')
-  .retryWhen(function(errors) {
-    return errors.delay(5000);
-  })
+  .retryWhen(retryFunction)
   .map(function(json) {
     return JSON.parse(json.data);
   }).share();
 
   var random = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/random')
-  .retryWhen(function(errors) {
-    return errors.delay(5000);
-  })
+  .retryWhen(retryFunction)
   .map(function(json) {
     return JSON.parse(json.data);
   }).share();
