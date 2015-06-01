@@ -33,7 +33,7 @@ module.exports = exports = {
       next(err);
     });
     req.on('end', function() {
-      pod.getRandomPod.map(function(randomPod) {
+      pod.getRandomPod.take(1).map(function(randomPod) {
         var sketch = {
           pod: randomPod
         , containerId: randomPod.id
@@ -64,7 +64,7 @@ module.exports = exports = {
         });
       })
       .subscribeOnError(function(err) {
-        console.log(err);
+        next(err);
       });
     });
   },

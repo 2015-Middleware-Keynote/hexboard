@@ -68,7 +68,7 @@ function podNumber(name) {
 function verifyPodAvailable(pod, retries_remaining) {
   //verify that the app is responding to web requests
   //retry up to N times
-  console.log("live: " + pod.data.name);
+  console.log(tag, "live: " + pod.data.name);
   thousandEmitter.emit('pod-event', pod.data);
 };
 
@@ -78,11 +78,11 @@ var parseData = function(update) {
   };
   var podName = update.object.spec.containers[0].name;
   if (podName.indexOf('sketch') !== 0 || !update.object.status || !update.object.status.phase) {
-    // console.log('Ignoring update for container name:', update.object.spec.containers[0].name);
+    // console.log(tag, 'Ignoring update for container name:', update.object.spec.containers[0].name);
   } else {
     var replicaName = update.object.metadata.name;
     //bundle the pod data
-    // console.log('name',update.object.spec.containers[0].name, update.object.metadata.name)
+    // console.log(tag, 'name',update.object.spec.containers[0].name, update.object.metadata.name)
     update.data = {
       id: podNumber(replicaName),
       name: podName,
@@ -104,7 +104,7 @@ var parseData = function(update) {
     else if (update.object.status.phase === 'Running' && update.object.status.Condition[0].type == 'Ready' && update.object.status.Condition[0].status === 'True') {
       update.data.stage = 4;
     } else {
-      console.log("New data type found:" + JSON.stringify(update, null, '  '))
+      console.log(tag, "New data type found:" + JSON.stringify(update, null, '  '))
     }
   }
   return update;
@@ -117,12 +117,12 @@ var parseData = function(update) {
 
 var lastResourceVersion;
 var connect = Rx.Observable.create(function(observer) {
-  console.log('options', options.watchLivePods);
+  console.log(tag, 'options', options.watchLivePods);
   var stream = request(options.watchLivePods);
   var lines = stream; //.pipe(split());
   stream.on('response', function(response) {
     if (response.statusCode === 200) {
-      console.log('Connection success');
+      console.log(tag, 'Connection success');
       observer.onNext(lines)
     } else {
       stream.on('data', function(data) {
@@ -140,13 +140,13 @@ var connect = Rx.Observable.create(function(observer) {
         if (error.code === 401 || error.code === 403) {
           error.type = 'auth';
         };
-        console.log(error);
+        console.log(tag, error);
         observer.onError(error);
       });
     };
   });
   stream.on('error', function(error) {
-    console.log('error:',error);
+    console.log(tag, 'error:',error);
     observer.onError(error);
   });
   stream.on('end', function() {
@@ -155,9 +155,9 @@ var connect = Rx.Observable.create(function(observer) {
 })
 .retryWhen(function(errors) {
   return errors.scan(0, function(errorCount, err) {
-    console.log('Connection error:', err)
+    console.log(tag, 'Connection error:', err)
     if (err.type && err.type === 'end') {
-      console.log('Attmepting a re-connect (#' + errorCount + ')');
+      console.log(tag, 'Attmepting a re-connect (#' + errorCount + ')');
       options.watchLivePods.qs.resourceVersion = lastResourceVersion; // get only updates
       return errorCount + 1;
     } else {
@@ -177,7 +177,7 @@ var liveStream = connect.flatMap(function(stream) {
     json.timestamp = new Date();
     return json;
   } catch(e) {
-    console.log('JSON parsing error:', e);
+    console.log(tag, 'JSON parsing error:', e);
     return null;
   }
 })
@@ -194,7 +194,7 @@ var parsedStream = liveStream.map(function(json) {
 });
 
 var getActivePreStartPods = Rx.Observable.create(function(observer) {
-  console.log('options', options.listPreStartPods);
+  console.log(tag, 'options', options.listPreStartPods);
   request(options.listPreStartPods, function(error, response, body) {
     if (error) {
       observer.onError({
@@ -229,8 +229,8 @@ var getActivePreStartPods = Rx.Observable.create(function(observer) {
 .retryWhen(function(errors) {
   var maxRetries = 5;
   return errors.scan(0, function(errorCount, err) {
-    console.log('Error:', err);
-    if (err.code && err.code === 403) {
+    console.log(tag, 'Error:', err);
+    if (err.code && (err.code === 401 || err.code === 403)) {
       return maxRetries;
     };
     return errorCount + 1;
@@ -244,7 +244,7 @@ var getActivePreStartPods = Rx.Observable.create(function(observer) {
   return items;
 })
 .filter(function(object) {
-  // console.log(object);
+  // console.log(tag, object);
   return (object.status.phase === 'Running' && object.status.Condition[0].type == 'Ready' && object.status.Condition[0].status === 'True')
 })
 .map(function(object, index) {
@@ -253,13 +253,12 @@ var getActivePreStartPods = Rx.Observable.create(function(observer) {
   , name: object.metadata.name
   , url: config.preStart.proxy + '/' + config.preStart.namespace + '/' + object.metadata.name
   }
-  console.log(pod);
   return pod;
 })
 .toArray()
 .shareReplay(1);
 
-getActivePreStartPods.take(1).subscribeOnError(function(err) {console.log(err)});
+getActivePreStartPods.take(1).subscribeOnError(function(err) {console.log(tag, err)});
 
 var getRandomInt = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);
@@ -269,8 +268,9 @@ var getRandomPod = getActivePreStartPods.map(function(pods) {
   var candidatePods = pods.filter(function(pod) {
     return ! pod.sketch;
   });
-  console.log(pods)
-  console.log(candidatePods)
+  if (candidatePods.length === 0) {
+    throw new Error('No pods available');
+  };
   var index = getRandomInt(0, candidatePods.length);
   return candidatePods[index];
 });
