@@ -143,9 +143,11 @@ d3demo.forcemap = (function visualisation(d3, Rx) {
       if (!d.user) {
         return false;
       }
-      return d.user.name.toLowerCase().indexOf(str.toLowerCase()) > -1
-        || d.user.id && d.user.id.toString().toLowerCase().indexOf(str.toString().toLowerCase()) > -1
-        || d.beaconId && d.beaconId.toString().toLowerCase().indexOf(str.toString().toLowerCase()) > -1;
+      var strlc = str.toString().toLowerCase();
+      var match = d.user.name.toLowerCase().indexOf(strlc) > -1
+        || d.user.id && d.user.id.toString().toLowerCase().indexOf(strlc) > -1
+        || d.beaconId && d.beaconId.toString().toLowerCase().indexOf(strlc) > -1;
+      return !! match;
     });
   };
 
