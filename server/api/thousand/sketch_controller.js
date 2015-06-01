@@ -5,32 +5,26 @@ var fs = require('fs')
   , randomSketches = require('../../thousand/random').randomSketches
   , thousandEmitter = require('../../thousand/thousandEmitter')
   , request = require('request')
+  , pod = require('../../thousand/pod')
   ;
 
 var tag = 'API/THOUSAND';
 
-var postImageToPod = function(sketch, filename, url, callback) {
-  var url = 'http://sketch-1-pod-demo3.apps.summit.paas.ninja' + '/doodle?username='+sketch.name+'&cuid='+sketch.cuid+'&submission='+sketch.submissionId;
+var postImageToPod = function(sketch, filename, callback) {
+  var putUrl = sketch.pod.url + '/doodle?username='+sketch.name+'&cuid='+sketch.cuid+'&submission='+sketch.submissionId;
   var readStream = fs.createReadStream(filename);
-  readStream.pipe(request.put(url, function (err, res, body) {
+  readStream.pipe(request.put(putUrl, function (err, res, body) {
     if (err) {
       throw new Error(err);
     }
     console.log('res', res.body);
     callback(res.body);
   }));
-
 };
 
 module.exports = exports = {
   receiveImage: function(req, res, next) {
     console.log(tag, 'originalUrl', req.originalUrl);
-
-    var containerId = parseInt(req.params.containerId);
-    if (containerId < 0 || containerId >= 1060) {
-      next('Invalid containerId');
-      return;
-    };
     var data = new Buffer('');
     req.on('data', function(chunk) {
       data = Buffer.concat([data, chunk]);
@@ -39,29 +33,39 @@ module.exports = exports = {
       next(err);
     });
     req.on('end', function() {
-      var filename = 'thousand-sketch' + containerId + '.png';
-      fs.open(os.tmpdir() + '/' + filename, 'w', function(err, fd) {
-        if (err) {
-          next(err);
+      pod.getRandomPod.map(function(randomPod) {
+        var sketch = {
+          pod: randomPod
+        , containerId: randomPod.id
+        , url: pod.url
+        , uiUrl: '/api/sketch/' + randomPod.id
+        , name: req.query.name
+        , cuid: req.query.cuid
+        , submissionId: req.query.submission_id
         };
-        console.log(tag, 'originalUrl', req.originalUrl);
-        fs.write(fd, data, 0, data.length, 0, function(err, written, buffer) {
+        pod.skecth = sketch;
+        console.log(sketch);
+        return sketch;
+      }).tap(function(sketch) {
+        var filename = 'thousand-sketch' + sketch.pod.id + '.png';
+        fs.open(os.tmpdir() + '/' + filename, 'w', function(err, fd) {
           if (err) {
             next(err);
           };
-          var sketch = {
-            containerId: containerId
-          , url: '/api/sketch/' + containerId
-          , name: req.query.name
-          , cuid: req.query.cuid
-          , submissionId: req.query.submission_id
-          };
-          thousandEmitter.emit('new-sketch', sketch);
-          postImageToPod(sketch, os.tmpdir() + '/' + filename, '', function(msg) {
-            return res.send(msg);
-          })
+          fs.write(fd, data, 0, data.length, 0, function(err, written, buffer) {
+            if (err) {
+              next(err);
+            };
+            thousandEmitter.emit('new-sketch', sketch);
+            postImageToPod(sketch, os.tmpdir() + '/' + filename, function(msg) {
+              return res.json(sketch);
+            })
+          });
         });
       })
+      .subscribeOnError(function(err) {
+        console.log(err);
+      });
     });
   },
 

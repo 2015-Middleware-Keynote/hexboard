@@ -16,13 +16,14 @@ var tag = 'POD';
 var config = {
   live: {
     oauthToken: process.env.ACCESS_TOKEN_LIVE || false,
-    namespace: process.env.NAMESPACE_LIVE || 'demo2',
-    openshiftServer: process.env.OPENSHIFT_SERVER || 'openshift-master.summit.paas.ninja:8443'
+    namespace: process.env.NAMESPACE_LIVE || 'demo1', //summit1
+    openshiftServer: process.env.OPENSHIFT_SERVER || 'openshift-master.summit2.paas.ninja:8443'
   },
   preStart: {
     oauthToken: process.env.ACCESS_TOKEN_PRESTART || false,
-    namespace: process.env.NAMESPACE_PRESTART || 'demo3',
-    openshiftServer: process.env.OPENSHIFT_SERVER || 'openshift-master.summit.paas.ninja:8443'
+    namespace: process.env.NAMESPACE_PRESTART || 'demo-test',  //summit2
+    openshiftServer: process.env.OPENSHIFT_SERVER || 'openshift-master.summit2.paas.ninja:8443',
+    proxy: 'http://openshiftproxy-bleathemredhat.rhcloud.com'
   }
 };
 
@@ -245,26 +246,38 @@ var getActivePreStartPods = Rx.Observable.create(function(observer) {
 .filter(function(object) {
   // console.log(object);
   return (object.status.phase === 'Running' && object.status.Condition[0].type == 'Ready' && object.status.Condition[0].status === 'True')
-});
+})
+.map(function(object, index) {
+  var pod = {
+    id: index
+  , name: object.metadata.name
+  , url: config.preStart.proxy + '/' + config.preStart.namespace + '/' + object.metadata.name
+  }
+  console.log(pod);
+  return pod;
+})
+.toArray()
+.shareReplay(1);
 
-var getFromPod = function(podName) {
-  // /api/v1beta3/proxy/namespaces/{namespaces}/pods/{name}
-  var localurl = 'https://' + config.preStart.openshiftServer + '/api/v1beta3/namespaces/demo3/pods/'+ podName +'/proxy/';
-  // var localurl = 'https://' + config.preStart.openshiftServer + '/api/v1beta3/proxy/namespaces/demo3/pods/' + podName;
-  var localoptions = _.extend({url: localurl, auth: {bearer: config.preStart.oauthToken }}, options.base);
-  console.log('options', localoptions);
-  request(localoptions, function(error, response, body) {
-    console.log(error);
-    // console.log(response);
-    console.log(body);
-  });
+getActivePreStartPods.take(1).subscribeOnError(function(err) {console.log(err)});
+
+var getRandomInt = function (min, max) {
+  return Math.floor(Math.random() * (max - min) + min);
 };
 
+var getRandomPod = getActivePreStartPods.map(function(pods) {
+  var candidatePods = pods.filter(function(pod) {
+    return ! pod.sketch;
+  });
+  console.log(pods)
+  console.log(candidatePods)
+  var index = getRandomInt(0, candidatePods.length);
+  return candidatePods[index];
+});
 
 module.exports = {
   rawStream: liveStream
 , eventStream: parsedStream
 , parseData : parseData
-, getActivePreStartPods: getActivePreStartPods
-, getFromPod: getFromPod
+, getRandomPod: getRandomPod
 };

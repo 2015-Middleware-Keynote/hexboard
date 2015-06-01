@@ -192,7 +192,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
       .attr('y', 0);
 
     pattern.append('image')
-      .attr('xlink:href', sketch.url)
+      .attr('xlink:href', sketch.uiUrl)
       .attr('width', imgsize)
       .attr('height', imgsize)
       .attr('x', 0)
