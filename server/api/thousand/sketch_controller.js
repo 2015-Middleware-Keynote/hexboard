@@ -37,7 +37,7 @@ module.exports = exports = {
         var sketch = {
           pod: randomPod
         , containerId: randomPod.id
-        , url: pod.url
+        , url: randomPod.url
         , uiUrl: '/api/sketch/' + randomPod.id
         , name: req.query.name
         , cuid: req.query.cuid
