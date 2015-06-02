@@ -217,7 +217,9 @@ var connect = function(options) {
       console.log(tag, 'Connection error:', err)
       if (err.type && err.type === 'end') {
         console.log(tag, 'Attmepting a re-connect (#' + errorCount + ')');
-        options.qs.resourceVersion = options.lastResourceVersion; // get only updates
+        if (options.lastResourceVersion) {
+          options.qs.resourceVersion = options.lastResourceVersion; // get only updates
+        };
         return errorCount + 1;
       } else {
         throw err;
@@ -234,7 +236,9 @@ var watchStream = function(connection, options) {
   .map(function(data) {
     try {
       var json = JSON.parse(data);
-      options.lastResourceVersion = json.object.metadata.resourceVersion;
+      if (json.object.metadata.resourceVersion) {
+        options.lastResourceVersion = json.object.metadata.resourceVersion;
+      }
       json.timestamp = new Date();
       return json;
     } catch(e) {
@@ -361,7 +365,8 @@ var getRandomPod = getActivePreStartPods.filter(function(pod) {
   });
 
 module.exports = {
-  rawStream: liveWatchStream
+  rawLiveStream: liveWatchStream
+, rawPreStartStream: preStartWatchStream
 , liveStream: parsedLiveStream
 , preStartStream: parsedPreStartStream
 , parseData : parseData
