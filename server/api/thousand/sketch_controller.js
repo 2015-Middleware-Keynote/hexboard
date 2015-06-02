@@ -2,6 +2,8 @@
 
 var fs = require('fs')
   , os = require('os')
+  , Rx = require('rx')
+  , RxNode = require('rx-node')
   , randomSketches = require('../../thousand/random').randomSketches
   , thousandEmitter = require('../../thousand/thousandEmitter')
   , request = require('request')
@@ -10,63 +12,67 @@ var fs = require('fs')
 
 var tag = 'API/THOUSAND';
 
-var postImageToPod = function(sketch, filename, callback) {
-  var putUrl = sketch.pod.url + '/doodle?username='+sketch.name+'&cuid='+sketch.cuid+'&submission='+sketch.submissionId;
-  var readStream = fs.createReadStream(filename);
-  readStream.pipe(request.put(putUrl, function (err, res, body) {
-    if (err) {
-      throw new Error(err);
-    }
-    console.log('res', res.body);
-    callback(res.body);
-  }));
+var saveImageToFile = function(sketch, req) {
+  var filename = 'thousand-sketch' + sketch.containerId + '.png';
+  console.log('Saving sketch to file:', filename);
+  return Rx.Observable.create(function(observer) {
+    var stream = req.pipe(fs.createWriteStream(os.tmpdir() + '/' + filename));
+    req.on('end', function() {
+      // console.log('File save complete:', filename);
+      observer.onNext(sketch);
+      observer.onCompleted();
+    });
+    req.on('error', function(error) {
+      observer.onError(error);
+    });
+  });
+}
+
+var postImageToPod = function(sketch, req) {
+  var putUrl = sketch.url + '/doodle?username='+sketch.name+'&cuid='+sketch.cuid+'&submission='+sketch.submissionId;
+  console.log('Putting sketch to url:', putUrl);
+  return Rx.Observable.create(function(observer) {
+    req.pipe(request.put(putUrl, function (err, res, body) {
+      if (err) {
+        observer.onError(err);
+        return;
+      };
+      // console.log('Put complete:', sketch.url);
+      observer.onNext(res.body);
+      observer.onCompleted();
+    }));
+  })
 };
 
 module.exports = exports = {
   receiveImage: function(req, res, next) {
     console.log(tag, 'originalUrl', req.originalUrl);
-    var data = new Buffer('');
-    req.on('data', function(chunk) {
-      data = Buffer.concat([data, chunk]);
-    });
-    req.on('error', function(err) {
-      next(err);
-    });
-    req.on('end', function() {
-      pod.getRandomPod.map(function(randomPod) {
-        var sketch = {
-          pod: randomPod
-        , containerId: randomPod.id
-        , url: randomPod.url
-        , uiUrl: '/api/sketch/' + randomPod.id
-        , name: req.query.name
-        , cuid: req.query.cuid
-        , submissionId: req.query.submission_id
-        };
-        pod.skecth = sketch;
-        console.log(tag, sketch);
+    pod.getRandomPod.flatMap(function(randomPod) {
+      // console.log(randomPod);
+      var sketch = {
+        containerId: randomPod.id
+      , url: randomPod.url
+      , uiUrl: '/api/sketch/' + randomPod.id
+      , name: req.query.name
+      , cuid: req.query.cuid
+      , submissionId: req.query.submission_id
+      };
+      randomPod.skecth = sketch;
+      return Rx.Observable.zip(
+        saveImageToFile(sketch, req)
+      , postImageToPod(sketch, req)
+      , function(sketch, response) {
         return sketch;
-      }).tap(function(sketch) {
-        var filename = 'thousand-sketch' + sketch.pod.id + '.png';
-        fs.open(os.tmpdir() + '/' + filename, 'w', function(err, fd) {
-          if (err) {
-            next(err);
-          };
-          fs.write(fd, data, 0, data.length, 0, function(err, written, buffer) {
-            if (err) {
-              next(err);
-            };
-            thousandEmitter.emit('new-sketch', sketch);
-            postImageToPod(sketch, os.tmpdir() + '/' + filename, function(msg) {
-              return res.json(sketch);
-            })
-          });
-        });
       })
-      .subscribeOnError(function(err) {
-        console.log(err)
-        next(err);
-      });
+    })
+    .subscribe(function(sketch) {
+      console.log(tag, sketch);
+      thousandEmitter.emit('new-sketch', sketch);
+      res.json(sketch);
+    }, function(err) {
+      // delete randomPod.skecth;
+      console.log(tag, err)
+      next(err);
     });
   },
 

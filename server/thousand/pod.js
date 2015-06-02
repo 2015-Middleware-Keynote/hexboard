@@ -87,7 +87,7 @@ function verifyPodAvailable(pod) {
   .retryWhen(function(errors) {
     var maxRetries = 20;
     return errors.scan(0, function(errorCount, err) {
-      console.log(tag, 'Error (#', errorCount, ')', pod.name, ':', err);
+      console.log(tag, 'Error (#', errorCount, ')', pod.url, ':', err);
       if (err.code && (err.code === 401 || err.code === 403)) {
         return maxRetries;
       };
@@ -99,7 +99,8 @@ function verifyPodAvailable(pod) {
     .flatMap(function(errorCount) {
       return Rx.Observable.timer(errorCount * 250);
     });
-  });
+  })
+  .catch(Rx.Observable.empty());
 };
 
 var parseData = function(update) {
@@ -287,6 +288,9 @@ var getActivePreStartPods = Rx.Observable.create(function(observer) {
 })
 .flatMap(function(pod) {
   return verifyPodAvailable(pod);
+})
+.tap(function(pod) {
+  console.log('Available:', pod.url);
 })
 .replay();
 
