@@ -100,14 +100,19 @@ module.exports = exports = {
 
   randomSketches: function(req, res, next) {
     var numSketches = req.params.numSketches;
-    randomSketches(numSketches)
-      .subscribe(function(sketch) {
+    randomSketches(numSketches).flatMap(function(sketch) {
+      return pod.getRandomPod.map(function(randomPod) {
+        sketch.containerId = randomPod.id
         thousandEmitter.emit('new-sketch', sketch);
-      }, function(error) {
-        next(error)
-      }, function() {
-        console.log(tag, numSketches + ' sketches pushed');
-        res.json({msg: numSketches + ' sketches pushed'});
+        return sketch;
       });
+    })
+    .subscribe(function(sketch) {
+    }, function(error) {
+      next(error)
+    }, function() {
+      console.log(tag, numSketches + ' sketches pushed');
+      res.json({msg: numSketches + ' sketches pushed'});
+    });
   }
 };
