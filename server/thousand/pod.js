@@ -60,7 +60,7 @@ function podNumber(name) {
   var num = name.match(/[a-z0-9]*$/);
   var stringId = num[0];
   if (! idMap[stringId]) {
-    idMap[stringId] = ++lastId;
+    idMap[stringId] = lastId++;
   }
   return idMap[stringId];
 };
