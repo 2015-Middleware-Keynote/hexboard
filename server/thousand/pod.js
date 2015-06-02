@@ -30,10 +30,13 @@ var config = {
 // Allow self-signed SSL
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-var url = {
-  watchLivePods: 'https://' + config.live.openshiftServer + '/api/v1beta3/watch/namespaces/' + config.live.namespace + '/pods',
-  listPreStartPods: 'https://' + config.preStart.openshiftServer + '/api/v1beta3/namespaces/' + config.preStart.namespace + '/pods'
-}
+var buildWatchPodsUrl = function(server, namespace) {
+  return 'https://' + server + '/api/v1beta3/watch/namespaces/' + namespace + '/pods';
+};
+
+var buildListPodsUrl = function(server, namespace) {
+  return 'https://' + server + '/api/v1beta3/namespaces/' + namespace + '/pods';
+};
 
 var options = {
   base: {
@@ -46,21 +49,44 @@ var options = {
   }
 };
 
-options.watchLivePods = _.extend({url: url.watchLivePods, auth: {bearer: config.live.oauthToken }}, options.base);
-options.listPreStartPods = _.extend({url: url.listPreStartPods, auth: {bearer: config.preStart.oauthToken }}, options.base);
+options.watchLivePods = _.extend({
+  url: buildWatchPodsUrl(config.live.openshiftServer, config.live.namespace)
+, auth: {bearer: config.live.oauthToken }
+}
+, options.base
+);
+
+options.watchPreStartPods = _.extend({
+  url: buildWatchPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
+, auth: {bearer: config.preStart.oauthToken
+}}
+, options.base
+);
+
+options.listPreStartPods = _.extend({
+  url: buildListPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
+, auth: {bearer: config.preStart.oauthToken
+}}
+, options.base
+);
 
 function podIdToURL(id) {
   return "sketch-"+id+"-app-summit3.apps.summit.paas.ninja"
 };
 
-var idMap = {};
-var lastId = 0;
+var idMapNamespaces = {};
+var lastId = {};
 
-function podNumber(name) {
+function podNumber(namespace, name) {
+  if (! idMapNamespaces[namespace]) {
+    idMapNamespaces[namespace] = {};
+    lastId[namespace] = 0;
+  }
+  var idMap = idMapNamespaces[namespace];
   var num = name.match(/[a-z0-9]*$/);
   var stringId = num[0];
   if (! idMap[stringId]) {
-    idMap[stringId] = lastId++;
+    idMap[stringId] = lastId[namespace]++;
   }
   return idMap[stringId];
 };
@@ -73,6 +99,10 @@ function verifyPodAvailable(pod) {
     }
     request(options, function(error, response, body) {
       if (!error && response.statusCode == 200) {
+        if (pod.errorCount) {
+          console.log(tag, 'Recovery (#', errorCount, ')', pod.url);
+          delete(pod.errorCount);
+        }
         observer.onNext(pod);
         observer.onCompleted();
       } else {
@@ -87,11 +117,14 @@ function verifyPodAvailable(pod) {
   .retryWhen(function(errors) {
     var maxRetries = 20;
     return errors.scan(0, function(errorCount, err) {
-      console.log(tag, 'Error (#', errorCount, ')', pod.url, ':', err);
+      if (errorCount === 0) {
+        console.log(tag, 'Error ', pod.url, ':', err);
+      };
       if (err.code && (err.code === 401 || err.code === 403)) {
         return maxRetries;
       };
-      return errorCount + 1;
+      pod.errorCount = ++errorCount;
+      return errorCount;
     })
     .takeWhile(function(errorCount) {
       return errorCount < maxRetries;
@@ -115,7 +148,7 @@ var parseData = function(update) {
     //bundle the pod data
     // console.log(tag, 'name',update.object.spec.containers[0].name, update.object.metadata.name)
     update.data = {
-      id: podNumber(replicaName),
+      id: podNumber(update.object.metadata.namespace, replicaName),
       name: podName,
       hostname: podName + '-summit3.apps.summit.paas.ninja',
       stage: update.type,
@@ -141,83 +174,95 @@ var parseData = function(update) {
   return update;
 };
 
+var connect = function(options) {
+  return Rx.Observable.create(function(observer) {
+    console.log(tag, 'options', options);
+    var stream = request(options);
+    var lines = stream.pipe(split());
+    stream.on('response', function(response) {
+      if (response.statusCode === 200) {
+        console.log(tag, 'Connection success');
+        observer.onNext(lines)
+      } else {
+        stream.on('data', function(data) {
+          var message;
+          try {
+            var data = JSON.parse(data);
+            message = data.message;
+          } catch(e) {
+            message = data.toString();
+          }
+          var error = {
+            code: response.statusCode
+          , message: message
+          };
+          if (error.code === 401 || error.code === 403) {
+            error.type = 'auth';
+          };
+          console.log(tag, error);
+          observer.onError(error);
+        });
+      };
+    });
+    stream.on('error', function(error) {
+      console.log(tag, 'error:',error);
+      observer.onError(error);
+    });
+    stream.on('end', function() {
+      observer.onError({type: 'end', msg: 'Request terminated.'});
+    });
+  })
+  .retryWhen(function(errors) {
+    return errors.scan(0, function(errorCount, err) {
+      console.log(tag, 'Connection error:', err)
+      if (err.type && err.type === 'end') {
+        console.log(tag, 'Attmepting a re-connect (#' + errorCount + ')');
+        options.qs.resourceVersion = options.lastResourceVersion; // get only updates
+        return errorCount + 1;
+      } else {
+        throw err;
+      }
+    });
+  })
+  .shareReplay(1);
+};
 
-
-  // stream.pipe(fs.createWriteStream('./server/thousand/pods-create-raw.log'))
-  // var writeStream = fs.createWriteStream('./server/thousand/pods-create-parsed.log');
-
-var lastResourceVersion;
-var connect = Rx.Observable.create(function(observer) {
-  console.log(tag, 'options', options.watchLivePods);
-  var stream = request(options.watchLivePods);
-  var lines = stream; //.pipe(split());
-  stream.on('response', function(response) {
-    if (response.statusCode === 200) {
-      console.log(tag, 'Connection success');
-      observer.onNext(lines)
-    } else {
-      stream.on('data', function(data) {
-        var message;
-        try {
-          var data = JSON.parse(data);
-          message = data.message;
-        } catch(e) {
-          message = data.toString();
-        }
-        var error = {
-          code: response.statusCode
-        , message: message
-        };
-        if (error.code === 401 || error.code === 403) {
-          error.type = 'auth';
-        };
-        console.log(tag, error);
-        observer.onError(error);
-      });
-    };
-  });
-  stream.on('error', function(error) {
-    console.log(tag, 'error:',error);
-    observer.onError(error);
-  });
-  stream.on('end', function() {
-    observer.onError({type: 'end', msg: 'Request terminated.'});
-  });
-})
-.retryWhen(function(errors) {
-  return errors.scan(0, function(errorCount, err) {
-    console.log(tag, 'Connection error:', err)
-    if (err.type && err.type === 'end') {
-      console.log(tag, 'Attmepting a re-connect (#' + errorCount + ')');
-      options.watchLivePods.qs.resourceVersion = lastResourceVersion; // get only updates
-      return errorCount + 1;
-    } else {
-      throw err;
+var watchStream = function(connection, options) {
+  return connection.flatMap(function(stream) {
+    return RxNode.fromStream(stream)
+  })
+  .map(function(data) {
+    try {
+      var json = JSON.parse(data);
+      options.lastResourceVersion = json.object.metadata.resourceVersion;
+      json.timestamp = new Date();
+      return json;
+    } catch(e) {
+      console.log(tag, 'JSON parsing error:', e);
+      console.log(data);
+      return null;
     }
-  });
-})
-.shareReplay(1);
-
-var liveStream = connect.flatMap(function(stream) {
-  return RxNode.fromStream(stream)
-})
-.map(function(data) {
-  try {
-    var json = JSON.parse(data);
-    lastResourceVersion = json.object.metadata.resourceVersion;
-    json.timestamp = new Date();
+  })
+  .filter(function(json) {
     return json;
-  } catch(e) {
-    console.log(tag, 'JSON parsing error:', e);
-    return null;
-  }
-})
-.filter(function(json) {
-  return json;
-})
-.shareReplay();
+  })
+  .shareReplay();
+};
 
-var parsedStream = liveStream.map(function(json) {
+var liveWatchConnection = connect(options.watchLivePods);
+var preStartWatchConnection = connect(options.watchPreStartPods);
+
+var liveWatchStream = watchStream(liveWatchConnection, options.watchLivePods);
+var preStartWatchStream = watchStream(preStartWatchConnection, options.watchPreStartPods);
+
+var parsedLiveStream = liveWatchStream.map(function(json) {
+  return parseData(json);
+})
+.filter(function(parsed) {
+  return parsed && parsed.data && parsed.data.stage && parsed.data.id <= 1025;
+});
+
+var parsedPreStartStream = preStartWatchStream.map(function(json) {
   return parseData(json);
 })
 .filter(function(parsed) {
@@ -289,9 +334,9 @@ var getActivePreStartPods = Rx.Observable.create(function(observer) {
 .flatMap(function(pod) {
   return verifyPodAvailable(pod);
 })
-.tap(function(pod) {
-  console.log('Available:', pod.url);
-})
+// .tap(function(pod) {
+//   console.log('Available:', pod.url);
+// })
 .replay();
 
 getActivePreStartPods.connect();
@@ -316,8 +361,9 @@ var getRandomPod = getActivePreStartPods.filter(function(pod) {
   });
 
 module.exports = {
-  rawStream: liveStream
-, eventStream: parsedStream
+  rawStream: liveWatchStream
+, liveStream: parsedLiveStream
+, preStartStream: parsedPreStartStream
 , parseData : parseData
 , getRandomPod: getRandomPod
 };

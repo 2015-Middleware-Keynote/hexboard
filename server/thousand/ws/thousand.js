@@ -60,7 +60,12 @@ module.exports = function(server) {
     var eventFeed;
     switch (feed) {
       case 'live':
-        eventFeed = pod.eventStream.map(function(parsed) {
+        eventFeed = pod.liveStream.map(function(parsed) {
+          return parsed.data;
+        });
+        break;
+      case 'sketch':
+        eventFeed = pod.preStartStream.map(function(parsed) {
           return parsed.data;
         });
         break;
