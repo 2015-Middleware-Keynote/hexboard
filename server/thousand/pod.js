@@ -65,11 +65,39 @@ function podNumber(name) {
   return idMap[stringId];
 };
 
-function verifyPodAvailable(pod, retries_remaining) {
-  //verify that the app is responding to web requests
-  //retry up to N times
-  console.log(tag, "live: " + pod.data.name);
-  thousandEmitter.emit('pod-event', pod.data);
+function verifyPodAvailable(pod) {
+  return Rx.Observable.create(function(observer) {
+    var options = {
+      url: pod.url
+    , method: 'get'
+    }
+    request(options, function(error, response, body) {
+      if (!error && response.statusCode == 200) {
+        observer.onNext(pod);
+        observer.onCompleted();
+      } else {
+        var err = {
+          code: response.statusCode
+        , msg: error
+        }
+        observer.onError(err);
+      };
+    })
+  })
+  .retryWhen(function(errors) {
+    var maxRetries = 60;
+    return errors.scan(0, function(errorCount, err) {
+      console.log(tag, 'Error', pod.name, ':', err);
+      if (err.code && (err.code === 401 || err.code === 403)) {
+        return maxRetries;
+      };
+      return errorCount + 1;
+    })
+    .takeWhile(function(errorCount) {
+      return errorCount < maxRetries;
+    })
+    .delay(1000);
+  });
 };
 
 var parseData = function(update) {
@@ -249,31 +277,37 @@ var getActivePreStartPods = Rx.Observable.create(function(observer) {
 })
 .map(function(object, index) {
   var pod = {
-    id: index
+    index: index
   , name: object.metadata.name
   , url: config.preStart.proxy + '/' + config.preStart.namespace + '/' + object.metadata.name
   }
   return pod;
 })
-.toArray()
-.shareReplay(1);
+.flatMap(function(pod) {
+  return verifyPodAvailable(pod);
+})
+.replay();
 
-getActivePreStartPods.take(1).subscribeOnError(function(err) {console.log(tag, err)});
+getActivePreStartPods.connect();
+
+// getActivePreStartPods.take(1).subscribeOnError(function(err) {console.log(tag, err)});
 
 var getRandomInt = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 };
 
-var getRandomPod = getActivePreStartPods.map(function(pods) {
-  var candidatePods = pods.filter(function(pod) {
-    return ! pod.sketch;
+var ids = _.range(0, 1025);
+var getRandomPod = getActivePreStartPods.filter(function(pod) {
+    return ! pod.id;
+  })
+  .take(1)
+  .map(function(pod) {
+    var index = getRandomInt(0, ids.length);
+    var id = ids[index];
+    ids.splice(index, 1);
+    pod.id = id;
+    return pod;
   });
-  if (candidatePods.length === 0) {
-    throw new Error('No pods available');
-  };
-  var index = getRandomInt(0, candidatePods.length);
-  return candidatePods[index];
-});
 
 module.exports = {
   rawStream: liveStream

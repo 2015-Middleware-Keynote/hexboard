@@ -33,7 +33,7 @@ module.exports = exports = {
       next(err);
     });
     req.on('end', function() {
-      pod.getRandomPod.take(1).map(function(randomPod) {
+      pod.getRandomPod.map(function(randomPod) {
         var sketch = {
           pod: randomPod
         , containerId: randomPod.id
@@ -44,7 +44,7 @@ module.exports = exports = {
         , submissionId: req.query.submission_id
         };
         pod.skecth = sketch;
-        console.log(sketch);
+        console.log(tag, sketch);
         return sketch;
       }).tap(function(sketch) {
         var filename = 'thousand-sketch' + sketch.pod.id + '.png';
@@ -64,6 +64,7 @@ module.exports = exports = {
         });
       })
       .subscribeOnError(function(err) {
+        console.log(err)
         next(err);
       });
     });
