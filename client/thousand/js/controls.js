@@ -4,6 +4,15 @@ var hex = hex || {};
 
 hex.controls = (function dataSimulator(d3, Rx) {
 
+  var getParameterByName=  function (name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+  };
+
+  var adminEnabled = getParameterByName('admin') === 'true';
+
   Rx.Observable.fromEvent(d3.select('#push-sketches').node(), 'click').subscribe(function() {
     var xhr = d3.xhr('/api/sketch/random/10', function(err, res) {
       console.log(err || res);
@@ -98,7 +107,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
   var lastDoodle;
   var mouseSubscription = Rx.Observable.fromEvent(document.querySelector('.map'), 'mousemove')
   .filter(function(event) {
-    return event.target.classList.contains('sketch');
+    return event.target.classList.contains('sketch') && adminEnabled;
   })
   .tap(function(event) {
     var p = d3.select(event.target).datum();
