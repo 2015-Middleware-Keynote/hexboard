@@ -250,7 +250,7 @@ var watchStream = function(connection, options) {
   .filter(function(json) {
     return json;
   })
-  .shareReplay();
+  .replay();
 };
 
 var liveWatchConnection = connect(options.watchLivePods);
@@ -258,6 +258,9 @@ var preStartWatchConnection = connect(options.watchPreStartPods);
 
 var liveWatchStream = watchStream(liveWatchConnection, options.watchLivePods);
 var preStartWatchStream = watchStream(preStartWatchConnection, options.watchPreStartPods);
+
+liveWatchStream.connect();
+preStartWatchStream.connect();
 
 var parsedLiveStream = liveWatchStream.map(function(json) {
   return parseData(json);
