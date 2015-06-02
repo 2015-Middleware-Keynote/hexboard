@@ -44,6 +44,7 @@ var randomSketches = function(numSketches) {
           var sketch = {
             containerId: containerId
           , url: '/thousand/sketches/thousand-sketch' + imageIndex + '.png'
+          , uiUrl: '/thousand/sketches/thousand-sketch' + imageIndex + '.png'
           , name: 'FirstName' + containerId + ' LastName' + containerId
           , cuid: imageIndex
           , submissionId: submissionCount++
