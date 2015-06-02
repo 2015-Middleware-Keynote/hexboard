@@ -85,9 +85,9 @@ function verifyPodAvailable(pod) {
     })
   })
   .retryWhen(function(errors) {
-    var maxRetries = 60;
+    var maxRetries = 20;
     return errors.scan(0, function(errorCount, err) {
-      console.log(tag, 'Error', pod.name, ':', err);
+      console.log(tag, 'Error (#', errorCount, ')', pod.name, ':', err);
       if (err.code && (err.code === 401 || err.code === 403)) {
         return maxRetries;
       };
@@ -96,7 +96,9 @@ function verifyPodAvailable(pod) {
     .takeWhile(function(errorCount) {
       return errorCount < maxRetries;
     })
-    .delay(1000);
+    .flatMap(function(errorCount) {
+      return Rx.Observable.timer(errorCount * 250);
+    });
   });
 };
 
