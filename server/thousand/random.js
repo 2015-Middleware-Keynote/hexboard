@@ -37,7 +37,7 @@ var submissionCount = 0;
 var randomSketches = function(numSketches) {
   var sketches = Rx.Observable.range(0, numSketches)
     .flatMap(function(x) {
-      var imageIndex = getRandomInt(0, 13);
+      var imageIndex = getRandomInt(0, 20);
       return Rx.Observable.range(0,1)
         .map(function() {
           var containerId = getRandomInt(0, 1026);
