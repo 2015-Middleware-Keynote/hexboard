@@ -17,13 +17,13 @@ var config = {
   live: {
     oauthToken: process.env.ACCESS_TOKEN_LIVE || false,
     namespace: process.env.NAMESPACE_LIVE || 'demo1', //summit1
-    openshiftServer: process.env.OPENSHIFT_SERVER || 'openshift-master.summit2.paas.ninja:8443'
+    openshiftServer: process.env.OPENSHIFT_SERVER_LIVE || 'openshift-master.summit2.paas.ninja:8443'
   },
   preStart: {
     oauthToken: process.env.ACCESS_TOKEN_PRESTART || false,
     namespace: process.env.NAMESPACE_PRESTART || 'demo-test',  //summit2
-    openshiftServer: process.env.OPENSHIFT_SERVER || 'openshift-master.summit2.paas.ninja:8443',
-    proxy: 'http://openshiftproxy-bleathemredhat.rhcloud.com'
+    openshiftServer: process.env.OPENSHIFT_SERVER_PRESTART || 'openshift-master.summit2.paas.ninja:8443',
+    proxy: 'http://1k.jbosskeynote.com/'
   }
 };
 
