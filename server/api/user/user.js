@@ -26,7 +26,7 @@ var userInit = Rx.Observable.create(function (observer) {
         }
         console.log(tag, msg);
         console.log(tag, 'err', err);
-        console.log(tag, 'res', res);
+        console.log(tag, 'res code', res.statusCode);
         console.log(tag, 'body', body);
         msg += err;
         observer.onError(msg);
