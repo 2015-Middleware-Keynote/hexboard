@@ -23,7 +23,7 @@ var config = {
     oauthToken: process.env.ACCESS_TOKEN_PRESTART || false,
     namespace: process.env.NAMESPACE_PRESTART || 'demo-test',  //summit2
     openshiftServer: process.env.OPENSHIFT_SERVER_PRESTART || 'openshift-master.summit2.paas.ninja:8443',
-    proxy: 'http://1k.jbosskeynote.com/'
+    proxy: 'http://1k.jbosskeynote.com'
   }
 };
 
@@ -69,10 +69,6 @@ options.listPreStartPods = _.extend({
 }}
 , options.base
 );
-
-function podIdToURL(id) {
-  return "sketch-"+id+"-app-summit3.apps.summit.paas.ninja"
-};
 
 var idMapNamespaces = {};
 var lastId = {};
@@ -156,16 +152,15 @@ var parseData = function(update) {
       timestamp: update.timestamp,
       creationTimestamp: new Date(update.object.metadata.creationTimestamp)
     }
-    if (update.object.status.phase === 'Pending' && ! update.object.spec.host) {
+    if (update.type === 'DELETED') {
+      update.data.stage = 0;
+    } else if (update.object.status.phase === 'Pending' && ! update.object.spec.host) {
       update.data.stage = 1;
-    }
-    else if (update.object.status.phase === 'Pending' && update.object.spec.host) {
+    } else if (update.object.status.phase === 'Pending' && update.object.spec.host) {
       update.data.stage = 2;
-    }
-    else if (update.object.status.phase === 'Running' && update.object.status.Condition[0].type == 'Ready' && update.object.status.Condition[0].status === 'False') {
+    } else if (update.object.status.phase === 'Running' && update.object.status.Condition[0].type == 'Ready' && update.object.status.Condition[0].status === 'False') {
       update.data.stage = 3;
-    }
-    else if (update.object.status.phase === 'Running' && update.object.status.Condition[0].type == 'Ready' && update.object.status.Condition[0].status === 'True') {
+    } else if (update.object.status.phase === 'Running' && update.object.status.Condition[0].type == 'Ready' && update.object.status.Condition[0].status === 'True') {
       update.data.stage = 4;
     } else {
       console.log(tag, "New data type found:" + JSON.stringify(update, null, '  '))
@@ -178,13 +173,23 @@ var connect = function(options) {
   return Rx.Observable.create(function(observer) {
     console.log(tag, 'options', options);
     var stream = request(options);
+    stream.on('error', function(error) {
+      console.log(tag, 'error:',error);
+      observer.onError(error);
+    });
+    stream.on('end', function() {
+      observer.onError({type: 'end', msg: 'Request terminated.'});
+    });
     var lines = stream.pipe(split());
+    // setTimeout(function() {
+    //   observer.onError({type: 'end', msg: 'Force terminated.'});
+    // }, 1500)
     stream.on('response', function(response) {
       if (response.statusCode === 200) {
         console.log(tag, 'Connection success');
         observer.onNext(lines)
       } else {
-        stream.on('data', function(data) {
+        response.on('data', function(data) {
           var message;
           try {
             var data = JSON.parse(data);
@@ -204,13 +209,6 @@ var connect = function(options) {
         });
       };
     });
-    stream.on('error', function(error) {
-      console.log(tag, 'error:',error);
-      observer.onError(error);
-    });
-    stream.on('end', function() {
-      observer.onError({type: 'end', msg: 'Request terminated.'});
-    });
   })
   .retryWhen(function(errors) {
     return errors.scan(0, function(errorCount, err) {
@@ -225,12 +223,11 @@ var connect = function(options) {
         throw err;
       }
     });
-  })
-  .shareReplay(1);
+  });
 };
 
-var watchStream = function(connection, options) {
-  return connection.flatMap(function(stream) {
+var watchStream = function(options) {
+  return connect(options).flatMap(function(stream) {
     return RxNode.fromStream(stream)
   })
   .map(function(data) {
@@ -253,11 +250,8 @@ var watchStream = function(connection, options) {
   .replay();
 };
 
-var liveWatchConnection = connect(options.watchLivePods);
-var preStartWatchConnection = connect(options.watchPreStartPods);
-
-var liveWatchStream = watchStream(liveWatchConnection, options.watchLivePods);
-var preStartWatchStream = watchStream(preStartWatchConnection, options.watchPreStartPods);
+var liveWatchStream = watchStream(options.watchLivePods);
+var preStartWatchStream = watchStream(options.watchPreStartPods);
 
 liveWatchStream.connect();
 preStartWatchStream.connect();
@@ -266,14 +260,14 @@ var parsedLiveStream = liveWatchStream.map(function(json) {
   return parseData(json);
 })
 .filter(function(parsed) {
-  return parsed && parsed.data && parsed.data.stage && parsed.data.id <= 1025;
+  return parsed && parsed.data && parsed.data.type && parsed.data.id <= 1025;
 });
 
 var parsedPreStartStream = preStartWatchStream.map(function(json) {
   return parseData(json);
 })
 .filter(function(parsed) {
-  return parsed && parsed.data && parsed.data.stage && parsed.data.id <= 1025;
+  return parsed && parsed.data && parsed.data.type && parsed.data.id <= 1025;
 });
 
 var getActivePreStartPods = Rx.Observable.create(function(observer) {
@@ -347,8 +341,6 @@ var getActivePreStartPods = Rx.Observable.create(function(observer) {
 .replay();
 
 getActivePreStartPods.connect();
-
-// getActivePreStartPods.take(1).subscribeOnError(function(err) {console.log(tag, err)});
 
 var getRandomInt = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);

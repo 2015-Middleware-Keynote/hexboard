@@ -27,14 +27,14 @@ var eventReplay = function() {
       callback()
     }))
     .pipe(filter(function(parsed) {
-      return parsed && parsed.data && parsed.data.stage;
+      return parsed && parsed.data && parsed.data.type;
     }));
 
   var logEvents = RxNode.fromStream(fileStream).share();
 
   var startTime = null;
   var previousInterval = null;
-  var interval = 1000; //ms
+  var interval = 100; //ms
 
   // An observable triggerred by <interval> changes in logEvents
   var replayProgress = logEvents.flatMap(function(event) {

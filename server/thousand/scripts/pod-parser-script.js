@@ -1,6 +1,9 @@
-
-
 'use strict';
+
+var env = require('node-env-file');
+
+var secretEnvFile = process.env.HOME + '/demo2015-ui.env';
+secretEnvFile && env(secretEnvFile);
 
 var Rx = require('rx')
   , RxNode = require('rx-node')
@@ -30,11 +33,16 @@ rawStream
     callback();
   }))
   .pipe(filter(function(parsed) {
-    return parsed && parsed.data && parsed.data.stage;
+    return parsed && parsed.data && parsed.data.type;
   }))
   .pipe(through2.obj(function (parsed, enc, callback) {
     this.push(JSON.stringify(parsed) + '\n');
+    console.log('write');
     callback();
   }))
   .pipe(parsedStream);
 ;
+
+rawStream.on('end', function() {
+  console.log('end');
+})
