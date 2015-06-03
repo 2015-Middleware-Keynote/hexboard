@@ -71,18 +71,19 @@ options.listPreStartPods = _.extend({
 );
 
 var idMapNamespaces = {};
-var lastId = {};
+var nextId = {};
 
 function podNumber(namespace, name) {
   if (! idMapNamespaces[namespace]) {
+    console.log('1st pod:', name);
     idMapNamespaces[namespace] = {};
-    lastId[namespace] = 0;
+    nextId[namespace] = 0;
   }
   var idMap = idMapNamespaces[namespace];
   var num = name.match(/[a-z0-9]*$/);
   var stringId = num[0];
-  if (! idMap[stringId]) {
-    idMap[stringId] = lastId[namespace]++;
+  if (! (stringId in idMap)) {
+    idMap[stringId] = nextId[namespace]++;
   }
   return idMap[stringId];
 };
