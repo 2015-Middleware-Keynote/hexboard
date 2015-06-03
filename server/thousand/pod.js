@@ -75,7 +75,6 @@ var nextId = {};
 
 function podNumber(namespace, name) {
   if (! idMapNamespaces[namespace]) {
-    console.log('1st pod:', name);
     idMapNamespaces[namespace] = {};
     nextId[namespace] = 0;
   }
@@ -97,7 +96,7 @@ function verifyPodAvailable(pod) {
     request(options, function(error, response, body) {
       if (!error && response.statusCode == 200) {
         if (pod.errorCount) {
-          console.log(tag, 'Recovery (#', errorCount, ')', pod.url);
+          console.log(tag, 'Recovery (#', pod.errorCount, ')', pod.url);
           delete(pod.errorCount);
         }
         observer.onNext(pod);
@@ -133,7 +132,7 @@ function verifyPodAvailable(pod) {
   .catch(Rx.Observable.empty());
 };
 
-var parseData = function(update) {
+var parseData = function(update, proxy) {
   if (! (update && update.object && update.object.spec && update.object.spec.containers && update.object.spec.containers.length > 0)) {
     return update;
   };
@@ -146,12 +145,15 @@ var parseData = function(update) {
     // console.log(tag, 'name',update.object.spec.containers[0].name, update.object.metadata.name)
     update.data = {
       id: podNumber(update.object.metadata.namespace, replicaName),
-      name: podName,
+      name: replicaName,
       hostname: podName + '-summit3.apps.summit.paas.ninja',
       stage: update.type,
       type: 'event',
       timestamp: update.timestamp,
       creationTimestamp: new Date(update.object.metadata.creationTimestamp)
+    }
+    if (proxy) {
+      update.data.url = config.preStart.proxy + '/' + config.preStart.namespace + '/' + replicaName;
     }
     if (update.type === 'DELETED') {
       update.data.stage = 0;
@@ -258,17 +260,30 @@ liveWatchStream.connect();
 preStartWatchStream.connect();
 
 var parsedLiveStream = liveWatchStream.map(function(json) {
-  return parseData(json);
+  return parseData(json, false);
 })
 .filter(function(parsed) {
   return parsed && parsed.data && parsed.data.type && parsed.data.id <= 1025;
 });
 
 var parsedPreStartStream = preStartWatchStream.map(function(json) {
-  return parseData(json);
+  return parseData(json, true);
 })
 .filter(function(parsed) {
   return parsed && parsed.data && parsed.data.type && parsed.data.id <= 1025;
+})
+.flatMap(function(parsed) {
+  if (parsed.data.stage < 4) {
+    return Rx.Observable.just(parsed);
+  } else {
+    return Rx.Observable.merge(
+      Rx.Observable.just(parsed)
+    , verifyPodAvailable(parsed.data).map(function() {
+        parsed.data.stage = 5;
+        return parsed;
+      })
+    );
+  };
 });
 
 var getActivePreStartPods = Rx.Observable.create(function(observer) {
