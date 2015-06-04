@@ -181,6 +181,7 @@ var parseData = function(update, proxy) {
 
 var list = function(env) {
   return Rx.Observable.create(function(observer) {
+    delete env.watchOptions.qs.latestResourceVersion;
     console.log(tag, 'list options', env.listOptions);
     var stream = request(env.listOptions, function(error, response, body) {
       if (error) {
@@ -260,6 +261,7 @@ var watch = function(env) {
   .flatMap(function(data) {
     try {
       var pod = JSON.parse(data);
+      env.watchOptions.qs.latestResourceVersion = pod.object.metadata.resourceVersion;
       pod.timestamp = new Date();
       var name = pod.object.metadata.name;
       var oldPod = env.state.pods[pod.object.metadata.name];
@@ -282,7 +284,6 @@ var listWatch = function(env) {
   return list(env).toArray().flatMap(function(pods) {
     if (pods.length) {
       var last = pods[pods.length - 1];
-      env.watchOptions.qs.latestResourceVersion = last.object.metadata.resourceVersion;
     }
     return Rx.Observable.merge(
       Rx.Observable.fromArray(pods)
