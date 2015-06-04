@@ -97,7 +97,7 @@ function verifyPodAvailable(parsed) {
   var pod = parsed.data;
   return Rx.Observable.create(function(observer) {
     var options = {
-      url: pod.url
+      url: pod.url + '/status'
     , method: 'get'
     }
     request(options, function(error, response, body) {
