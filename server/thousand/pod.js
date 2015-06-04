@@ -49,22 +49,17 @@ var options = {
   }
 };
 
-options.watchLivePods = _.extend({
-  url: buildWatchPodsUrl(config.live.openshiftServer, config.live.namespace)
+options.livePods = _.extend({
+  lsithUrl: buildListPodsUrl(config.live.openshiftServer, config.live.namespace)
+, watchUrl: buildWatchPodsUrl(config.live.openshiftServer, config.live.namespace)
 , auth: {bearer: config.live.oauthToken }
 }
 , options.base
 );
 
-options.watchPreStartPods = _.extend({
-  url: buildWatchPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
-, auth: {bearer: config.preStart.oauthToken
-}}
-, options.base
-);
-
-options.listPreStartPods = _.extend({
-  url: buildListPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
+options.preStartPods = _.extend({
+  listUrl: buildListPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
+, watchUrl: buildWatchPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
 , auth: {bearer: config.preStart.oauthToken
 }}
 , options.base
@@ -172,7 +167,28 @@ var parseData = function(update, proxy) {
   return update;
 };
 
-var connect = function(options) {
+var list = function(options) {
+  return Rx.Observable.create(function(observer) {
+    console.log(tag, 'options', options);
+    var stream = request(options, function(error, response, body) {
+      if (error) {
+        console.log(tag, 'error:',error);
+        observer.onError(error);
+      } else if (response && response.statusCode === 200) {
+        var json = JSON.parse(body);
+        observer.onNext(json);
+        observer.onCompleted();
+      } else {
+        observer.onError({
+          code: response.statusCode
+        , msg: body
+        });
+      }
+    });
+  });
+}
+
+var watch = function(options) {
   return Rx.Observable.create(function(observer) {
     console.log(tag, 'options', options);
     var stream = request(options);
@@ -229,6 +245,25 @@ var connect = function(options) {
   });
 };
 
+var connect = function(options) {
+  var listOptions = _.extend({}, options);
+  listOptions.url = options.listUrl;
+  var watchOptions = _.extend({}, options);
+  watchOptions.url = options.watchUrl;
+  return list(listOptions)
+    .flatMap(function(pods) {
+      if (pods.length) {
+        var last = pods[pods.length - 1]
+        console.log(last);
+        watchOptions.qs.latestResourceVersion = last.object.metadata.resourceVersion;
+      }
+      return Rx.Observable.merge(
+        Rx.Observable.fromArray(pods)
+      , watch(watchOptions)
+      )
+    });
+};
+
 var watchStream = function(options) {
   return connect(options).flatMap(function(stream) {
     return RxNode.fromStream(stream)
@@ -253,8 +288,8 @@ var watchStream = function(options) {
   .share();
 };
 
-var liveWatchStream = watchStream(options.watchLivePods);
-var preStartWatchStream = watchStream(options.watchPreStartPods);
+var liveWatchStream = watchStream(options.livePods);
+var preStartWatchStream = watchStream(options.preStartPods);
 
 var parsedLiveStream = liveWatchStream.map(function(json) {
   return parseData(json, false);
