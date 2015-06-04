@@ -205,6 +205,7 @@ var list = function(env) {
   })
   .flatMap(function(object) {
     var pod = {type: 'List Result', object: object};
+    env.watchOptions.qs.latestResourceVersion = pod.object.metadata.resourceVersion;
     var name = pod.object.metadata.name;
     var oldPod = env.state.pods[name];
     if (!oldPod || oldPod.object.metadata.resourceVersion != pod.object.metadata.resourceVersion) {
@@ -261,7 +262,6 @@ var watch = function(env) {
   .flatMap(function(data) {
     try {
       var pod = JSON.parse(data);
-      env.watchOptions.qs.latestResourceVersion = pod.object.metadata.resourceVersion;
       pod.timestamp = new Date();
       var name = pod.object.metadata.name;
       var oldPod = env.state.pods[pod.object.metadata.name];
@@ -299,9 +299,6 @@ var watchStream = function(env) {
       console.log(tag, 'Connection error:', err)
       if (err.type && err.type === 'end') {
         console.log(tag, 'Attmepting a re-connect (#' + errorCount + ')');
-        if (env.state.lastResourceVersion) {
-          env.requestOptions.qs.resourceVersion = env.state.lastResourceVersion; // get only updates
-        };
         return errorCount + 1;
       } else {
         throw err;
