@@ -40,12 +40,13 @@ var buildListPodsUrl = function(server, namespace) {
 
 var options = {
   base: {
-    'method' : 'get'
-  //  ,'url'    : null
-   ,'qs'     : {}
-   ,'rejectUnauthorized': false
-   ,'strictSSL': false
-  //  ,'auth'   : null
+    first: true
+  , method : 'get'
+  // , url    : null
+  , qs     : {}
+  , rejectUnauthorized: false
+  , strictSSL: false
+  // , auth   : null
   }
 };
 
@@ -232,29 +233,12 @@ var watch = function(options) {
       };
     });
   })
-  .retryWhen(function(errors) {
-    return errors.scan(0, function(errorCount, err) {
-      console.log(tag, 'Connection error:', err)
-      if (err.type && err.type === 'end') {
-        console.log(tag, 'Attmepting a re-connect (#' + errorCount + ')');
-        if (options.lastResourceVersion) {
-          options.qs.resourceVersion = options.lastResourceVersion; // get only updates
-        };
-        return errorCount + 1;
-      } else {
-        throw err;
-      }
-    });
-  })
   .flatMap(function(stream) {
     return RxNode.fromStream(stream)
   })
   .map(function(data) {
     try {
       var json = JSON.parse(data);
-      if (json.object.metadata.resourceVersion) {
-        options.lastResourceVersion = json.object.metadata.resourceVersion;
-      }
       json.timestamp = new Date();
       return json;
     } catch(e) {
@@ -273,19 +257,38 @@ var watchStream = function(options) {
   listOptions.url = options.listUrl;
   var watchOptions = _.extend({}, options);
   watchOptions.url = options.watchUrl;
-  return list(listOptions)
-    .flatMap(function(pods) {
-      if (pods.length) {
-        var last = pods[pods.length - 1]
-        console.log(last);
-        watchOptions.qs.latestResourceVersion = last.object.metadata.resourceVersion;
-      }
+  return list(listOptions).flatMap(function(pods) {
+    if (pods.length) {
+      var last = pods[pods.length - 1]
+      watchOptions.qs.latestResourceVersion = last.object.metadata.resourceVersion;
+    }
+    if (options.first) {
+      options.first = false;
       return Rx.Observable.merge(
         Rx.Observable.fromArray(pods)
       , watch(watchOptions)
       )
-    })
-    .share();
+    } else {
+      return watch(watchOptions);
+    }
+
+  })
+  .retryWhen(function(errors) {
+    return errors.scan(0, function(errorCount, err) {
+      console.log(tag, new Date());
+      console.log(tag, 'Connection error:', err)
+      if (err.type && err.type === 'end') {
+        console.log(tag, 'Attmepting a re-connect (#' + errorCount + ')');
+        if (options.lastResourceVersion) {
+          options.qs.resourceVersion = options.lastResourceVersion; // get only updates
+        };
+        return errorCount + 1;
+      } else {
+        throw err;
+      }
+    });
+  })
+  .share();
 };
 
 var liveWatchStream = watchStream(options.livePods);
