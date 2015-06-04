@@ -38,33 +38,43 @@ var buildListPodsUrl = function(server, namespace) {
   return 'https://' + server + '/api/v1beta3/namespaces/' + namespace + '/pods';
 };
 
-var options = {
-  base: {
-    first: true
-  , method : 'get'
-  // , url    : null
+var optionsBase = {
+    method : 'get'
+  , url    : null
   , qs     : {}
   , rejectUnauthorized: false
   , strictSSL: false
-  // , auth   : null
-  }
+  , auth   : null
 };
 
-options.livePods = _.extend({
-  listUrl: buildListPodsUrl(config.live.openshiftServer, config.live.namespace)
-, watchUrl: buildWatchPodsUrl(config.live.openshiftServer, config.live.namespace)
-, auth: {bearer: config.live.oauthToken }
-}
-, options.base
-);
-
-options.preStartPods = _.extend({
-  listUrl: buildListPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
-, watchUrl: buildWatchPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
-, auth: {bearer: config.preStart.oauthToken
-}}
-, options.base
-);
+var environments = {
+  live: {
+    listUrl: buildListPodsUrl(config.live.openshiftServer, config.live.namespace)
+  , watchUrl: buildWatchPodsUrl(config.live.openshiftServer, config.live.namespace)
+  , listOptions: _.defaults({
+      url: buildListPodsUrl(config.live.openshiftServer, config.live.namespace),
+      auth: {bearer:  config.live.oauthToken}
+    }, optionsBase)
+  , watchOptions: _.defaults({
+      url: buildWatchPodsUrl(config.live.openshiftServer, config.live.namespace),
+      auth: {bearer:  config.live.oauthToken}
+    }, optionsBase)
+  , state: {first  : true, pods: {}}
+  }
+, preStart: {
+    listUrl: buildListPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
+  , watchUrl: buildWatchPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
+  , listOptions: _.defaults({
+      url: buildListPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
+    , auth: {bearer:  config.preStart.oauthToken}
+    }, optionsBase)
+  , watchOptions: _.defaults({
+      url: buildWatchPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
+    , auth: {bearer:  config.preStart.oauthToken}
+    }, optionsBase)
+  , state: {first  : true, pods: {}}
+  }
+};
 
 var idMapNamespaces = {};
 var nextId = {};
@@ -252,24 +262,20 @@ var watch = function(options) {
   })
 };
 
-var watchStream = function(options) {
-  var listOptions = _.extend({}, options);
-  listOptions.url = options.listUrl;
-  var watchOptions = _.extend({}, options);
-  watchOptions.url = options.watchUrl;
-  return list(listOptions).flatMap(function(pods) {
+var watchStream = function(env) {
+  return list(env.listOptions).flatMap(function(pods) {
     if (pods.length) {
       var last = pods[pods.length - 1]
-      watchOptions.qs.latestResourceVersion = last.object.metadata.resourceVersion;
+      env.watchOptions.qs.latestResourceVersion = last.object.metadata.resourceVersion;
     }
-    if (options.first) {
-      options.first = false;
+    if (env.state.first) {
+      env.state.first = false;
       return Rx.Observable.merge(
         Rx.Observable.fromArray(pods)
-      , watch(watchOptions)
+      , watch(env.watchOptions)
       )
     } else {
-      return watch(watchOptions);
+      return watch(env.watchOptions);
     }
 
   })
@@ -279,8 +285,8 @@ var watchStream = function(options) {
       console.log(tag, 'Connection error:', err)
       if (err.type && err.type === 'end') {
         console.log(tag, 'Attmepting a re-connect (#' + errorCount + ')');
-        if (options.lastResourceVersion) {
-          options.qs.resourceVersion = options.lastResourceVersion; // get only updates
+        if (env.state.lastResourceVersion) {
+          env.requestOptions.qs.resourceVersion = env.state.lastResourceVersion; // get only updates
         };
         return errorCount + 1;
       } else {
@@ -291,8 +297,8 @@ var watchStream = function(options) {
   .share();
 };
 
-var liveWatchStream = watchStream(options.livePods);
-var preStartWatchStream = watchStream(options.preStartPods);
+var liveWatchStream = watchStream(environments.live);
+var preStartWatchStream = watchStream(environments.preStart);
 
 var parsedLiveStream = liveWatchStream.map(function(json) {
   return parseData(json, false);
@@ -302,7 +308,7 @@ var parsedLiveStream = liveWatchStream.map(function(json) {
 })
 .replay();
 
-parsedLiveStream.connect();
+// parsedLiveStream.connect();
 
 var parsedPreStartStream = preStartWatchStream.map(function(json) {
   return parseData(json, true);
