@@ -50,7 +50,7 @@ var options = {
 };
 
 options.livePods = _.extend({
-  lsithUrl: buildListPodsUrl(config.live.openshiftServer, config.live.namespace)
+  listUrl: buildListPodsUrl(config.live.openshiftServer, config.live.namespace)
 , watchUrl: buildWatchPodsUrl(config.live.openshiftServer, config.live.namespace)
 , auth: {bearer: config.live.oauthToken }
 }
@@ -169,14 +169,17 @@ var parseData = function(update, proxy) {
 
 var list = function(options) {
   return Rx.Observable.create(function(observer) {
-    console.log(tag, 'options', options);
+    console.log(tag, 'list options', options);
     var stream = request(options, function(error, response, body) {
       if (error) {
         console.log(tag, 'error:',error);
         observer.onError(error);
       } else if (response && response.statusCode === 200) {
         var json = JSON.parse(body);
-        observer.onNext(json);
+        var pods = json.items.map(function(pod) {
+          return {type: 'List Result', object: pod}
+        })
+        observer.onNext(pods);
         observer.onCompleted();
       } else {
         observer.onError({
@@ -190,7 +193,7 @@ var list = function(options) {
 
 var watch = function(options) {
   return Rx.Observable.create(function(observer) {
-    console.log(tag, 'options', options);
+    console.log(tag, 'watch options', options);
     var stream = request(options);
     stream.on('error', function(error) {
       console.log(tag, 'error:',error);
@@ -242,30 +245,8 @@ var watch = function(options) {
         throw err;
       }
     });
-  });
-};
-
-var connect = function(options) {
-  var listOptions = _.extend({}, options);
-  listOptions.url = options.listUrl;
-  var watchOptions = _.extend({}, options);
-  watchOptions.url = options.watchUrl;
-  return list(listOptions)
-    .flatMap(function(pods) {
-      if (pods.length) {
-        var last = pods[pods.length - 1]
-        console.log(last);
-        watchOptions.qs.latestResourceVersion = last.object.metadata.resourceVersion;
-      }
-      return Rx.Observable.merge(
-        Rx.Observable.fromArray(pods)
-      , watch(watchOptions)
-      )
-    });
-};
-
-var watchStream = function(options) {
-  return connect(options).flatMap(function(stream) {
+  })
+  .flatMap(function(stream) {
     return RxNode.fromStream(stream)
   })
   .map(function(data) {
@@ -285,7 +266,26 @@ var watchStream = function(options) {
   .filter(function(json) {
     return json;
   })
-  .share();
+};
+
+var watchStream = function(options) {
+  var listOptions = _.extend({}, options);
+  listOptions.url = options.listUrl;
+  var watchOptions = _.extend({}, options);
+  watchOptions.url = options.watchUrl;
+  return list(listOptions)
+    .flatMap(function(pods) {
+      if (pods.length) {
+        var last = pods[pods.length - 1]
+        console.log(last);
+        watchOptions.qs.latestResourceVersion = last.object.metadata.resourceVersion;
+      }
+      return Rx.Observable.merge(
+        Rx.Observable.fromArray(pods)
+      , watch(watchOptions)
+      )
+    })
+    .share();
 };
 
 var liveWatchStream = watchStream(options.livePods);
