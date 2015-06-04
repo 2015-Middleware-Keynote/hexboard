@@ -48,7 +48,7 @@ module.exports = exports = {
   receiveImage: function(req, res, next) {
     console.log(tag, 'originalUrl', req.originalUrl);
     pod.getRandomPod.flatMap(function(randomPod) {
-      // console.log(randomPod);
+      // console.log(tag, 'randomPod', randomPod);
       var sketch = {
         containerId: randomPod.id
       , url: randomPod.url
@@ -71,6 +71,7 @@ module.exports = exports = {
       res.json(sketch);
     }, function(err) {
       // delete randomPod.skecth;
+      // delete randomPod.claimed;
       console.log(tag, err)
       next(err);
     });

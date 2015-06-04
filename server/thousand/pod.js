@@ -250,136 +250,79 @@ var watchStream = function(options) {
   .filter(function(json) {
     return json;
   })
-  .replay();
+  .share();
 };
 
 var liveWatchStream = watchStream(options.watchLivePods);
 var preStartWatchStream = watchStream(options.watchPreStartPods);
-
-liveWatchStream.connect();
-preStartWatchStream.connect();
 
 var parsedLiveStream = liveWatchStream.map(function(json) {
   return parseData(json, false);
 })
 .filter(function(parsed) {
   return parsed && parsed.data && parsed.data.type && parsed.data.id <= 1025;
-});
+})
+.replay();
+
+parsedLiveStream.connect();
 
 var parsedPreStartStream = preStartWatchStream.map(function(json) {
   return parseData(json, true);
 })
 .filter(function(parsed) {
   return parsed && parsed.data && parsed.data.type && parsed.data.id <= 1025;
-})
-.flatMap(function(parsed) {
+});
+
+var availablePreStartStream = parsedPreStartStream.flatMap(function(parsed) {
   if (parsed.data.stage < 4) {
     return Rx.Observable.just(parsed);
   } else {
     return Rx.Observable.merge(
       Rx.Observable.just(parsed)
     , verifyPodAvailable(parsed.data).map(function() {
-        parsed.data.stage = 5;
-        return parsed;
+        var newParsed = _.clone(parsed)
+        newParsed.data = _.clone(parsed.data);
+        newParsed.data.stage = 5;
+        return newParsed;
       })
     );
   };
-});
+}).replay();
 
-var getActivePreStartPods = Rx.Observable.create(function(observer) {
-  console.log(tag, 'options', options.listPreStartPods);
-  request(options.listPreStartPods, function(error, response, body) {
-    if (error) {
-      observer.onError({
-        msg: error
-      });
-    };
-    if (response.statusCode === 200) {
-      try {
-        var json = JSON.parse(body);
-        if (json.kind === 'PodList') {
-          observer.onNext(json.items);
-          observer.onCompleted();
-        } else {
-          observer.onError({
-            msg: 'Returned value wasn\'t a PodList',
-            data: json
-          });
-        };
-      } catch(e) {
-        observer.onError({
-          msg: e
-        });
-      }
-    } else {
-      observer.onError({
-        code: response.statusCode,
-        msg: body
-      });
-    };
-  });
+availablePreStartStream.connect();
+
+var getActivePreStartPods = availablePreStartStream.filter(function(parsed) {
+  return parsed.data.stage === 5;
 })
-.retryWhen(function(errors) {
-  var maxRetries = 5;
-  return errors.scan(0, function(errorCount, err) {
-    console.log(tag, 'Error:', err);
-    if (err.code && (err.code === 401 || err.code === 403)) {
-      return maxRetries;
-    };
-    return errorCount + 1;
-  })
-  .takeWhile(function(errorCount) {
-    return errorCount < maxRetries;
-  })
-  .delay(200);
-})
-.flatMap(function(items) {
-  return items;
-})
-.filter(function(object) {
-  // console.log(tag, object);
-  return (object.status.phase === 'Running' && object.status.Condition[0].type == 'Ready' && object.status.Condition[0].status === 'True')
-})
-.map(function(object, index) {
-  var pod = {
-    index: index
-  , name: object.metadata.name
-  , url: config.preStart.proxy + '/' + config.preStart.namespace + '/' + object.metadata.name
-  }
-  return pod;
-})
-.flatMap(function(pod) {
-  return verifyPodAvailable(pod);
-})
+.map(function(parsed) {
+  return parsed.data;
+}).share()
 // .tap(function(pod) {
 //   console.log('Available:', pod.url);
 // })
-.replay();
-
-getActivePreStartPods.connect();
+;
 
 var getRandomInt = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 };
 
-var ids = _.range(0, 1025);
 var getRandomPod = getActivePreStartPods.filter(function(pod) {
-    return ! pod.id;
-  })
-  .take(1)
-  .map(function(pod) {
-    var index = getRandomInt(0, ids.length);
-    var id = ids[index];
-    ids.splice(index, 1);
-    pod.id = id;
-    return pod;
-  });
+  return ! pod.claimed;
+})
+.buffer(getActivePreStartPods.debounce(5))
+.take(1)
+.map(function(pods) {
+  var index = getRandomInt(0, pods.length);
+  var pod = pods[index];
+  pod.claimed = true;
+  return pod;
+});
 
 module.exports = {
   rawLiveStream: liveWatchStream
 , rawPreStartStream: preStartWatchStream
 , liveStream: parsedLiveStream
-, preStartStream: parsedPreStartStream
+, preStartStream: availablePreStartStream
 , parseData : parseData
 , getRandomPod: getRandomPod
 };
