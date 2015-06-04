@@ -93,7 +93,8 @@ function podNumber(namespace, name) {
   return idMap[stringId];
 };
 
-function verifyPodAvailable(pod) {
+function verifyPodAvailable(parsed) {
+  var pod = parsed.data;
   return Rx.Observable.create(function(observer) {
     var options = {
       url: pod.url
@@ -102,7 +103,7 @@ function verifyPodAvailable(pod) {
     request(options, function(error, response, body) {
       if (!error && response.statusCode == 200) {
         if (pod.errorCount) {
-          console.log(tag, 'Recovery (#', pod.errorCount, ')', pod.url);
+          console.log(tag, 'Recovery (#', pod.errorCount, ')', parsed.object.metadata.name);
           delete(pod.errorCount);
         }
         observer.onNext(pod);
@@ -178,19 +179,17 @@ var parseData = function(update, proxy) {
   return update;
 };
 
-var list = function(options) {
+var list = function(env) {
   return Rx.Observable.create(function(observer) {
-    console.log(tag, 'list options', options);
-    var stream = request(options, function(error, response, body) {
+    console.log(tag, 'list options', env.listOptions);
+    var stream = request(env.listOptions, function(error, response, body) {
       if (error) {
         console.log(tag, 'error:',error);
         observer.onError(error);
       } else if (response && response.statusCode === 200) {
         var json = JSON.parse(body);
-        var pods = json.items.map(function(pod) {
-          return {type: 'List Result', object: pod}
-        })
-        observer.onNext(pods);
+        json.timestamp = new Date();
+        observer.onNext(json.items);
         observer.onCompleted();
       } else {
         observer.onError({
@@ -199,13 +198,28 @@ var list = function(options) {
         });
       }
     });
-  });
+  })
+  .flatMap(function(pods) {
+    return pods;
+  })
+  .flatMap(function(object) {
+    var pod = {type: 'List Result', object: object};
+    var name = pod.object.metadata.name;
+    var oldPod = env.state.pods[name];
+    if (!oldPod || oldPod.object.metadata.resourceVersion != pod.object.metadata.resourceVersion) {
+      env.state.pods[name] = pod;
+      return [pod];
+    }
+    else {
+      return Rx.Observable.empty;
+    }
+  })
 }
 
-var watch = function(options) {
+var watch = function(env) {
   return Rx.Observable.create(function(observer) {
-    console.log(tag, 'watch options', options);
-    var stream = request(options);
+    console.log(tag, 'watch options', env.watchOptions);
+    var stream = request(env.watchOptions);
     stream.on('error', function(error) {
       console.log(tag, 'error:',error);
       observer.onError(error);
@@ -214,9 +228,6 @@ var watch = function(options) {
       observer.onError({type: 'end', msg: 'Request terminated.'});
     });
     var lines = stream.pipe(split());
-    // setTimeout(function() {
-    //   observer.onError({type: 'end', msg: 'Force terminated.'});
-    // }, 1500)
     stream.on('response', function(response) {
       if (response.statusCode === 200) {
         console.log(tag, 'Connection success');
@@ -246,40 +257,42 @@ var watch = function(options) {
   .flatMap(function(stream) {
     return RxNode.fromStream(stream)
   })
-  .map(function(data) {
+  .flatMap(function(data) {
     try {
-      var json = JSON.parse(data);
-      json.timestamp = new Date();
-      return json;
+      var pod = JSON.parse(data);
+      pod.timestamp = new Date();
+      var name = pod.object.metadata.name;
+      var oldPod = env.state.pods[pod.object.metadata.name];
+      if (!oldPod || oldPod.object.metadata.resourceVersion != pod.object.metadata.resourceVersion) {
+        env.state.pods[name] = pod;
+        return [pod];
+      }
+      else {
+        return Rx.Observable.empty;
+      }
     } catch(e) {
       console.log(tag, 'JSON parsing error:', e);
       console.log(data);
-      return null;
+      return Rx.Observable.empty;
     }
-  })
-  .filter(function(json) {
-    return json;
   })
 };
 
-var watchStream = function(env) {
-  return list(env.listOptions).flatMap(function(pods) {
+var listWatch = function(env) {
+  return list(env).toArray().flatMap(function(pods) {
     if (pods.length) {
-      var last = pods[pods.length - 1]
+      var last = pods[pods.length - 1];
       env.watchOptions.qs.latestResourceVersion = last.object.metadata.resourceVersion;
     }
-    if (env.state.first) {
-      env.state.first = false;
-      return Rx.Observable.merge(
-        Rx.Observable.fromArray(pods)
-      , watch(env.watchOptions)
-      )
-    } else {
-      return watch(env.watchOptions);
-    }
+    return Rx.Observable.merge(
+      Rx.Observable.fromArray(pods)
+    , watch(env)
+    );
+  });
+};
 
-  })
-  .retryWhen(function(errors) {
+var watchStream = function(env) {
+  return listWatch(env).retryWhen(function(errors) {
     return errors.scan(0, function(errorCount, err) {
       console.log(tag, new Date());
       console.log(tag, 'Connection error:', err)
@@ -318,15 +331,16 @@ var parsedPreStartStream = preStartWatchStream.map(function(json) {
 });
 
 var availablePreStartStream = parsedPreStartStream.flatMap(function(parsed) {
-  if (parsed.data.stage < 4) {
+  if (parsed.data.stage != 4) {
     return Rx.Observable.just(parsed);
   } else {
     return Rx.Observable.merge(
       Rx.Observable.just(parsed)
-    , verifyPodAvailable(parsed.data).map(function() {
+    , verifyPodAvailable(parsed).map(function() {
         var newParsed = _.clone(parsed)
         newParsed.data = _.clone(parsed.data);
         newParsed.data.stage = 5;
+        // env.state.pods[newParsed.object.metadata.name] = newParsed;
         return newParsed;
       })
     );
