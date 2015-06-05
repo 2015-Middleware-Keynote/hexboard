@@ -1,10 +1,10 @@
 {
-  "name": "d3rx-demo",
+  "name": "hexboard",
   "version": "0.0.1",
-  "description": "A D3/Rx.JS example",
-  "repository": "https://github.com/bleathem/locationforcelayout",
+  "description": "A hexboard for visualizing Kubernetes pod status",
+  "repository": "https://github.com/bleathem/hexboard",
   "scripts": {
-    "start": "./node_modules/gulp/bin/gulp.js docker",
+    "start": "HOME=$OPENSHIFT_REPO_DIR ./node_modules/gulp/bin/gulp.js docker",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "main": "server/server.js",
@@ -34,7 +34,6 @@
     "express": "^4.12.3",
     "gulp-nodemon": "^1.0.5",
     "gulp-util": "^3.0.4",
-    "mongoose": "^4.0.1",
     "morgan": "^1.5.2",
     "node-env-file": "^0.1.7",
     "request": "^2.55.0",
@@ -46,7 +45,6 @@
     "stream-filter": "^1.0.0",
     "through2": "^0.6.5",
     "underscore": "^1.8.3",
-    "unifiedpush-node-sender": "^0.7.0",
     "ws": "^0.7.1"
   }
 }

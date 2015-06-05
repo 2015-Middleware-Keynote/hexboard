@@ -20,7 +20,6 @@ require('./tasks/server.js')(gulp, opts);
 require('./tasks/debug.js')(gulp, opts);
 require('./tasks/test-backend.js')(gulp, opts);
 require('./tasks/watch.js')(gulp, opts);
-require('./tasks/mongo.js')(gulp, opts);
 
 gulp.task('build', ['config', 'less']);
 gulp.task('serve', ['node-start', 'build']);

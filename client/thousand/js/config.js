@@ -1,8 +1,8 @@
 'use strict';
 
-var d3demo = d3demo || {};
+var hex = hex || {};
 
-d3demo.config = (function() {
+hex.config = (function() {
   var getParameterByName=  function (name) {
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),

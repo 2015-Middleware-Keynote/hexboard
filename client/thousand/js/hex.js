@@ -265,7 +265,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
     }
   );
 
-  var messages = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/thousand', null, openObserver)
+  var messages = Rx.DOM.fromWebSocket(hex.config.backend.ws + '/thousand', null, openObserver)
   .map(function(messageEvent) {
     return JSON.parse(messageEvent.data);
   }).share();

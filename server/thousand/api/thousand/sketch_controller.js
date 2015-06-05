@@ -4,10 +4,10 @@ var fs = require('fs')
   , os = require('os')
   , Rx = require('rx')
   , RxNode = require('rx-node')
-  , randomSketches = require('../../thousand/random').randomSketches
-  , thousandEmitter = require('../../thousand/thousandEmitter')
+  , randomSketches = require('../../random').randomSketches
+  , thousandEmitter = require('../../thousandEmitter')
   , request = require('request')
-  , pod = require('../../thousand/pod')
+  , pod = require('../../pod')
   ;
 
 var tag = 'API/THOUSAND';

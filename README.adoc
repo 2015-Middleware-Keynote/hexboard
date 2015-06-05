@@ -1,9 +1,6 @@
-= Location Force Layout
+= Hexboard UI
 
-A location-scanner multi-foci force-layout built using d3.js and Rx.js.
-
-The visualization itself is a client-side application.  However node.js and bower
-are used to build the project and mange the dependencies respectively.
+A hexboard for visualizing Kubernetes pod status
 
 Pre-requisutes:
 

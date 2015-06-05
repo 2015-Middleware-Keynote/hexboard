@@ -9,7 +9,6 @@ var express = require('express')
 routers.apiRouter = apiRouter;
 
 require('./config.js')(app, express, routers);
-require('../api/api_routes.js')(apiRouter);
-require('./db')(app);
+require('../thousand/api/api_routes.js')(apiRouter);
 
 module.exports = exports = app;

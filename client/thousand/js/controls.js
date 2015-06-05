@@ -27,7 +27,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
     });
   });
 
-  var winnerSocket = Rx.DOM.fromWebSocket(d3demo.config.backend.ws + '/winner');
+  var winnerSocket = Rx.DOM.fromWebSocket(hex.config.backend.ws + '/winner');
   winnerSocket.subscribeOnError(hex.ui.errorHandler);
 
   // keyboard controls

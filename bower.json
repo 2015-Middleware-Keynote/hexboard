@@ -1,10 +1,10 @@
 {
-  "name": "d3rx-demo",
+  "name": "hexboard",
   "version": "0.0.1",
   "authors": [
     "Brian Leathem <bleathem@gmail.com>"
   ],
-  "description": "A D3/Rx.JS example",
+  "description": "A hexboard for visualizing Kubernetes pod status",
   "license": "ASLv2",
   "private": true,
   "ignore": [

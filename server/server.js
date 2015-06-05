@@ -5,26 +5,13 @@ var Rx = require('rx')
   , http = require('http')
   , port  = app.get('port')
   , ip = app.get('base url')
-  , log   = 'Listening on ' + ip + ':' + port
-  , user = require('./api/user/user.js')
   ;
 
 var tag = 'SERVER';
 
 var server = http.createServer(app);
 server.listen(port, ip);
-console.log(tag, log);
+console.log(tag, 'Listening on ' + ip + ':' + port);
 
-var dataInit = Rx.Observable.forkJoin(
-  user.userInit
-).tapOnCompleted(function() {
-  require('./beacon/ws/beacon-live')(server);
-  require('./beacon/ws/beacon-playback')(server);
-  require('./beacon/ws/beacon-random')(server);
-  require('./beacon/ws/broker')(server);
-  require('./thousand/ws/thousand')(server);
-  require('./thousand/ws/winner')(server);
-})
-.subscribeOnError(function(err) {
-  console.log(err.stack || err);
-});
+require('./thousand/ws/thousand')(server);
+require('./thousand/ws/winner')(server);
