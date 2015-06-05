@@ -319,7 +319,7 @@ var parsedLiveStream = liveWatchStream.map(function(json) {
 })
 .replay();
 
-// parsedLiveStream.connect();
+parsedLiveStream.connect();
 
 var parsedPreStartStream = preStartWatchStream.map(function(json) {
   return parseData(json, true);
