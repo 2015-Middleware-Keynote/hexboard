@@ -33,7 +33,7 @@ var postImageToPod = function(sketch, req) {
   console.log(tag, 'Putting sketch to url:', putUrl);
   return Rx.Observable.create(function(observer) {
     if (! sketch.url) {
-      sketch.url = 'http://beacon.jbosskeynote.com' + sketch.uiUrl;
+      sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl;
       observer.onNext({msg: 'No pod url, not PUTting'});
       observer.onCompleted();
       return;
@@ -41,7 +41,7 @@ var postImageToPod = function(sketch, req) {
     req.pipe(request.put(putUrl, function (err, res, body) {
       if (err) {
         console.log(tag, 'Error PUTting sketch to', putUrl);
-        sketch.url = 'http://beacon.jbosskeynote.com' + sketch.uiUrl;
+        sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl;
         observer.onNext({msg: 'Error PUTting sketch to ' + putUrl});
         observer.onCompleted();
         return;
@@ -53,7 +53,7 @@ var postImageToPod = function(sketch, req) {
         return;
       } else {
         console.log(tag, 'Error PUTting sketch to', putUrl);
-        sketch.url = 'http://beacon.jbosskeynote.com' + sketch.uiUrl;
+        sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl;
         observer.onNext({msg: 'Error PUTting sketch to ' + putUrl});
         observer.onCompleted();
         return;
