@@ -102,7 +102,9 @@ module.exports = exports = {
   randomSketches: function(req, res, next) {
     var numSketches = req.params.numSketches;
     randomSketches(numSketches).flatMap(function(sketch) {
+      console.log('sketch', sketch)
       return pod.getRandomPod.map(function(randomPod) {
+        console.log('pod', randomPod)
         sketch.containerId = randomPod.id
         thousandEmitter.emit('new-sketch', sketch);
         return sketch;

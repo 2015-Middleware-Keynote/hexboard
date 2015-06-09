@@ -174,10 +174,14 @@ hex.ui = (function dataSimulator(d3, Rx) {
       })
   };
 
-  var createBackground = function(sketch) {
+  var createSketchId = function(sketch, point) {
+    return 'img' + sketch.containerId + '_' + point.sketch.length;
+  }
+
+  var createBackground = function(sketch, id) {
     var imgsize = (honeycomb.size * 2);
     var pattern = defs.append('pattern')
-      .attr('id', 'img' + sketch.containerId)
+      .attr('id', id)
       .attr('class', 'sketch')
       .attr('patternUnits', 'userSpaceOnUse')
       .attr('width', imgsize)
@@ -209,8 +213,10 @@ hex.ui = (function dataSimulator(d3, Rx) {
       , scale = 0.2
     var p0 = {x: perspective * (p.x - c.x) + c.x, y: perspective * (p.y - c.y) + c.y};
 
-    createBackground(sketch);
-    p.sketch = sketch;
+    p.sketch = p.sketch || [];
+    p.sketch.push(sketch);
+    var skecthId = createSketchId(sketch, p);
+    createBackground(sketch, skecthId);
 
     svg.insert('path')
       .datum(p)
@@ -218,7 +224,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
       .attr('d', 'm' + hexagon(honeycomb.size).join('l') + 'z')
       .attr('transform', function(d) { return 'matrix('+1/scale+', 0, 0, '+1/scale+', '+ p0.x +', '+ p0.y +')'})
       .style('fill-opacity', 1.0)
-      .attr('fill', 'url(#img' + p.id + ')')
+      .attr('fill', 'url(#' + skecthId + ')')
     .transition()
       .duration(duration)
       .ease('quad-in')
@@ -235,7 +241,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
       .attr('transform', function(d) {return 'matrix(1, 0, 0, 1, '+ d.x +', '+ d.y +')'}) // finish off any half-flipped hexagons
       .styleTween('fill', function(d, i, a) {
         return function(t) {
-          return t < 1 ? a : 'url(#img' + d.id + ')';
+          return t < 1 ? a : 'url(#' + skecthId + ')';
         };
       });
   };
@@ -296,18 +302,16 @@ hex.ui = (function dataSimulator(d3, Rx) {
   .tap(function(message) {
     var sketch = message.data;
     var point = points[sketch.containerId];
-    if (! point.sketch) {
-      if (firstImage) {
-        firstImage = false;
-        var flipRequired = points.some(function(point) {
-          return point.stage === 5;
-        });
-        if (flipRequired) {
-          flipAll();
-        }
+    if (firstImage) {
+      firstImage = false;
+      var flipRequired = points.some(function(point) {
+        return point.stage === 5;
+      });
+      if (flipRequired) {
+        flipAll();
       }
-      image(point, sketch);
-    };
+    }
+    image(point, sketch);
   }).subscribeOnError(errorObserver);
 
   var messageSubscription = messages.filter(function(message) {
@@ -327,11 +331,12 @@ hex.ui = (function dataSimulator(d3, Rx) {
         }))
         flipAll();
       }
-      createBackground(sketch);
-      point.sketch = sketch;
+      point.sketch = [sketch];
+      var skecthId = createSketchId(sketch, point);
+      createBackground(sketch, skecthId);
       hexagons.filter(function(d) { return d.x === point.x && d.y === point.y; })
         .attr('class', 'hexagon sketch')
-        .style('fill', 'url(#img' + point.id + ')');
+        .style('fill', 'url(#' + skecthId + ')');
     };
   }).subscribeOnError(errorObserver);
 

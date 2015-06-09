@@ -49,7 +49,8 @@ var optionsBase = {
 
 var environments = {
   live: {
-    listUrl: buildListPodsUrl(config.live.openshiftServer, config.live.namespace)
+    name: 'live'
+  , listUrl: buildListPodsUrl(config.live.openshiftServer, config.live.namespace)
   , watchUrl: buildWatchPodsUrl(config.live.openshiftServer, config.live.namespace)
   , listOptions: _.defaults({
       url: buildListPodsUrl(config.live.openshiftServer, config.live.namespace),
@@ -60,9 +61,11 @@ var environments = {
       auth: {bearer:  config.live.oauthToken}
     }, optionsBase)
   , state: {first  : true, pods: {}}
+  , config: config.live
   }
 , preStart: {
-    listUrl: buildListPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
+    name: 'preStart'
+  , listUrl: buildListPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
   , watchUrl: buildWatchPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
   , listOptions: _.defaults({
       url: buildListPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
@@ -73,6 +76,7 @@ var environments = {
     , auth: {bearer:  config.preStart.oauthToken}
     }, optionsBase)
   , state: {first  : true, pods: {}}
+  , config: config.preStart
   }
 };
 
@@ -228,7 +232,7 @@ var list = function(env) {
       return [pod];
     }
     else {
-      return Rx.Observable.empty;
+      return [];
     }
   })
 }
@@ -247,7 +251,7 @@ var watch = function(env) {
     var lines = stream.pipe(split());
     stream.on('response', function(response) {
       if (response.statusCode === 200) {
-        console.log(tag, 'Connection success');
+        console.log(tag, 'Connection success', env.name);
         observer.onNext(lines)
       } else {
         response.on('data', function(data) {
@@ -285,12 +289,12 @@ var watch = function(env) {
         return [pod];
       }
       else {
-        return Rx.Observable.empty;
+        return [];
       }
     } catch(e) {
       console.log(tag, 'JSON parsing error:', e);
       console.log(data);
-      return Rx.Observable.empty;
+      return [];
     }
   })
 };
@@ -343,6 +347,8 @@ var parsedPreStartStream = preStartWatchStream.map(function(json) {
   return parsed && parsed.data && parsed.data.type && parsed.data.id <= 1025;
 });
 
+var availablePods = [];
+
 var availablePreStartStream = parsedPreStartStream.flatMap(function(parsed) {
   if (parsed.data.stage != 4) {
     return Rx.Observable.just(parsed);
@@ -358,35 +364,44 @@ var availablePreStartStream = parsedPreStartStream.flatMap(function(parsed) {
       })
     );
   };
-}).replay();
+})
+.tap(function(parsed) {
+  if (parsed.data.stage === 5) {
+    availablePods.push(parsed.data);
+  } if (parsed.data.stage === 6) {
+    availablePods = availablePods.filter(function(pod) {
+      return pod.name !== parsed.data.name
+    });
+  }
+})
+.replay();
 
 availablePreStartStream.connect();
-
-var getActivePreStartPods = availablePreStartStream.filter(function(parsed) {
-  return parsed.data.stage === 5;
-})
-.map(function(parsed) {
-  return parsed.data;
-}).share()
-// .tap(function(pod) {
-//   console.log('Available:', pod.url);
-// })
-;
 
 var getRandomInt = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 };
 
-var getRandomPod = getActivePreStartPods.filter(function(pod) {
-  return ! pod.claimed;
+var getRandomPod = Rx.Observable.return(availablePods).map(function(pods) {
+  var minClaimed = 0;
+  var filteredPods = [];
+  while(availablePods.length && ! filteredPods.length) {
+    minClaimed++;
+    filteredPods = availablePods.filter(function(pod) {
+      return ! pod.claimed || pod.claimed < minClaimed;
+    })
+  }
+  return filteredPods;
 })
-.buffer(getActivePreStartPods.debounce(5))
-.take(1)
 .map(function(pods) {
-  var index = getRandomInt(0, pods.length);
-  var pod = pods[index];
-  pod.claimed = true;
-  return pod;
+  if (pods.length > 0) {
+    var index = getRandomInt(0, pods.length);
+    var pod = pods[index];
+    pod.claimed = pod.claimed ? pod.claimed + 1 : 1;
+    return pod;
+  } else {
+    return null;
+  }
 });
 
 module.exports = {
