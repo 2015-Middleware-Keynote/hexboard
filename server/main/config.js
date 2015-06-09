@@ -8,6 +8,7 @@ var morgan      = require('morgan')
 module.exports = exports = function (app, express, routers) {
   app.set('port', process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || 9000);
   app.set('base url', process.env.OPENSHIFT_NODEJS_IP || process.env.URL || '0.0.0.0');
+  app.use(middle.basicAuth);
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({extended: true}));
   app.use(middle.cors);

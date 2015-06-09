@@ -4,6 +4,8 @@
  * MiddleWare for the entire app
 */
 
+var auth = require('basic-auth');
+
 module.exports = exports = {
   logError: function (err, req, res, next) {
     if (err) {
@@ -18,6 +20,7 @@ module.exports = exports = {
       res.status(500).send(err);
     }
   },
+
   cors: function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
@@ -27,6 +30,22 @@ module.exports = exports = {
       res.status(200).end();
     } else {
       return next();
+    }
+  },
+
+  basicAuth: function(req, res, next) {
+    if (! process.env.BASIC_AUTH_USER || ! process.env.BASIC_AUTH_PASSWORD) {
+      next();
+      return;
+    }
+    var credentials = auth(req)
+    if (!credentials || credentials.name !== process.env.BASIC_AUTH_USER || credentials.pass !== process.env.BASIC_AUTH_PASSWORD) {
+      res.writeHead(401, {
+        'WWW-Authenticate': 'Basic realm="example"'
+      });
+      res.end();
+    } else {
+      next();
     }
   }
 };

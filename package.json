@@ -28,6 +28,7 @@
     "supertest": "^0.15.0"
   },
   "dependencies": {
+    "basic-auth": "^1.0.1",
     "body-parser": "^1.12.2",
     "config-multipaas": "^0.1.0",
     "debuglog": "^1.0.1",
