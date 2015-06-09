@@ -423,4 +423,5 @@ module.exports = {
 , preStartStream: availablePreStartStream
 , parseData : parseData
 , getRandomPod: getRandomPod
+, podNumber: podNumber
 };

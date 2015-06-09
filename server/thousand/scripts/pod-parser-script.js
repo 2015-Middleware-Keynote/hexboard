@@ -26,6 +26,9 @@ rawStream
   .pipe(filter(function(line) {
       return line.length;
     }))
+  .pipe(filter(function(line) {
+    return line != 'undefined';
+  }))
   .pipe(through2.obj(function (line, enc, callback) {
     var json = JSON.parse(line)
     var parsed = pod.parseData(json);
