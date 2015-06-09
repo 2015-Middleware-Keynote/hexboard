@@ -80,7 +80,7 @@ var idMapNamespaces = {};
 var availableIds = {};
 
 var takeRandomId = function(namespace) {
-  var index = 0; //getRandomInt(0, availableIds[namespace].length);
+  var index = getRandomInt(0, availableIds[namespace].length);
   var id = availableIds[namespace][index];
   availableIds[namespace].splice(index,1);
   return id;
@@ -90,7 +90,7 @@ var returnIdToPool = function(pod) {
   var namespace = pod.object.metadata.namespace;
   var idMap = idMapNamespaces[namespace];
   delete idMap[pod.object.metadata.name];
-  availableIds[namespace].unshift(pod.data.id);
+  availableIds[namespace].push(pod.data.id);
 };
 
 function podNumber(namespace, name) {
