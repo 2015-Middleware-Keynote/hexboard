@@ -14,8 +14,5 @@ hex.config = (function() {
       backend: {
         ws: 'ws://localhost:9000'
       }
-    , playback: {
-        rate: getParameterByName('rate') || 600
-      }
   };
 })();

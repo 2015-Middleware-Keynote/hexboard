@@ -77,18 +77,32 @@ var environments = {
 };
 
 var idMapNamespaces = {};
-var nextId = {};
+var availableIds = {};
+
+var takeRandomId = function(namespace) {
+  var index = 0; //getRandomInt(0, availableIds[namespace].length);
+  var id = availableIds[namespace][index];
+  availableIds[namespace].splice(index,1);
+  return id;
+};
+
+var returnIdToPool = function(pod) {
+  var namespace = pod.object.metadata.namespace;
+  var idMap = idMapNamespaces[namespace];
+  delete idMap[pod.object.metadata.name];
+  availableIds[namespace].unshift(pod.data.id);
+};
 
 function podNumber(namespace, name) {
   if (! idMapNamespaces[namespace]) {
     idMapNamespaces[namespace] = {};
-    nextId[namespace] = 0;
-  }
+    availableIds[namespace] = _.range(1026);
+  };
   var idMap = idMapNamespaces[namespace];
   var num = name.match(/[a-z0-9]*$/);
   var stringId = num[0];
   if (! (stringId in idMap)) {
-    idMap[stringId] = nextId[namespace]++;
+    idMap[stringId] = takeRandomId(namespace);
   }
   return idMap[stringId];
 };
@@ -144,7 +158,7 @@ var parseData = function(update, proxy) {
     return update;
   };
   var podName = update.object.spec.containers[0].name;
-  if (podName.indexOf('sketch') !== 0 || !update.object.status || !update.object.status.phase) {
+  if (podName.indexOf('sketchpod') !== 0 || !update.object.status || !update.object.status.phase) {
     // console.log(tag, 'Ignoring update for container name:', update.object.spec.containers[0].name);
   } else {
     var replicaName = update.object.metadata.name;
@@ -163,6 +177,7 @@ var parseData = function(update, proxy) {
       update.data.url = config.preStart.proxy + '/' + config.preStart.namespace + '/' + replicaName;
     }
     if (update.type === 'DELETED') {
+      returnIdToPool(update);
       update.data.stage = 0;
     } else if (update.object.status.phase === 'Pending' && ! update.object.spec.host) {
       update.data.stage = 1;
