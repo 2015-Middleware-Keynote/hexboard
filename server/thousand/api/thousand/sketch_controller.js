@@ -14,7 +14,7 @@ var tag = 'API/THOUSAND';
 
 var saveImageToFile = function(sketch, req) {
   var filename = 'thousand-sketch' + sketch.containerId + '.png';
-  console.log('Saving sketch to file:', filename);
+  console.log(tag, 'Saving sketch to file:', filename);
   return Rx.Observable.create(function(observer) {
     var stream = req.pipe(fs.createWriteStream(os.tmpdir() + '/' + filename));
     req.on('end', function() {
@@ -30,16 +30,34 @@ var saveImageToFile = function(sketch, req) {
 
 var postImageToPod = function(sketch, req) {
   var putUrl = sketch.url + '/doodle?username='+sketch.name+'&cuid='+sketch.cuid+'&submission='+sketch.submissionId;
-  console.log('Putting sketch to url:', putUrl);
+  console.log(tag, 'Putting sketch to url:', putUrl);
   return Rx.Observable.create(function(observer) {
+    if (! sketch.url) {
+      sketch.url = 'http://beacon.jbosskeynote.com' + sketch.uiUrl;
+      observer.onNext({msg: 'No pod url, not PUTting'});
+      observer.onCompleted();
+      return;
+    }
     req.pipe(request.put(putUrl, function (err, res, body) {
       if (err) {
-        observer.onError(err);
+        console.log(tag, 'Error PUTting sketch to', putUrl);
+        sketch.url = 'http://beacon.jbosskeynote.com' + sketch.uiUrl;
+        observer.onNext({msg: 'Error PUTting sketch to ' + putUrl});
+        observer.onCompleted();
         return;
       };
-      // console.log('Put complete:', sketch.url);
-      observer.onNext(res.body);
-      observer.onCompleted();
+      if (res && res.statusCode == 200) {
+        // console.log('Put complete:', sketch.url);
+        observer.onNext(res.body);
+        observer.onCompleted();
+        return;
+      } else {
+        console.log(tag, 'Error PUTting sketch to', putUrl);
+        sketch.url = 'http://beacon.jbosskeynote.com' + sketch.uiUrl;
+        observer.onNext({msg: 'Error PUTting sketch to ' + putUrl});
+        observer.onCompleted();
+        return;
+      }
     }));
   })
 };
@@ -48,7 +66,7 @@ module.exports = exports = {
   receiveImage: function(req, res, next) {
     console.log(tag, 'originalUrl', req.originalUrl);
     pod.getRandomPod.flatMap(function(randomPod) {
-      // console.log(tag, 'randomPod', randomPod);
+      console.log(tag, 'randomPod', randomPod);
       var sketch = {
         containerId: randomPod.id
       , url: randomPod.url
@@ -102,9 +120,7 @@ module.exports = exports = {
   randomSketches: function(req, res, next) {
     var numSketches = req.params.numSketches;
     randomSketches(numSketches).flatMap(function(sketch) {
-      console.log('sketch', sketch)
       return pod.getRandomPod.map(function(randomPod) {
-        console.log('pod', randomPod)
         sketch.containerId = randomPod.id
         thousandEmitter.emit('new-sketch', sketch);
         return sketch;

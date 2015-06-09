@@ -22,8 +22,9 @@ var config = {
   preStart: {
     oauthToken: process.env.ACCESS_TOKEN_PRESTART || false,
     namespace: process.env.NAMESPACE_PRESTART || 'demo-test',  //summit2
-    openshiftServer: process.env.OPENSHIFT_SERVER_PRESTART || 'openshift-master.summit2.paas.ninja:8443',
-    proxy: 'http://openshiftproxy-bleathemredhat.rhcloud.com'
+    openshiftServer: process.env.OPENSHIFT_SERVER_PRESTART || 'openshift-master.summit3.paas.ninja:8443',
+    // proxy: process.env.PROXY || 'http://openshiftproxy-bleathemredhat.rhcloud.com'
+    proxy: process.env.PROXY || 'http://sketch.demo.apps.summit3.paas.ninja'
   }
 };
 
@@ -382,26 +383,37 @@ var getRandomInt = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 };
 
-var getRandomPod = Rx.Observable.return(availablePods).map(function(pods) {
+var getUnclaimedPods = function(pods) {
   var minClaimed = 0;
   var filteredPods = [];
-  while(availablePods.length && ! filteredPods.length) {
+  while(pods.length && ! filteredPods.length) {
     minClaimed++;
-    filteredPods = availablePods.filter(function(pod) {
+    filteredPods = pods.filter(function(pod) {
       return ! pod.claimed || pod.claimed < minClaimed;
     })
   }
   return filteredPods;
+}
+
+var getRandomPod = Rx.Observable.return(availablePods).map(function(pods) {
+  return getUnclaimedPods(availablePods);
 })
 .map(function(pods) {
-  if (pods.length > 0) {
-    var index = getRandomInt(0, pods.length);
-    var pod = pods[index];
-    pod.claimed = pod.claimed ? pod.claimed + 1 : 1;
-    return pod;
-  } else {
-    return null;
-  }
+  if (pods.length === 0) {
+    pods = getUnclaimedPods(podPlaceholders);
+  };
+  var index = getRandomInt(0, pods.length);
+  var pod = pods[index];
+  pod.claimed = pod.claimed ? pod.claimed + 1 : 1;
+  return pod;
+});
+
+var podPlaceholders = _.range(1026).map(function(index) {
+  return {
+    id: index,
+    claimed: 0,
+    url: null
+  };
 });
 
 module.exports = {
