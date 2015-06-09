@@ -18,7 +18,7 @@ var getRandomInt = function (min, max) {
 var randomEvents = Rx.Observable.range(0, 1026)
   .flatMap(function(index) {
     var delay = 0;
-    return Rx.Observable.range(1, 4) // 5 states
+    return Rx.Observable.range(1, 5) // 6 states including '0'
       .flatMap(function(stage) {
         delay += getRandomInt(2000, 3000);
         return Rx.Observable.range(0,1)

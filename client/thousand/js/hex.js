@@ -67,8 +67,8 @@ hex.ui = (function dataSimulator(d3, Rx) {
   console.log(points.length);
 
   var color = d3.scale.linear()
-    .domain([0, 1, 2, 3, 4])  // 5 states
-    .range(['#002235', '#004368', '#00659c', '#0088ce', '#39a5dc']);
+    .domain([0, 1, 2, 3, 4, 5])  // 5 states
+    .range(['#39a5dc', '#0088ce', '#00659c', '#004368', '#002235', '#000000']);
 
   var svg = d3.select('.map').append('svg')
       .attr('width', content.x + margin.left + margin.right)
