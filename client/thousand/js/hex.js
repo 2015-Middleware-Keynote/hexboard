@@ -66,7 +66,14 @@ hex.ui = (function dataSimulator(d3, Rx) {
 
   console.log(points.length);
 
-  var color = d3.scale.linear()
+  var color = function(p) {
+    if (p.stage === 5 && firstImage && hex.shadowman) {
+      return 'url(#redhat'+p.id+')';
+    }
+    return colorScale(p.stage);
+  }
+
+  var colorScale = d3.scale.linear()
     .domain([0, 1, 2, 3, 4, 5])  // 5 states
     .range(['#39a5dc', '#0088ce', '#00659c', '#004368', '#002235', '#000000']);
 
@@ -118,12 +125,11 @@ hex.ui = (function dataSimulator(d3, Rx) {
       .attr('class', 'hexagon')
       .attr('d', 'm' + hexagon(honeycomb.size).join('l') + 'z')
       .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; })
-      .style('fill', function(d) { return color(0); });
+      .style('fill', function(d) { return colorScale(0); });
 
   function flipAll() {
-    var newColor = color(4),
-        duration = 1000,
-        scale2 = 100;
+    var duration = 1000;
+
     hexagons
       .transition()
       .duration(duration)
@@ -136,7 +142,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
       })
       .styleTween('fill', function(d, i, a) {
         return function(t) {
-          return t < 0.5 ? a : color(d.stage);
+          return t < 0.5 ? a : color(d);
         };
       });
   }
@@ -149,12 +155,11 @@ hex.ui = (function dataSimulator(d3, Rx) {
       , opacity = { initial: 0.01, final: 0.9};
     var p0 = {x: perspective * (p.x - c.x) + c.x, y: perspective * (p.y - c.y) + c.y};
     p.stage = stage;
-    var newColor = stage === 5 && firstImage && hex.shadowman ? 'url(#redhat'+p.id+')': color(stage);
     svg.insert('path')
       .attr('class', 'hexagon falling')
       .attr('d', 'm' + hexagon(honeycomb.size).join('l') + 'z')
       .attr('transform', function(d) { return 'matrix('+1/scale+', 0, 0, '+1/scale+', '+ p0.x +', '+ p0.y +')'; })
-      .style('fill', function(d) { return newColor; })
+      .style('fill', function(d) { return color(p); })
       .style('fill-opacity', opacity.initial)
     .transition()
       .duration(duration)
@@ -167,7 +172,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
       .duration(duration)
       .ease('linear')
       .styleTween('fill', function(d, i, a) {
-        var fill = d.sketch ? a : newColor;
+        var fill = d.sketch ? a : color(d);
         return function(t) {
           return t < 1 ? a : fill;
         };
@@ -248,10 +253,10 @@ hex.ui = (function dataSimulator(d3, Rx) {
 
   var removeSketch = function(p) {
     hex.inspect.unhighlight();
-    delete p.sketch;
+    p.sketch.pop();
     hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
-      .style('fill', function(d) { return color(d.stage)})
-      .attr('class', 'hexagon');
+      .style('fill', function(d) { return d.sketch.length ? 'url(#' + createSketchId(d) + ')' : color(d)})
+      .attr('class', function(d) { return d.sketch.length ? 'hexagon sketch' : 'hexagon'});
   };
 
   var openObserver = Rx.Observer.create(
