@@ -17,14 +17,15 @@ var config = {
   live: {
     oauthToken: process.env.ACCESS_TOKEN_LIVE || false,
     namespace: process.env.NAMESPACE_LIVE || 'demo1', //summit1
-    openshiftServer: process.env.OPENSHIFT_SERVER_LIVE || 'openshift-master.summit2.paas.ninja:8443'
+    openshiftServer: process.env.OPENSHIFT_SERVER_LIVE || 'openshift-master.summit2.paas.ninja:8443',
+    proxy: process.env.PROXY_LIVE || 'http://sketch.demo.apps.summit2.paas.ninja'
   },
   preStart: {
     oauthToken: process.env.ACCESS_TOKEN_PRESTART || false,
     namespace: process.env.NAMESPACE_PRESTART || 'demo-test',  //summit2
     openshiftServer: process.env.OPENSHIFT_SERVER_PRESTART || 'openshift-master.summit3.paas.ninja:8443',
     // proxy: process.env.PROXY || 'http://openshiftproxy-bleathemredhat.rhcloud.com'
-    proxy: process.env.PROXY || 'http://sketch.demo.apps.summit3.paas.ninja'
+    proxy: process.env.PROXY_PRESTART || 'http://sketch.demo.apps.summit3.paas.ninja'
   }
 };
 
@@ -120,7 +121,7 @@ function verifyPodAvailable(parsed) {
     , method: 'get'
     }
     request(options, function(error, response, body) {
-      if (!error && response.statusCode == 200) {
+      if (!error && response && response.statusCode == 200) {
         if (pod.errorCount) {
           console.log(tag, 'Recovery (#', pod.errorCount, ')', parsed.object.metadata.name);
           delete(pod.errorCount);
@@ -129,7 +130,8 @@ function verifyPodAvailable(parsed) {
         observer.onCompleted();
       } else {
         var err = {
-          code: response.statusCode
+          code: response ? response.statusCode : ''
+        , url: options.url
         , msg: error
         }
         observer.onError(err);
@@ -332,14 +334,40 @@ var liveWatchStream = watchStream(environments.live);
 var preStartWatchStream = watchStream(environments.preStart);
 
 var parsedLiveStream = liveWatchStream.map(function(json) {
-  return parseData(json, false);
+  return parseData(json, true);
 })
 .filter(function(parsed) {
   return parsed && parsed.data && parsed.data.type && parsed.data.id <= 1025;
 })
+
+var availableLiveStream = parsedLiveStream.flatMap(function(parsed) {
+  if (parsed.data.stage != 4) {
+    return Rx.Observable.just(parsed);
+  } else {
+    return Rx.Observable.merge(
+      Rx.Observable.just(parsed)
+    , verifyPodAvailable(parsed).map(function() {
+        var newParsed = _.clone(parsed)
+        newParsed.data = _.clone(parsed.data);
+        newParsed.data.stage = 5;
+        // env.state.pods[newParsed.object.metadata.name] = newParsed;
+        return newParsed;
+      })
+    );
+  };
+})
+.tap(function(parsed) {
+  if (parsed.data.stage === 5) {
+    availablePods.push(parsed.data);
+  } if (parsed.data.stage === 6) {
+    availablePods = availablePods.filter(function(pod) {
+      return pod.name !== parsed.data.name
+    });
+  }
+})
 .replay();
 
-parsedLiveStream.connect();
+availableLiveStream.connect();
 
 var parsedPreStartStream = preStartWatchStream.map(function(json) {
   return parseData(json, true);
@@ -419,7 +447,7 @@ var podPlaceholders = _.range(1026).map(function(index) {
 module.exports = {
   rawLiveStream: liveWatchStream
 , rawPreStartStream: preStartWatchStream
-, liveStream: parsedLiveStream
+, liveStream: availableLiveStream
 , preStartStream: availablePreStartStream
 , parseData : parseData
 , getRandomPod: getRandomPod
