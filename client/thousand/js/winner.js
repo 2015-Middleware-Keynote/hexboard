@@ -17,7 +17,9 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
   var isAlreadyWinner = function(point) {
     return winners.some(function(winner) {
-      return 'cuid' in winner.sketch && winner.sketch.cuid === point.sketch.cuid;
+      var sketch = point.sketch[point.sketch.length - 1];
+      var winnerSketch = winner.sketch[winner.sketch.length - 1];
+      return 'cuid' in winnerSketch && winnerSketch.cuid === sketch.cuid;
     });
   };
 
