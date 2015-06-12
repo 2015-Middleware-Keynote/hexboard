@@ -356,15 +356,6 @@ var availableLiveStream = parsedLiveStream.flatMap(function(parsed) {
     );
   };
 })
-.tap(function(parsed) {
-  if (parsed.data.stage === 5) {
-    availablePods.push(parsed.data);
-  } if (parsed.data.stage === 6) {
-    availablePods = availablePods.filter(function(pod) {
-      return pod.name !== parsed.data.name
-    });
-  }
-})
 .replay();
 
 availableLiveStream.connect();
