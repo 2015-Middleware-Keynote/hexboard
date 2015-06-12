@@ -112,7 +112,7 @@ module.exports = exports = {
       containerId = parseInt(containerId);
       var filename = 'thousand-sketch' + containerId + '.png';
       thousandEmitter.emit('remove-sketch', containerId);
-      fs.createReadStream('./server/api/thousand/censored.png').pipe(fs.createWriteStream(os.tmpdir() + '/' + filename));
+      fs.createReadStream('./server/thousand/api/thousand/censored.png').pipe(fs.createWriteStream(os.tmpdir() + '/' + filename));
       res.send('removed');
     };
   },
