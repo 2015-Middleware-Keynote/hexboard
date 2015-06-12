@@ -174,8 +174,8 @@ hex.ui = (function dataSimulator(d3, Rx) {
       })
   };
 
-  var createSketchId = function(sketch, point) {
-    return 'img' + sketch.containerId + '_' + point.sketch.length;
+  var createSketchId = function(point) {
+    return 'img' + point.id + '_' + point.sketch.length;
   }
 
   var createBackground = function(sketch, id) {
@@ -215,7 +215,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
 
     p.sketch = p.sketch || [];
     p.sketch.push(sketch);
-    var skecthId = createSketchId(sketch, p);
+    var skecthId = createSketchId(p);
     createBackground(sketch, skecthId);
 
     svg.insert('path')
@@ -332,7 +332,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
         flipAll();
       }
       point.sketch = [sketch];
-      var skecthId = createSketchId(sketch, point);
+      var skecthId = createSketchId(point);
       createBackground(sketch, skecthId);
       hexagons.filter(function(d) { return d.x === point.x && d.y === point.y; })
         .attr('class', 'hexagon sketch')
@@ -368,6 +368,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
   , dispose: dispose
   , flipAll: flipAll
   , removeSketch: removeSketch
+  , createSketchId: createSketchId
   }
 
 })(d3, Rx);

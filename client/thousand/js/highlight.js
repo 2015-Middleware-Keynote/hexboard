@@ -19,11 +19,12 @@ hex.highlight = (function dataSimulator(d3, Rx) {
 
     var p = hex.ui.points[index];
     highlightedHexagon = hex.ui.svg.insert('path');
+    var sketchId = hex.ui.createSketchId(p);
     highlightedHexagon
       .attr('class', 'hexagon highlight')
       .attr('d', 'm' + hex.ui.hexagon(hex.ui.honeycomb.size).join('l') + 'z')
       .attr('transform', 'translate(' + p.x + ',' + p.y + ')')
-      .attr('fill', 'url(#img' + p.id + ')')
+      .attr('fill', 'url(#' + sketchId + ')')
       .style('fill-opacity', 1.0)
       .datum(p)
     .transition()

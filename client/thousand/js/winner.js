@@ -122,15 +122,17 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
   var displayWinner = function(p, index) {
     animateWinner(p, stageSpots[index], winnerSpots[index], 1, 3.5, true);
-    console.log('Winner name:', p.sketch.name, 'cuid:', p.sketch.cuid, 'submission:', p.sketch.submissionId);
+    var sketch = p.sketch[p.sketch.length - 1];
+    console.log('Winner name:', sketch.name, 'cuid:', sketch.cuid, 'submission:', sketch.submissionId);
   }
 
   var animateWinner = function(p, p0, p1, zoom1, zoom2, shownames, cb) {
-    var duration = 1000
-      ;
-    var spaceIndex = p.sketch.name.indexOf(' ');
-    p.sketch.firstname = p.sketch.name.substring(0,spaceIndex);
-    p.sketch.lastname = p.sketch.name.substring(spaceIndex+1);
+    var duration = 1000;
+    var sketch = p.sketch[p.sketch.length - 1];
+    var spaceIndex = sketch.name.indexOf(' ');
+    sketch.firstname = sketch.name.substring(0,spaceIndex);
+    sketch.lastname = sketch.name.substring(spaceIndex+1);
+    var sketchId = hex.ui.createSketchId(p);
 
     if (!p.group) {
       p.group = hex.ui.svg.insert('g')
@@ -140,7 +142,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
       p.group.insert('path')
         .attr('class', 'hexagon')
         .attr('d', 'm' + hex.ui.hexagon(hex.ui.honeycomb.size).join('l') + 'z')
-        .attr('fill', 'url(#img' + p.id + ')')
+        .attr('fill', 'url(#' + sketchId + ')')
         .attr('transform', 'matrix('+zoom1+', 0, 0, '+zoom1+', 0, 0)');
     }
 
@@ -161,13 +163,13 @@ hex.winner = (function dataSimulator(d3, Rx) {
       textGroup.insert('text')
         .attr('class', 'firstname')
         .attr('text-anchor', 'middle')
-        .text(p.sketch.firstname);
+        .text(sketch.firstname);
 
       textGroup.insert('text')
         .attr('class', 'lastname')
         .attr('text-anchor', 'middle')
         .attr('y', hex.ui.honeycomb.size / 1.5)
-        .text(p.sketch.lastname);
+        .text(sketch.lastname);
     }
 
     p.group.transition()

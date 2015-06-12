@@ -4,7 +4,7 @@ var WebSocket = require('ws')
   ;
 
 var ws = new WebSocket('ws://localhost:9000/winner');
-// var ws = new WebSocket('ws://www.jbosskeynote.com:8000/winner');
+// var ws = new WebSocket('ws://1k.jbosskeynote.com:8000/winner');
 ws.on('open', function open() {
   ws.send(JSON.stringify({
     key: 'somekey'
