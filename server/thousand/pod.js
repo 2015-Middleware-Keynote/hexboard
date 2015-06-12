@@ -99,7 +99,8 @@ var returnIdToPool = function(pod) {
   availableIds[namespace].push(pod.data.id);
 };
 
-function podNumber(namespace, name) {
+function podNumber(name, env) {
+  var namespace = env.name;
   if (! idMapNamespaces[namespace]) {
     idMapNamespaces[namespace] = {};
     availableIds[namespace] = _.range(1026);
@@ -160,7 +161,7 @@ function verifyPodAvailable(parsed) {
   .catch(Rx.Observable.empty());
 };
 
-var parseData = function(update, proxy) {
+var parseData = function(update, proxy, env) {
   if (! (update && update.object && update.object.spec && update.object.spec.containers && update.object.spec.containers.length > 0)) {
     return update;
   };
@@ -172,7 +173,7 @@ var parseData = function(update, proxy) {
     //bundle the pod data
     // console.log(tag, 'name',update.object.spec.containers[0].name, update.object.metadata.name)
     update.data = {
-      id: podNumber(update.object.metadata.namespace, replicaName),
+      id: podNumber(replicaName, env),
       name: replicaName,
       hostname: podName + '-summit3.apps.summit.paas.ninja',
       stage: update.type,
@@ -181,7 +182,7 @@ var parseData = function(update, proxy) {
       creationTimestamp: new Date(update.object.metadata.creationTimestamp)
     }
     if (proxy) {
-      update.data.url = config.preStart.proxy + '/' + config.preStart.namespace + '/' + replicaName;
+      update.data.url = env.config.proxy + '/' + env.config.namespace + '/' + replicaName;
     }
     if (update.type === 'DELETED') {
       returnIdToPool(update);
@@ -334,7 +335,7 @@ var liveWatchStream = watchStream(environments.live);
 var preStartWatchStream = watchStream(environments.preStart);
 
 var parsedLiveStream = liveWatchStream.map(function(json) {
-  return parseData(json, true);
+  return parseData(json, true, environments.live);
 })
 .filter(function(parsed) {
   return parsed && parsed.data && parsed.data.type && parsed.data.id <= 1025;
@@ -361,7 +362,7 @@ var availableLiveStream = parsedLiveStream.flatMap(function(parsed) {
 availableLiveStream.connect();
 
 var parsedPreStartStream = preStartWatchStream.map(function(json) {
-  return parseData(json, true);
+  return parseData(json, true, environments.preStart);
 })
 .filter(function(parsed) {
   return parsed && parsed.data && parsed.data.type && parsed.data.id <= 1025;
