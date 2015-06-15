@@ -92,8 +92,8 @@ var takeRandomId = function(namespace) {
   return id;
 };
 
-var returnIdToPool = function(pod) {
-  var namespace = pod.object.metadata.namespace;
+var returnIdToPool = function(pod, env) {
+  var namespace = env.name;
   var idMap = idMapNamespaces[namespace];
   delete idMap[pod.object.metadata.name];
   availableIds[namespace].push(pod.data.id);
@@ -185,7 +185,7 @@ var parseData = function(update, proxy, env) {
       update.data.url = env.config.proxy + '/' + env.config.namespace + '/' + replicaName;
     }
     if (update.type === 'DELETED') {
-      returnIdToPool(update);
+      returnIdToPool(update, env);
       update.data.stage = 0;
     } else if (update.object.status.phase === 'Pending' && ! update.object.spec.host) {
       update.data.stage = 1;
