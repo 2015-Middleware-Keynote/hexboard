@@ -34,7 +34,7 @@ module.exports = exports = {
   },
 
   basicAuth: function(req, res, next) {
-    if (! process.env.BASIC_AUTH_USER || ! process.env.BASIC_AUTH_PASSWORD) {
+    if (! process.env.BASIC_AUTH_USER || ! process.env.BASIC_AUTH_PASSWORD || req.path.indexOf('/2api') === 0) {
       next();
       return;
     }
