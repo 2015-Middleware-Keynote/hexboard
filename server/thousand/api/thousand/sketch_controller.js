@@ -103,14 +103,13 @@ module.exports = exports = {
       , submissionId: req.query.submission_id
       };
       randomPod.skecth = sketch;
-      return Rx.Observable.zip(
+      return Rx.Observable.forkJoin(
         saveImageToFile(sketch, req)
       , postImageToPod(sketch, req)
-      , function(sketch, response) {
-        return sketch;
-      })
+      )
     })
-    .subscribe(function(sketch) {
+    .subscribe(function(arr) {
+      var sketch = arr[0];
       //console.log(tag, 'new sketch', sketch.url, sketch.cuid);
       thousandEmitter.emit('new-sketch', sketch);
       res.json(sketch);
