@@ -62,6 +62,9 @@ var environments = {
     }, optionsBase)
   , state: {first  : true, pods: {}}
   , config: config.live
+  , subjects: _.range(1026).map(function(index) {
+      return new Rx.ReplaySubject(1);
+    })
   }
 , preStart: {
     name: 'preStart'
@@ -77,6 +80,9 @@ var environments = {
     }, optionsBase)
   , state: {first  : true, pods: {}}
   , config: config.preStart
+  , subjects: _.range(1026).map(function(index) {
+      return new Rx.ReplaySubject(1);
+    })
   }
 };
 
@@ -267,11 +273,8 @@ var parseStream = function(env) {
   })
 }
 
-var parsedLiveStream = parseStream(environments.live);
-var parsedPreStartStream = parseStream(environments.preStart);
-
-var verifyStream = function(env, parsedStream) {
-  return parsedStream.flatMap(function(parsed) {
+var verifyStream = function(env) {
+  return parseStream(env).flatMap(function(parsed) {
     if (parsed.data.stage != 4) {
       return Rx.Observable.just(parsed);
     } else {
@@ -287,17 +290,21 @@ var verifyStream = function(env, parsedStream) {
       );
     };
   })
-}
+  .tap(function(pod) {
+    var subject = env.subjects[pod.data.id];
+    subject.onNext(pod);
+    if (pod.data.stage === 0) {
+      subject.onCompleted();
+      env.subjects[pod.data.id] = new Rx.ReplaySubject(1);
+    }
+  })
+  .publish();
+};
 
-var availableLiveStream = verifyStream(environments.live, parsedLiveStream)
-  .replay();
-availableLiveStream.connect();
-
-var availablePreStartStream = verifyStream(environments.preStart, parsedPreStartStream)
-  .replay();
-availablePreStartStream.connect();
+verifyStream(environments.live).connect();
+verifyStream(environments.preStart).connect();
 
 module.exports = {
-  liveStream: availableLiveStream
-, preStartStream: availablePreStartStream
+  liveStream: Rx.Observable.merge(environments.live.subjects)
+, preStartStream: Rx.Observable.merge(environments.preStart.subjects)
 };
