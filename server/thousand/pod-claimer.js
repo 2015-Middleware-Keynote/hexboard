@@ -48,9 +48,11 @@ var getRandomPod = pod.preStartStream.filter(function(parsed) {
 
 var podPlaceholders = _.range(1026).map(function(index) {
   return {
-    id: index,
-    claimed: 0,
-    url: null
+    data: {
+      id: index,
+      claimed: 0,
+      url: null
+    }
   };
 });
 

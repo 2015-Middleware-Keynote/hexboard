@@ -3,7 +3,10 @@
 var morgan      = require('morgan')
  ,  bodyParser  = require('body-parser')
  ,  middle      = require('./middleware')
+ , http = require('http')
  ;
+
+http.globalAgent.maxSockets = 5; //Infinity;
 
 module.exports = exports = function (app, express, routers) {
   app.set('port', process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || 9000);

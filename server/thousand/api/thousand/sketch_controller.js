@@ -66,7 +66,7 @@ module.exports = exports = {
   receiveImage: function(req, res, next) {
     console.log(tag, 'originalUrl', req.originalUrl);
     podClaimer.getRandomPod.flatMap(function(randomPod) {
-      console.log(tag, 'randomPod', randomPod);
+      console.log(tag, 'randomPod', randomPod.id);
       var sketch = {
         containerId: randomPod.id
       , url: randomPod.url
@@ -84,7 +84,7 @@ module.exports = exports = {
       })
     })
     .subscribe(function(sketch) {
-      console.log(tag, sketch);
+      console.log(tag, 'new sketch', sketch.url, sketch.cuid);
       thousandEmitter.emit('new-sketch', sketch);
       res.json(sketch);
     }, function(err) {
