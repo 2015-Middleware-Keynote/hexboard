@@ -15,17 +15,7 @@ var Rx = require('rx')
 
 var tag = 'PODLOGGER';
 var logDir = process.env.LOG_DIR || os.tmpdir();
-var rawStream    = fs.createWriteStream(logDir + '/pods-create-raw.log');
 var parsedStream = fs.createWriteStream(logDir + '/pods-create-parsed.log');
-
-// pod.rawLiveStream.tap(function(raw) {
-pod.rawPreStartStream.tap(function(raw) {
-  console.log('raw');
-  rawStream.write(JSON.stringify(raw) + '\n');
-})
-.subscribeOnError(function(err) {
-  console.log(err.stack || err);
-})
 
 // pod.liveStream.tap(function(parsed) {
 pod.preStartStream.tap(function(parsed) {

@@ -7,7 +7,7 @@ var fs = require('fs')
   , randomSketches = require('../../random').randomSketches
   , thousandEmitter = require('../../thousandEmitter')
   , request = require('request')
-  , pod = require('../../pod')
+  , podClaimer = require('../../pod-claimer')
   ;
 
 var tag = 'API/THOUSAND';
@@ -65,7 +65,7 @@ var postImageToPod = function(sketch, req) {
 module.exports = exports = {
   receiveImage: function(req, res, next) {
     console.log(tag, 'originalUrl', req.originalUrl);
-    pod.getRandomPod.flatMap(function(randomPod) {
+    podClaimer.getRandomPod.flatMap(function(randomPod) {
       console.log(tag, 'randomPod', randomPod);
       var sketch = {
         containerId: randomPod.id
@@ -120,7 +120,7 @@ module.exports = exports = {
   randomSketches: function(req, res, next) {
     var numSketches = req.params.numSketches;
     randomSketches(numSketches).flatMap(function(sketch) {
-      return pod.getRandomPod.map(function(randomPod) {
+      return podClaimer.getRandomPod.map(function(randomPod) {
         sketch.containerId = randomPod.id
         thousandEmitter.emit('new-sketch', sketch);
         return sketch;

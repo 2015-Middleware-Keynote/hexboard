@@ -3,11 +3,9 @@
 var Rx = require('rx')
   , RxNode = require('rx-node')
   , split = require('split')
-  , cc = require('config-multipaas')
-  , fs = require('fs')
-  , thousandEmitter = require('./thousandEmitter')
   , request = require('request')
   , _ = require('underscore')
+  , PodParser = require('./pod-parser')
   ;
 
 var tag = 'POD';
@@ -82,39 +80,8 @@ var environments = {
   }
 };
 
-var idMapNamespaces = {};
-var availableIds = {};
-
-var takeRandomId = function(namespace) {
-  var index = getRandomInt(0, availableIds[namespace].length);
-  var id = availableIds[namespace][index];
-  availableIds[namespace].splice(index,1);
-  return id;
-};
-
-var returnIdToPool = function(pod, env) {
-  var namespace = env.name;
-  var idMap = idMapNamespaces[namespace];
-  var num = pod.object.metadata.name.match(/[a-z0-9]*$/);
-  var stringId = num[0];
-  delete idMap[stringId];
-  availableIds[namespace].push(pod.data.id);
-};
-
-function podNumber(name, env) {
-  var namespace = env.name;
-  if (! idMapNamespaces[namespace]) {
-    idMapNamespaces[namespace] = {};
-    availableIds[namespace] = _.range(1026);
-  };
-  var idMap = idMapNamespaces[namespace];
-  var num = name.match(/[a-z0-9]*$/);
-  var stringId = num[0];
-  if (! (stringId in idMap)) {
-    idMap[stringId] = takeRandomId(namespace);
-  }
-  return idMap[stringId];
-};
+environments.live.parser = new PodParser(environments.live);
+environments.preStart.parser = new PodParser(environments.preStart);
 
 function verifyPodAvailable(parsed) {
   var pod = parsed.data;
@@ -161,47 +128,6 @@ function verifyPodAvailable(parsed) {
     });
   })
   .catch(Rx.Observable.empty());
-};
-
-var parseData = function(update, proxy, env) {
-  if (! (update && update.object && update.object.spec && update.object.spec.containers && update.object.spec.containers.length > 0)) {
-    return update;
-  };
-  var podName = update.object.spec.containers[0].name;
-  if (podName.indexOf('sketchpod') !== 0 || !update.object.status || !update.object.status.phase) {
-    // console.log(tag, 'Ignoring update for container name:', update.object.spec.containers[0].name);
-  } else {
-    var replicaName = update.object.metadata.name;
-    //bundle the pod data
-    // console.log(tag, 'name',update.object.spec.containers[0].name, update.object.metadata.name)
-    update.data = {
-      id: podNumber(replicaName, env),
-      name: replicaName,
-      hostname: podName + '-summit3.apps.summit.paas.ninja',
-      stage: update.type,
-      type: 'event',
-      timestamp: update.timestamp,
-      creationTimestamp: new Date(update.object.metadata.creationTimestamp)
-    }
-    if (proxy) {
-      update.data.url = env.config.proxy + '/' + env.config.namespace + '/' + replicaName;
-    }
-    if (update.type === 'DELETED') {
-      returnIdToPool(update, env);
-      update.data.stage = 0;
-    } else if (update.object.status.phase === 'Pending' && ! update.object.spec.host) {
-      update.data.stage = 1;
-    } else if (update.object.status.phase === 'Pending' && update.object.spec.host) {
-      update.data.stage = 2;
-    } else if (update.object.status.phase === 'Running' && update.object.status.Condition[0].type == 'Ready' && update.object.status.Condition[0].status === 'False') {
-      update.data.stage = 3;
-    } else if (update.object.status.phase === 'Running' && update.object.status.Condition[0].type == 'Ready' && update.object.status.Condition[0].status === 'True') {
-      update.data.stage = 4;
-    } else {
-      console.log(tag, "New data type found:" + JSON.stringify(update, null, '  '))
-    }
-  }
-  return update;
 };
 
 var list = function(env) {
@@ -330,120 +256,48 @@ var watchStream = function(env) {
       }
     });
   })
-  .share();
 };
 
-var liveWatchStream = watchStream(environments.live);
-var preStartWatchStream = watchStream(environments.preStart);
-
-var parsedLiveStream = liveWatchStream.map(function(json) {
-  return parseData(json, true, environments.live);
-})
-.filter(function(parsed) {
-  return parsed && parsed.data && parsed.data.type && parsed.data.id <= 1025;
-})
-
-var availableLiveStream = parsedLiveStream.flatMap(function(parsed) {
-  if (parsed.data.stage != 4) {
-    return Rx.Observable.just(parsed);
-  } else {
-    return Rx.Observable.merge(
-      Rx.Observable.just(parsed)
-    , verifyPodAvailable(parsed).map(function() {
-        var newParsed = _.clone(parsed)
-        newParsed.data = _.clone(parsed.data);
-        newParsed.data.stage = 5;
-        // env.state.pods[newParsed.object.metadata.name] = newParsed;
-        return newParsed;
-      })
-    );
-  };
-})
-.replay();
-
-availableLiveStream.connect();
-
-var parsedPreStartStream = preStartWatchStream.map(function(json) {
-  return parseData(json, true, environments.preStart);
-})
-.filter(function(parsed) {
-  return parsed && parsed.data && parsed.data.type && parsed.data.id <= 1025;
-});
-
-var availablePods = [];
-
-var availablePreStartStream = parsedPreStartStream.flatMap(function(parsed) {
-  if (parsed.data.stage != 4) {
-    return Rx.Observable.just(parsed);
-  } else {
-    return Rx.Observable.merge(
-      Rx.Observable.just(parsed)
-    , verifyPodAvailable(parsed).map(function() {
-        var newParsed = _.clone(parsed)
-        newParsed.data = _.clone(parsed.data);
-        newParsed.data.stage = 5;
-        // env.state.pods[newParsed.object.metadata.name] = newParsed;
-        return newParsed;
-      })
-    );
-  };
-})
-.tap(function(parsed) {
-  if (parsed.data.stage === 5) {
-    availablePods.push(parsed.data);
-  } if (parsed.data.stage === 6) {
-    availablePods = availablePods.filter(function(pod) {
-      return pod.name !== parsed.data.name
-    });
-  }
-})
-.replay();
-
-availablePreStartStream.connect();
-
-var getRandomInt = function (min, max) {
-  return Math.floor(Math.random() * (max - min) + min);
-};
-
-var getUnclaimedPods = function(pods) {
-  var minClaimed = 0;
-  var filteredPods = [];
-  while(pods.length && ! filteredPods.length) {
-    minClaimed++;
-    filteredPods = pods.filter(function(pod) {
-      return ! pod.claimed || pod.claimed < minClaimed;
-    })
-  }
-  return filteredPods;
+var parseStream = function(env) {
+  return watchStream(env).map(function(json) {
+    return env.parser.parseData(json, true);
+  })
+  .filter(function(parsed) {
+    return parsed && parsed.data && parsed.data.type && parsed.data.id <= 1025;
+  })
 }
 
-var getRandomPod = Rx.Observable.return(availablePods).map(function(pods) {
-  return getUnclaimedPods(availablePods);
-})
-.map(function(pods) {
-  if (pods.length === 0) {
-    pods = getUnclaimedPods(podPlaceholders);
-  };
-  var index = getRandomInt(0, pods.length);
-  var pod = pods[index];
-  pod.claimed = pod.claimed ? pod.claimed + 1 : 1;
-  return pod;
-});
+var parsedLiveStream = parseStream(environments.live);
+var parsedPreStartStream = parseStream(environments.preStart);
 
-var podPlaceholders = _.range(1026).map(function(index) {
-  return {
-    id: index,
-    claimed: 0,
-    url: null
-  };
-});
+var verifyStream = function(env, parsedStream) {
+  return parsedStream.flatMap(function(parsed) {
+    if (parsed.data.stage != 4) {
+      return Rx.Observable.just(parsed);
+    } else {
+      return Rx.Observable.merge(
+        Rx.Observable.just(parsed)
+      , verifyPodAvailable(parsed).map(function() {
+          var newParsed = _.clone(parsed)
+          newParsed.data = _.clone(parsed.data);
+          newParsed.data.stage = 5;
+          // env.state.pods[newParsed.object.metadata.name] = newParsed;
+          return newParsed;
+        })
+      );
+    };
+  })
+}
+
+var availableLiveStream = verifyStream(environments.live, parsedLiveStream)
+  .replay();
+availableLiveStream.connect();
+
+var availablePreStartStream = verifyStream(environments.preStart, parsedPreStartStream)
+  .replay();
+availablePreStartStream.connect();
 
 module.exports = {
-  rawLiveStream: liveWatchStream
-, rawPreStartStream: preStartWatchStream
-, liveStream: availableLiveStream
+  liveStream: availableLiveStream
 , preStartStream: availablePreStartStream
-, parseData : parseData
-, getRandomPod: getRandomPod
-, podNumber: podNumber
 };
