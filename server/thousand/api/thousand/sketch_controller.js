@@ -29,34 +29,34 @@ var saveImageToFile = function(sketch, req) {
 }
 
 var postImageToPod = function(sketch, req) {
-  var putUrl = sketch.url + '/doodle?username='+sketch.name+'&cuid='+sketch.cuid+'&submission='+sketch.submissionId;
-  console.log(tag, 'PUT sketch to url:', putUrl);
+  var postUrl = sketch.url + '/doodle?username='+sketch.name+'&cuid='+sketch.cuid+'&submission='+sketch.submissionId;
+  console.log(tag, 'POST sketch to url:', postUrl);
   return Rx.Observable.create(function(observer) {
     if (! sketch.url) {
       sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl;
-      observer.onNext({msg: 'No pod url, not PUTting'});
+      observer.onNext({msg: 'No pod url, not POSTting'});
       observer.onCompleted();
       return;
     }
-    req.pipe(request.put(putUrl, function (err, res, body) {
+    req.pipe(request.post(postUrl, function (err, res, body) {
       if (err) {
-        observer.onError({msg: 'Error PUTting sketch to ' + putUrl});
+        observer.onError({msg: 'Error POSTting sketch to ' + postUrl});
         return;
       };
       if (res && res.statusCode == 200) {
-        // console.log('Put complete:', sketch.url);
+        // console.log('Post complete:', sketch.url);
         if (sketch.errorCount) {
-          console.log(tag, 'PUT Recovery (#', sketch.errorCount, ') for url:', sketch.url);
+          console.log(tag, 'POST Recovery (#', sketch.errorCount, ') for url:', sketch.url);
           delete(sketch.errorCount);
         } else {
-          console.log(tag, 'PUT success for url:', sketch.url);
+          console.log(tag, 'POST success for url:', sketch.url);
         }
         observer.onNext(res.body);
         observer.onCompleted();
         return;
       } else {
         var msg = res && res.statusCode ? res.statusCode + ': ' : '';
-        observer.onError({msg: msg + 'Error PUTting sketch to ' + putUrl});
+        observer.onError({msg: msg + 'Error POSTting sketch to ' + postUrl});
         return;
       }
     }));
