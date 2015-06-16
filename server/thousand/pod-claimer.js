@@ -35,7 +35,7 @@ var getRandomPod = pod.preStartStream.filter(function(parsed) {
     return getUnclaimedPods(pods);
   })
   .map(function(pods) {
-    console.log(tag, 'unclaimed pods', pods.length);
+    // console.log(tag, 'unclaimed pods', pods.length);
     if (pods.length === 0) {
       console.log(tag, 'No pods available for claiming, using placeholders');
       pods = getUnclaimedPods(podPlaceholders);
