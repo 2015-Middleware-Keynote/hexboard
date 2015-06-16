@@ -95,7 +95,9 @@ var takeRandomId = function(namespace) {
 var returnIdToPool = function(pod, env) {
   var namespace = env.name;
   var idMap = idMapNamespaces[namespace];
-  delete idMap[pod.object.metadata.name];
+  var num = pod.object.metadata.name.match(/[a-z0-9]*$/);
+  var stringId = num[0];
+  delete idMap[stringId];
   availableIds[namespace].push(pod.data.id);
 };
 
@@ -205,7 +207,7 @@ var parseData = function(update, proxy, env) {
 var list = function(env) {
   return Rx.Observable.create(function(observer) {
     delete env.watchOptions.qs.latestResourceVersion;
-    console.log(tag, 'list options', env.listOptions);
+    console.log(tag, 'list options', env.listOptions.url);
     var stream = request(env.listOptions, function(error, response, body) {
       if (error) {
         console.log(tag, 'error:',error);
@@ -243,7 +245,7 @@ var list = function(env) {
 
 var watch = function(env) {
   return Rx.Observable.create(function(observer) {
-    console.log(tag, 'watch options', env.watchOptions);
+    console.log(tag, 'list options', env.watchOptions.url, env.watchOptions.qs);
     var stream = request(env.watchOptions);
     stream.on('error', function(error) {
       console.log(tag, 'error:',error);
