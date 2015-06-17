@@ -364,7 +364,11 @@ hex.ui = (function dataSimulator(d3, Rx) {
 
   var subscribe = function() {
     if (cover) {
+      cover.on('transitionend', function() {
+        cover.style({display: 'none'});
+      })
       cover.style({visibility: 'visible', opacity: '0.0'});
+
     }
     eventSubscription.subscribeOnError(errorObserver);
     errorSubscription.subscribeOnError(errorObserver);
