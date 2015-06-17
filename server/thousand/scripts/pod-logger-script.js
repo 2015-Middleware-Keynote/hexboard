@@ -18,7 +18,7 @@ var logDir = process.env.LOG_DIR || os.tmpdir();
 var parsedStream = fs.createWriteStream(logDir + '/pods-create-parsed.log');
 
 // pod.liveStream.tap(function(parsed) {
-pod.preStartStream.tap(function(parsed) {
+pod.liveStream.tap(function(parsed) {
   console.log('parsed');
   parsedStream.write(JSON.stringify(parsed) + '\n');
 })
