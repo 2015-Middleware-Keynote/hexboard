@@ -36,6 +36,7 @@
     "express": "^4.12.3",
     "gulp-nodemon": "^1.0.5",
     "gulp-util": "^3.0.4",
+    "lwip": "0.0.7",
     "morgan": "^1.5.2",
     "node-env-file": "^0.1.7",
     "request": "^2.55.0",

@@ -118,7 +118,8 @@ function verifyPodAvailable(parsed) {
     var maxRetries = 20;
     return errors.scan(0, function(errorCount, err) {
       if (errorCount === 0) {
-        console.log(tag, 'Error ', pod.url, ':', err);
+        var msg = err.code ? err.code + ':' : '';
+        console.log(tag, msg, 'Error', pod.url);
       };
       if (err.code && (err.code === 401 || err.code === 403)) {
         return maxRetries;

@@ -8,6 +8,8 @@ var fs = require('fs')
   , thousandEmitter = require('../../thousandEmitter')
   , request = require('request')
   , podClaimer = require('../../pod-claimer')
+  , streamifier = require('streamifier')
+  , lwip = require('lwip')
   ;
 
 var tag = 'API/THOUSAND';
@@ -89,24 +91,79 @@ var postImageToPod = function(sketch, req) {
   .catch();
 };
 
+var processResponse = function(req) {
+  return Rx.Observable.create(function(observer) {
+    // console.log(tag, 'Processing response');
+    var data = new Buffer('');
+    req.on('data', function(chunk) {
+      data = Buffer.concat([data, chunk]);
+    });
+    req.on('error', function(err) {
+      observer.onError(err);
+    });
+    req.on('end', function() {
+      // console.log(tag, 'Processed response');
+      observer.onNext(data);
+      observer.onCompleted();
+    });
+  })
+};
+
+var scaleImage = function(buffer) {
+  return Rx.Observable.create(function(observer) {
+    // console.log(tag, 'Scaling image');
+    lwip.open(buffer, 'png', function(err, image) {
+      // console.log(tag, 'Buffer open');
+      if (err) {
+        observer.onError(err);
+        return;
+      }
+      image.contain(100, 100, function(err, image) {
+        // console.log(tag, 'Image scaled');
+        if (err) {
+          observer.onError(err);
+          return;
+        }
+        image.toBuffer('png', function(err, buffer) {
+          // console.log(tag, 'Buffer created');
+          if (err) {
+            observer.onError(err);
+            return;
+          }
+          observer.onNext(buffer);
+          observer.onCompleted();
+        });
+      });
+    });
+
+  })
+}
+
 module.exports = exports = {
   receiveImage: function(req, res, next) {
-    // console.log(tag, 'originalUrl', req.originalUrl);
-    podClaimer.getRandomPod.flatMap(function(randomPod) {
-      // console.log(tag, 'randomPod', randomPod.id);
-      var sketch = {
-        containerId: randomPod.id
-      , url: randomPod.url
-      , uiUrl: '/api/sketch/' + randomPod.id
-      , name: req.query.name
-      , cuid: req.query.cuid
-      , submissionId: req.query.submission_id
-      };
-      randomPod.skecth = sketch;
-      return Rx.Observable.forkJoin(
-        saveImageToFile(sketch, req)
-      , postImageToPod(sketch, req)
-      )
+    processResponse(req).flatMap(function(buffer) {
+      return scaleImage(buffer);
+    })
+    .map(function(buffer) {
+      return streamifier.createReadStream(buffer);
+    })
+    .flatMap(function(stream) {
+      return podClaimer.getRandomPod.flatMap(function(randomPod) {
+        // console.log(tag, 'randomPod', randomPod.id);
+        var sketch = {
+          containerId: randomPod.id
+        , url: randomPod.url
+        , uiUrl: '/api/sketch/' + randomPod.id
+        , name: req.query.name
+        , cuid: req.query.cuid
+        , submissionId: req.query.submission_id
+        };
+        randomPod.skecth = sketch;
+        return Rx.Observable.forkJoin(
+          saveImageToFile(sketch, stream)
+        , postImageToPod(sketch, stream)
+        )
+      })
     })
     .subscribe(function(arr) {
       var sketch = arr[0];

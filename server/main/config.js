@@ -6,7 +6,7 @@ var morgan      = require('morgan')
  , http = require('http')
  ;
 
-http.globalAgent.maxSockets = 30; //Infinity;
+http.globalAgent.maxSockets = process.env.NODE_ENV === 'production' ? 50 : 30; //Infinity;
 
 module.exports = exports = function (app, express, routers) {
   app.set('port', process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || 9000);
