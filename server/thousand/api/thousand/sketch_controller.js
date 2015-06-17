@@ -8,7 +8,6 @@ var fs = require('fs')
   , thousandEmitter = require('../../thousandEmitter')
   , request = require('request')
   , podClaimer = require('../../pod-claimer')
-  , streamifier = require('streamifier')
   , lwip = require('lwip')
   ;
 
@@ -16,23 +15,23 @@ var tag = 'API/THOUSAND';
 
 var bufferMap = {};
 
-var saveImageToFile = function(sketch, req) {
+var saveImageToFile = function(sketch, buffer) {
   var filename = 'thousand-sketch' + sketch.containerId + '.png';
   console.log(tag, 'Saving sketch to file:', filename);
   return Rx.Observable.create(function(observer) {
-    var stream = req.pipe(fs.createWriteStream(os.tmpdir() + '/' + filename));
-    req.on('end', function() {
-      // console.log('File save complete:', filename);
+    var stream = fs.createWriteStream(os.tmpdir() + '/' + filename);
+    stream.write(buffer, function(err) {
+      if (err) {
+        observer.onError(err);
+        return;
+      }
       observer.onNext(sketch);
       observer.onCompleted();
-    });
-    req.on('error', function(error) {
-      observer.onError(error);
-    });
+    })
   });
 }
 
-var postImageToPod = function(sketch, req) {
+var postImageToPod = function(sketch, buffer) {
   var postUrl = sketch.url + '/doodle?username='+sketch.name+'&cuid='+sketch.cuid+'&submission='+sketch.submissionId;
   console.log(tag, 'POST sketch to url:', postUrl);
   return Rx.Observable.create(function(observer) {
@@ -42,7 +41,10 @@ var postImageToPod = function(sketch, req) {
       observer.onCompleted();
       return;
     }
-    req.pipe(request.post(postUrl, function (err, res, body) {
+    request.post({
+      url: postUrl,
+      body: buffer
+    }, function (err, res, body) {
       if (err) {
         observer.onError({msg: 'Error POSTting sketch to ' + postUrl});
         return;
@@ -63,7 +65,7 @@ var postImageToPod = function(sketch, req) {
         observer.onError({msg: msg + 'Error POSTting sketch to ' + postUrl});
         return;
       }
-    }));
+    });
   })
   .retryWhen(function(errors) {
     var maxRetries = 5;
@@ -158,15 +160,10 @@ module.exports = exports = {
         , submissionId: req.query.submission_id
         };
         randomPod.skecth = sketch;
-        return Rx.Observable.return(buffer).map(function(buffer) {
-          return streamifier.createReadStream(buffer);
-        })
-        .flatMap(function(stream) {
-          return Rx.Observable.forkJoin(
-            saveImageToFile(sketch, stream)
-          , postImageToPod(sketch, stream)
-          );
-        })
+        return Rx.Observable.forkJoin(
+          saveImageToFile(sketch, buffer)
+        , postImageToPod(sketch, buffer)
+        )
         .tap(function() {
           bufferMap[sketch.containerId] = buffer;
         });
@@ -188,12 +185,16 @@ module.exports = exports = {
   getImage: function(req, res, next) {
     var containerId = parseInt(req.params.containerId);
     var filename = 'thousand-sketch' + containerId + '.png';
-    var stream = bufferMap[containerId]
-      ? streamifier.createReadStream(bufferMap[containerId])
-      : fs.createReadStream(os.tmpdir() + '/' + filename, {
+    var buffer = bufferMap[containerId];
+    if (buffer) {
+      res.write(buffer);
+      res.end();
+    } else {
+      fs.createReadStream(os.tmpdir() + '/' + filename, {
         'bufferSize': 4 * 1024
-        });
-    stream.pipe(res);
+      });
+      stream.pipe(res);
+    };
   },
 
   removeImage: function(req, res, next) {

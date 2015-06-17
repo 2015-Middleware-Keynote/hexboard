@@ -4,7 +4,6 @@ var request = require('request')
   , fs = require('fs')
   , Rx = require('rx')
   , http = require('http')
-  , streamifier = require('streamifier')
   ;
 
 var numberOfPeople = 1000;
@@ -24,12 +23,14 @@ http.globalAgent.maxSockets = Infinity;
 console.log(http.globalAgent);
 
 var postImage = function(submission) {
-  var readStream = streamifier.createReadStream(submission.buffer);
   var user = submission.person;
   var id = getRandomInt(0,1060);
   var url = 'http://localhost:9000/api/sketch/0?name='+user.name+'&cuid='+user.cuid+'&submission_id='+user.submissionId;
   // var url = 'http://1k.jbosskeynote.com/api/sketch/0?name='+user.name+'&cuid='+user.cuid+'&submission_id='+user.submissionId;
-  var req = request.post({url: url}, function (err, res, body) {
+  var req = request.post({
+    url: url,
+    body: submission.buffer
+  }, function (err, res, body) {
     if (err) {
       console.log('*** Error ***:',err);
       console.log('*** Body *** :',body);
@@ -37,8 +38,6 @@ var postImage = function(submission) {
     }
     console.log('res', res.body);
   });
-   //
-  readStream.pipe(req);
 }
 
 var bufferList = Rx.Observable.fromNodeCallback(fs.readdir)('client/thousand/sketches/')
@@ -53,7 +52,7 @@ var bufferList = Rx.Observable.fromNodeCallback(fs.readdir)('client/thousand/ske
 var randomEvents = Rx.Observable.range(0, numberOfPeople)
   .map(function(index) {
     return {
-      name: 'Fistname' + index,
+      name: 'Firstname' + index + ' Lastname' + index,
       cuid: index,
       submissionId: index + '_' + index
     }

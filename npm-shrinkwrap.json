@@ -5081,11 +5081,6 @@
         }
       }
     },
-    "streamifier": {
-      "version": "0.1.1",
-      "from": "streamifier@*",
-      "resolved": "https://registry.npmjs.org/streamifier/-/streamifier-0.1.1.tgz"
-    },
     "through2": {
       "version": "0.6.5",
       "from": "through2@>=0.6.5 <0.7.0",
