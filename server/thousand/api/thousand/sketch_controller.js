@@ -32,6 +32,11 @@ var saveImageToFile = function(sketch, buffer) {
 }
 
 var postImageToPod = function(sketch, buffer) {
+  if (!sketch.url) {
+    console.log(tag, 'POST disabled for this sketch', sketch.uiUrl);
+    sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl;
+    return Rx.Observable.return(sketch);
+  }
   var postUrl = sketch.url + '/doodle?username='+sketch.name+'&cuid='+sketch.cuid+'&submission='+sketch.submissionId;
   console.log(tag, 'POST sketch to url:', postUrl);
   return Rx.Observable.create(function(observer) {
