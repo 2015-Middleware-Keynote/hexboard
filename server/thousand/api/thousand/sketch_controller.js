@@ -188,8 +188,7 @@ module.exports = exports = {
     var filename = 'thousand-sketch' + containerId + '.png';
     var buffer = bufferMap[containerId];
     if (buffer) {
-      res.write(buffer);
-      res.end();
+      res.send(buffer);
       delete bufferMap[containerId];
     } else {
       fs.createReadStream(os.tmpdir() + '/' + filename, {
