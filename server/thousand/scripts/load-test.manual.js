@@ -6,7 +6,7 @@ var request = require('request')
   , http = require('http')
   ;
 
-var numberOfPeople = 1000;
+var numberOfPeople = 1026;
 var duration = 60; // seconds
 
 // Returns a random integer between min included) and max (excluded)

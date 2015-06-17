@@ -44,7 +44,7 @@ var postImageToPod = function(sketch, buffer) {
     request.post({
       url: postUrl,
       body: buffer,
-      timeout: 2000
+      timeout: 5000
     }, function (err, res, body) {
       if (err) {
         observer.onError({msg: 'Error POSTting sketch to ' + postUrl});
@@ -75,25 +75,27 @@ var postImageToPod = function(sketch, buffer) {
         console.log(tag, err.msg);
       };
       if (err.code && (err.code === 401 || err.code === 403)) {
+        console.log(tag, err.code, 'Error', sketch.url);
         errorCount = maxRetries;
-      } else {
-        sketch.errorCount = ++errorCount;
-      };
-      if (errorCount === maxRetries) {
-        console.log(tag, 'Error: too many retries', sketch.url);
         sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl;
         delete(sketch.errorCount);
+      } else {
+        sketch.errorCount = ++errorCount;
+        if (errorCount === maxRetries) {
+          var msg = 'Error: too many retries: ' + sketch.url
+          console.log(tag, msg);
+          sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl;
+          delete(sketch.errorCount);
+          throw new Error(msg);
+        }
       }
       return errorCount;
-    })
-    .takeWhile(function(errorCount) {
-      return errorCount < maxRetries;
     })
     .flatMap(function(errorCount) {
       return Rx.Observable.timer(errorCount * 250);
     });
   })
-  .catch();
+  .catch(Rx.Observable.return(sketch));
 };
 
 var processResponse = function(req) {
@@ -150,7 +152,7 @@ module.exports = exports = {
       return scaleImage(buffer);
     })
     .flatMap(function(buffer) {
-      return podClaimer.getRandomPod.flatMap(function(randomPod) {
+      return podClaimer.getRandomPod.map(function(randomPod) {
         // console.log(tag, 'randomPod', randomPod.id);
         var sketch = {
           containerId: randomPod.id
@@ -161,17 +163,23 @@ module.exports = exports = {
         , submissionId: req.query.submission_id
         };
         randomPod.skecth = sketch;
-        return Rx.Observable.forkJoin(
-          saveImageToFile(sketch, buffer)
-        , postImageToPod(sketch, buffer)
-        )
-        .tap(function() {
-          bufferMap[sketch.containerId] = buffer;
-        });
+        sketch.buffer = buffer;
+        return sketch;
       });
     })
-    .subscribe(function(arr) {
-      var sketch = arr[0];
+    .flatMap(function(sketch) {
+      return Rx.Observable.forkJoin(
+        saveImageToFile(sketch, sketch.buffer)
+      , postImageToPod(sketch, sketch.buffer)
+      ).map(function(arr) {
+        return arr[0]
+      })
+    })
+    .tap(function(sketch) {
+      bufferMap[sketch.containerId] = sketch.buffer;
+      delete sketch['buffer'];
+    })
+    .subscribe(function(sketch) {
       //console.log(tag, 'new sketch', sketch.url, sketch.cuid);
       thousandEmitter.emit('new-sketch', sketch);
       res.json(sketch);
