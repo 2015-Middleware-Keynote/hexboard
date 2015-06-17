@@ -1,5 +1,12 @@
 'use strict';
 
+if (process.env.NODE_ENV === 'production') {
+  // make sure the env vars are loaded if gulp isn't used
+  var env = require('node-env-file')
+  var envFile = 'production.env';
+  env(__dirname + '/../env/' + envFile);
+};
+
 var Rx = require('rx')
   , app   = require('./main/app.js')
   , http = require('http')

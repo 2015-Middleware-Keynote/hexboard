@@ -16,6 +16,7 @@ var tag = 'PLAYBACK';
 // Read, parse, and sort the pod evetns from a file
 var logDir = process.env.LOG_DIR || os.tmpdir();
 var eventReplay = function() {
+  console.log(tag, 'LOG_DIR', logDir);
   var fileStream = fs.createReadStream(logDir + '/pods-create-parsed.log')
     .pipe(split())
     .pipe(filter(function(data) {
