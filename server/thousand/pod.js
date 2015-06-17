@@ -102,7 +102,7 @@ function verifyPodAvailable(parsed) {
           console.log(tag, 'Recovery (#', pod.errorCount, ')', parsed.object.metadata.name);
           delete(pod.errorCount);
         }
-        observer.onNext(pod);
+        observer.onNext(parsed);
         observer.onCompleted();
       } else {
         var err = {
@@ -115,7 +115,7 @@ function verifyPodAvailable(parsed) {
     })
   })
   .retryWhen(function(errors) {
-    var maxRetries = 20;
+    var maxRetries = 6;
     return errors.scan(0, function(errorCount, err) {
       if (errorCount === 0) {
         var msg = err.code ? err.code + ':' : '';
@@ -125,16 +125,17 @@ function verifyPodAvailable(parsed) {
         return maxRetries;
       };
       pod.errorCount = ++errorCount;
+      if (errorCount > maxRetries) {
+        var msg = 'Error: maxRetries exceeded' + pod.url;
+        console.log(tag, msg);
+        throw new Error(msg);
+      }
       return errorCount;
-    })
-    .takeWhile(function(errorCount) {
-      return errorCount < maxRetries;
     })
     .flatMap(function(errorCount) {
       return Rx.Observable.timer(errorCount * 250);
     });
-  })
-  .catch(Rx.Observable.empty());
+  });
 };
 
 var list = function(env) {
@@ -288,6 +289,7 @@ var verifyStream = function(env) {
           // env.state.pods[newParsed.object.metadata.name] = newParsed;
           return newParsed;
         })
+        .catch(Rx.Observable.empty())
       );
     };
   })
@@ -305,7 +307,48 @@ var verifyStream = function(env) {
 verifyStream(environments.live).connect();
 verifyStream(environments.preStart).connect();
 
+var liveStream = Rx.Observable.merge(environments.live.subjects)
+var preStartStream = Rx.Observable.merge(environments.preStart.subjects);
+
+var watchStream = function(env, stream) {
+  return Rx.Observable.interval(100)
+    .flatMap(function(index) {
+      var n = index % 1026;
+      return stream.skip(n).take(1)
+    })
+    .filter(function(pod) {
+      return pod.data.stage >= 4;
+    })
+    .flatMap(function(pod) {
+      return verifyPodAvailable(pod);
+    })
+    .subscribe(function(pod) {
+      var subject = env.subjects[pod.data.id];
+      if (pod.data.stage !== 5) {
+        console.log(pod.data.name, 'came alive');
+        var newPod = _.clone(pod)
+        newPod.data = _.clone(pod.data);
+        newPod.data.stage = 5;
+        subject.onNext(newPod);
+      }
+    }, function(err) {
+      var subject = env.subjects[pod.data.id];
+      if (pod.data.stage === 5) {
+        console.log(pod.data.name, 'no longer responding');
+        var newPod = _.clone(pod)
+        newPod.data = _.clone(pod.data);
+        newPod.data.stage = 4;
+      } else {
+        console.log(pod.data.name, 'still not responding');
+      }
+    });
+};
+
+Rx.Observable.return(0).delay(15000).subscribe(function() {
+  var watchSubscription = watchStream(environments.preStart, preStartStream);
+});
+
 module.exports = {
-  liveStream: Rx.Observable.merge(environments.live.subjects)
-, preStartStream: Rx.Observable.merge(environments.preStart.subjects)
+  liveStream: liveStream
+, preStartStream: preStartStream
 };
