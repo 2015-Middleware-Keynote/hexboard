@@ -24,7 +24,6 @@
     "open": "0.0.5",
     "q": "^1.4.0",
     "should": "^5.2.0",
-    "streamifier": "^0.1.1",
     "superagent": "^1.2.0",
     "supertest": "^0.15.0"
   },
@@ -46,6 +45,7 @@
     "split": "^1.0.0",
     "stompjs": "^2.3.3",
     "stream-filter": "^1.0.0",
+    "streamifier": "^0.1.1",
     "through2": "^0.6.5",
     "underscore": "^1.8.3",
     "ws": "^0.7.1"
