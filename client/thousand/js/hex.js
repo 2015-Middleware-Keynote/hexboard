@@ -302,7 +302,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
   }).subscribeOnError(errorObserver);
 
   var messageSubscription = messages.filter(function(message) {
-    return message.type === 'sketch';
+    return message.type === 'sketch' && hex.showSketches;
   })
   .tap(function(message) {
     var sketch = message.data;
@@ -320,7 +320,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
   }).subscribeOnError(errorObserver);
 
   var messageSubscription = messages.filter(function(message) {
-    return message.type === 'sketch-bundle';
+    return message.type === 'sketch-bundle' && hex.showSketches;
   })
   .flatMap(function(message) {
     return message.data;
