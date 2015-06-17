@@ -279,7 +279,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
   var messages = Rx.DOM.fromWebSocket(hex.config.backend.ws + '/thousand', null, openObserver)
   .map(function(messageEvent) {
     return JSON.parse(messageEvent.data);
-  });
+  }).share();
 
   var eventSubscription = messages.filter(function(message) {
     return message.type === 'event';
@@ -370,9 +370,9 @@ hex.ui = (function dataSimulator(d3, Rx) {
       cover.style({visibility: 'visible', opacity: '0.0'});
 
     }
+    sketchSubscription.subscribeOnError(errorObserver);
     eventSubscription.subscribeOnError(errorObserver);
     errorSubscription.subscribeOnError(errorObserver);
-    sketchSubscription.subscribeOnError(errorObserver);
     sketchBundleSubscription.subscribeOnError(errorObserver);
     removeSubscription.subscribeOnError(errorObserver);
     hex.controls.websocketSubscription.subscribeOnError(errorObserver);
