@@ -279,7 +279,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
   var messages = Rx.DOM.fromWebSocket(hex.config.backend.ws + '/thousand', null, openObserver)
   .map(function(messageEvent) {
     return JSON.parse(messageEvent.data);
-  }).share();
+  });
 
   var eventSubscription = messages.filter(function(message) {
     return message.type === 'event';
@@ -287,7 +287,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
   .tap(function(message) {
     var event = message.data;
     particle(points[parseInt(event.id)], event.stage);
-  }).subscribeOnError(errorObserver);
+  });
 
   var errorSubscription = messages.filter(function(message) {
     return message.type === 'error';
@@ -299,9 +299,9 @@ hex.ui = (function dataSimulator(d3, Rx) {
     console.error(errorMessage);
     alert(errorMessage);
 
-  }).subscribeOnError(errorObserver);
+  });
 
-  var messageSubscription = messages.filter(function(message) {
+  var sketchSubscription = messages.filter(function(message) {
     return message.type === 'sketch' && hex.showSketches;
   })
   .tap(function(message) {
@@ -317,9 +317,9 @@ hex.ui = (function dataSimulator(d3, Rx) {
       }
     }
     image(point, sketch);
-  }).subscribeOnError(errorObserver);
+  });
 
-  var messageSubscription = messages.filter(function(message) {
+  var sketchBundleSubscription = messages.filter(function(message) {
     return message.type === 'sketch-bundle' && hex.showSketches;
   })
   .flatMap(function(message) {
@@ -343,9 +343,9 @@ hex.ui = (function dataSimulator(d3, Rx) {
         .attr('class', 'hexagon sketch')
         .style('fill', 'url(#' + skecthId + ')');
     };
-  }).subscribeOnError(errorObserver);
+  });
 
-  var messageSubscription = messages.filter(function(message) {
+  var removeSubscription = messages.filter(function(message) {
     return message.type === 'remove';
   })
   .tap(function(message) {
@@ -355,11 +355,32 @@ hex.ui = (function dataSimulator(d3, Rx) {
     if (point.length && point[0].sketch) {
       removeSketch(point[0]);
     };
-  }).subscribeOnError(errorObserver);
+  });
 
-  var dispose = function() {
+  var cover = d3.select('#cover');
+  if (cover) {
+    cover.style({visibility: 'visible', opacity: '0.6'});
+  }
+
+  var subscribe = function() {
+    if (cover) {
+      cover.style({visibility: 'visible', opacity: '0.0'});
+    }
+    eventSubscription.subscribeOnError(errorObserver);
+    errorSubscription.subscribeOnError(errorObserver);
+    sketchSubscription.subscribeOnError(errorObserver);
+    sketchBundleSubscription.subscribeOnError(errorObserver);
+    removeSubscription.subscribeOnError(errorObserver);
+    hex.controls.websocketSubscription.subscribeOnError(errorObserver);
+  }
+
+    var dispose = function() {
     eventSubscription.dispose();
-    messageSubscription.dispose();
+    errorSubscription.dispose();
+    sketchSubscription.dispose();
+    sketchBundleSubscription.dispose();
+    removeSubscription.dispose();
+    hex.controls.websocketSubscription.dispose();
   };
 
   return {
@@ -370,6 +391,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
   , points: points
   , hexagon: hexagon
   , svg: svg
+  , subscribe: subscribe
   , dispose: dispose
   , flipAll: flipAll
   , removeSketch: removeSketch

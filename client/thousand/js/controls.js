@@ -27,6 +27,14 @@ hex.controls = (function dataSimulator(d3, Rx) {
     });
   });
 
+  var plabackButton = document.getElementById('start-playback');
+  if (plabackButton) {
+    Rx.Observable.fromEvent(plabackButton, 'click').subscribe(function() {
+      console.log('Playback start');
+      hex.ui.subscribe();
+    });
+  }
+
   var winnerSocket = Rx.DOM.fromWebSocket(hex.config.backend.ws + '/winner');
   winnerSocket.subscribeOnError(hex.ui.errorHandler);
 
@@ -101,7 +109,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
         hex.winner.pickWinner();
         break;
     };
-  }).subscribeOnError(hex.ui.errorObserver);
+  });
 
   // mouse controls
   var lastDoodle;
@@ -146,7 +154,8 @@ hex.controls = (function dataSimulator(d3, Rx) {
   };
 
   return {
-    dispose: dispose
+    dispose: dispose,
+    websocketSubscription: websocketSubscription
   }
 
 })(d3, Rx);

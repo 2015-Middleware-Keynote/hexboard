@@ -107,3 +107,35 @@ body {
     fill: white;
   }
 }
+
+#cover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: black;
+  z-index: 500;
+  width: 100%;
+  height: 100%;
+  visibility: visible;
+  opacity: 0.6;
+  transition: visibility 0.1s linear 0.1s, opacity 0.1s linear 0.1s;
+}
+
+.cover-button-outer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+
+
+.cover-button-inner {
+  width: 200px;
+  height: 200px;
+  position: relative;
+  top: -100px;
+  left: -100px;
+}
+
+#cover .fa {
+  font-size: 200px;
+}
