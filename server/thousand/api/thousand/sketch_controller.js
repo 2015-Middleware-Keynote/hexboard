@@ -14,6 +14,8 @@ var fs = require('fs')
 
 var tag = 'API/THOUSAND';
 
+var bufferMap = {};
+
 var saveImageToFile = function(sketch, req) {
   var filename = 'thousand-sketch' + sketch.containerId + '.png';
   console.log(tag, 'Saving sketch to file:', filename);
@@ -144,10 +146,7 @@ module.exports = exports = {
     processResponse(req).flatMap(function(buffer) {
       return scaleImage(buffer);
     })
-    .map(function(buffer) {
-      return streamifier.createReadStream(buffer);
-    })
-    .flatMap(function(stream) {
+    .flatMap(function(buffer) {
       return podClaimer.getRandomPod.flatMap(function(randomPod) {
         // console.log(tag, 'randomPod', randomPod.id);
         var sketch = {
@@ -159,11 +158,19 @@ module.exports = exports = {
         , submissionId: req.query.submission_id
         };
         randomPod.skecth = sketch;
-        return Rx.Observable.forkJoin(
-          saveImageToFile(sketch, stream)
-        , postImageToPod(sketch, stream)
-        )
-      })
+        return Rx.Observable.return(buffer).map(function(buffer) {
+          return streamifier.createReadStream(buffer);
+        })
+        .flatMap(function(stream) {
+          return Rx.Observable.forkJoin(
+            saveImageToFile(sketch, stream)
+          , postImageToPod(sketch, stream)
+          );
+        })
+        .tap(function() {
+          bufferMap[sketch.containerId] = buffer;
+        });
+      });
     })
     .subscribe(function(arr) {
       var sketch = arr[0];
@@ -181,13 +188,17 @@ module.exports = exports = {
   getImage: function(req, res, next) {
     var containerId = parseInt(req.params.containerId);
     var filename = 'thousand-sketch' + containerId + '.png';
-    fs.createReadStream(os.tmpdir() + '/' + filename, {
-      'bufferSize': 4 * 1024
-    }).pipe(res);
+    var stream = bufferMap[containerId]
+      ? streamifier.createReadStream(bufferMap[containerId])
+      : fs.createReadStream(os.tmpdir() + '/' + filename, {
+        'bufferSize': 4 * 1024
+        });
+    stream.pipe(res);
   },
 
   removeImage: function(req, res, next) {
     var containerId = req.params.containerId;
+    delete bufferMap[containerId];
     if (containerId === 'all') {
       thousandEmitter.emit('remove-all');
       res.send('removed all');
