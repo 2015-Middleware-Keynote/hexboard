@@ -118,7 +118,7 @@ var scaleImage = function(buffer) {
         observer.onError(err);
         return;
       }
-      image.contain(100, 100, function(err, image) {
+      image.contain(200, 200, function(err, image) {
         // console.log(tag, 'Image scaled');
         if (err) {
           observer.onError(err);
