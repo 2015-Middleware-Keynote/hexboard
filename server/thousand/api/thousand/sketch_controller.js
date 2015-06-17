@@ -43,7 +43,8 @@ var postImageToPod = function(sketch, buffer) {
     }
     request.post({
       url: postUrl,
-      body: buffer
+      body: buffer,
+      timeout: 2000
     }, function (err, res, body) {
       if (err) {
         observer.onError({msg: 'Error POSTting sketch to ' + postUrl});
@@ -189,22 +190,23 @@ module.exports = exports = {
     if (buffer) {
       res.write(buffer);
       res.end();
+      delete bufferMap[containerId];
     } else {
       fs.createReadStream(os.tmpdir() + '/' + filename, {
         'bufferSize': 4 * 1024
-      });
-      stream.pipe(res);
+      }).pipe(res);
     };
   },
 
   removeImage: function(req, res, next) {
     var containerId = req.params.containerId;
-    delete bufferMap[containerId];
     if (containerId === 'all') {
       thousandEmitter.emit('remove-all');
+      bufferMap = {};
       res.send('removed all');
     } else {
       containerId = parseInt(containerId);
+      delete bufferMap[containerId];
       var filename = 'thousand-sketch' + containerId + '.png';
       thousandEmitter.emit('remove-sketch', containerId);
       fs.createReadStream('./server/thousand/api/thousand/censored.png').pipe(fs.createWriteStream(os.tmpdir() + '/' + filename));
