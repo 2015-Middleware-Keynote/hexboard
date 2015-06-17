@@ -107,7 +107,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
   var lastDoodle;
   var mouseSubscription = Rx.Observable.fromEvent(document.querySelector('.map'), 'mousemove')
   .filter(function(event) {
-    return event.target.classList.contains('sketch') && adminEnabled;
+    return event.target.classList.contains('sketch');
   })
   .tap(function(event) {
     var p = d3.select(event.target).datum();
@@ -115,14 +115,17 @@ hex.controls = (function dataSimulator(d3, Rx) {
       return;
     };
     var newId = p.id;
-    console.log('inspecting ', newId);
-    hex.inspect.highlight(newId);
+    if (adminEnabled) {
+      hex.inspect.highlight(newId);
+    } else {
+      hex.highlight.highlight(newId);
+    }
   })
   .subscribeOnError(hex.ui.errorObserver);
 
   Rx.Observable.fromEvent(document.querySelector('.map'), 'click')
   .filter(function(event) {
-    return event.target.classList.contains('inspect');
+    return event.target.classList.contains('inspect') && adminEnabled;
   })
   .tap(function(event) {
     var p = d3.select(event.target).datum();

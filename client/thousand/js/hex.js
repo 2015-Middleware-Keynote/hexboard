@@ -256,7 +256,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
     p.sketch.pop();
     hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
       .style('fill', function(d) { return d.sketch.length ? 'url(#' + createSketchId(d) + ')' : color(d)})
-      .attr('class', function(d) { return d.sketch.length ? 'hexagon sketch' : 'hexagon'});
+      .classed('sketch', function(d) { return d.sketch.length > 0});
   };
 
   var openObserver = Rx.Observer.create(
