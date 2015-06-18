@@ -7,7 +7,7 @@ var request = require('request')
   ;
 
 var numberOfPeople = 1026;
-var duration = 60; // seconds
+var duration = 120; // seconds
 
 // Returns a random integer between min included) and max (excluded)
 var getRandomInt = function (min, max) {
