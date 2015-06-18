@@ -29,7 +29,7 @@ var getRandomPod = pod.preStartStream.filter(function(parsed) {
     // console.log(parsed.data.stage);
     return parsed.data.stage == 5;
   })
-  .buffer(pod.preStartStream.debounce(15))
+  .buffer(Rx.Observable.merge(pod.preStartStream.debounce(15), Rx.Observable.return(1).delay(20)))
   .take(1)
   .map(function(pods) {
     return getUnclaimedPods(pods);

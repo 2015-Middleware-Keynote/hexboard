@@ -104,7 +104,7 @@ function verifyPodAvailable(parsed, timeout) {
   var pod = parsed.data;
   return Rx.Observable.create(function(observer) {
     var options = {
-      url: pod.url + '/status'
+      url: pod.url + 'status'
     , method: 'get'
     , timeout: timeout || 20000
     , pool: verifyAgent
@@ -135,14 +135,14 @@ function retryVerification(maxRetries) {
     return errors.scan(0, function(errorCount, err) {
       if (errorCount === 0) {
         var msg = err.code ? err.code + ': Error' : 'Error';
-        console.log(tag, msg, err.pod.url);
+        console.log(tag, msg, err.url);
       };
       if (err.code && (err.code === 401 || err.code === 403)) {
         return maxRetries;
       };
       err.pod.errorCount = ++errorCount;
       if (errorCount > maxRetries) {
-        var msg = 'Error: maxRetries exceeded' + err.pod.url;
+        var msg = 'Error: maxRetries exceeded' + err.url;
         console.log(tag, msg);
         throw new Error(msg);
       }
@@ -198,7 +198,7 @@ var watch = function(env) {
     console.log(tag, 'list options', env.watchOptions.url, env.watchOptions.qs);
     var stream = request(env.watchOptions);
     stream.on('error', function(error) {
-      console.log(tag, 'error:',error);
+      console.log(tag, 'error:', error);
       observer.onError(error);
     });
     stream.on('end', function() {
@@ -325,8 +325,8 @@ var verifyStream = function(env) {
   .publish();
 };
 
-// verifyStream(environments.live).connect();
-// verifyStream(environments.preStart).connect();
+verifyStream(environments.live).connect();
+verifyStream(environments.preStart).connect();
 
 var liveStream = Rx.Observable.merge(environments.live.subjects)
 var preStartStream = Rx.Observable.merge(environments.preStart.subjects);

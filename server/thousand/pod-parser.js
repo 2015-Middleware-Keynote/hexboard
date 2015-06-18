@@ -62,9 +62,6 @@ var PodParser = function(env) {
         timestamp: update.timestamp,
         creationTimestamp: new Date(update.object.metadata.creationTimestamp)
       }
-      if (proxy) {
-        update.data.url = env.config.proxy + '/' + env.config.namespace + '/' + replicaName;
-      }
       if (update.type === 'DELETED') {
         returnIdToPool(update);
         update.data.stage = 0;
@@ -75,6 +72,8 @@ var PodParser = function(env) {
       } else if (update.object.status.phase === 'Running' && update.object.status.Condition[0].type == 'Ready' && update.object.status.Condition[0].status === 'False') {
         update.data.stage = 3;
       } else if (update.object.status.phase === 'Running' && update.object.status.Condition[0].type == 'Ready' && update.object.status.Condition[0].status === 'True') {
+        update.data.ip = update.object.status.podIP;
+        update.data.url = env.config.proxy + '/direct/' + update.data.ip + '/';
         update.data.stage = 4;
       } else {
         console.log(tag, "New data type found:" + JSON.stringify(update, null, '  '))
