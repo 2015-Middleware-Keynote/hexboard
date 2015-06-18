@@ -16,22 +16,29 @@ var tag = 'API/THOUSAND';
 
 var bufferMap = {};
 
+var indexFile = fs.readFileSync(__dirname + '/index.html', {encoding: 'utf8'});
+var rxWriteFile = Rx.Observable.fromNodeCallback(fs.writeFile);
+
+var saveIndexFile = function(sketch) {
+  var html = indexFile.toString()
+             .replace( /\{\{SUBMISSION\}\}/, sketch.submissionId)
+             .replace( /\{\{USERNAME\}\}/, sketch.name)
+             .replace( /\{\{CUID\}\}/, sketch.cuid)
+             .replace( /\{\{DOODLE\}\}/, sketch.uiUrl);
+  var filename = 'thousand-sketch' + sketch.containerId + '-index.html';
+  return rxWriteFile(os.tmpdir() + '/' + filename, html)
+    .map(function() {
+      return sketch;
+    });
+}
+
 var saveImageToFile = function(sketch, buffer) {
   var filename = 'thousand-sketch' + sketch.containerId + '.png';
   console.log(tag, 'Saving sketch to file:', filename);
-  return Rx.Observable.create(function(observer) {
-    var stream = fs.createWriteStream(os.tmpdir() + '/' + filename);
-    stream.write(buffer, function(err) {
-      if (err) {
-        observer.onError(err);
-        stream.end();
-        return;
-      }
-      stream.end();
-      observer.onNext(sketch);
-      observer.onCompleted();
-    })
-  });
+  return rxWriteFile(os.tmpdir() + '/' + filename, buffer)
+    .map(function() {
+      return sketch;
+    });
 }
 
 var sketchPostAgent = new http.Agent({
@@ -42,14 +49,14 @@ var sketchPostAgent = new http.Agent({
 var postImageToPod = function(sketch, buffer) {
   if (!sketch.url) {
     console.log(tag, 'POST disabled for this sketch', sketch.uiUrl);
-    sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl;
+    sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl + '/page.html';
     return Rx.Observable.return(sketch);
   }
   var postUrl = sketch.url + '/doodle?username='+sketch.name+'&cuid='+sketch.cuid+'&submission='+sketch.submissionId;
   console.log(tag, 'POST sketch to url:', postUrl);
   return Rx.Observable.create(function(observer) {
     if (! sketch.url) {
-      sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl;
+      sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl + '/page.html';
       observer.onNext({msg: 'No pod url, not POSTting'});
       observer.onCompleted();
       return;
@@ -91,14 +98,14 @@ var postImageToPod = function(sketch, buffer) {
       if (err.code && (err.code === 401 || err.code === 403)) {
         console.log(tag, err.code, 'Error', sketch.url);
         errorCount = maxRetries;
-        sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl;
+        sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl + '/page.html';
         delete(sketch.errorCount);
       } else {
         sketch.errorCount = ++errorCount;
         if (errorCount === maxRetries) {
           var msg = 'Error: too many retries: ' + sketch.url
           console.log(tag, msg);
-          sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl;
+          sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl + '/page.html';
           delete(sketch.errorCount);
           throw new Error(msg);
         }
@@ -183,7 +190,8 @@ module.exports = exports = {
     })
     .flatMap(function(sketch) {
       return Rx.Observable.forkJoin(
-        saveImageToFile(sketch, sketch.buffer)
+        saveIndexFile(sketch)
+      , saveImageToFile(sketch, sketch.buffer)
       , postImageToPod(sketch, sketch.buffer)
       ).map(function(arr) {
         return arr[0]
@@ -213,10 +221,14 @@ module.exports = exports = {
       res.send(buffer);
       delete bufferMap[containerId];
     } else {
-      fs.createReadStream(os.tmpdir() + '/' + filename, {
-        'bufferSize': 4 * 1024
-      }).pipe(res);
+      res.sendFile(os.tmpdir() + '/' + filename);
     };
+  },
+
+  getImagePage: function(req, res, next) {
+    var containerId = parseInt(req.params.containerId);
+    var filename = 'thousand-sketch' + containerId + '-index.html';
+    res.sendFile(os.tmpdir() + '/' + filename);
   },
 
   removeImage: function(req, res, next) {
