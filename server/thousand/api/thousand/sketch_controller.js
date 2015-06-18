@@ -24,6 +24,7 @@ var saveImageToFile = function(sketch, buffer) {
     stream.write(buffer, function(err) {
       if (err) {
         observer.onError(err);
+        stream.end();
         return;
       }
       stream.end();
