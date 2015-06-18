@@ -9,6 +9,7 @@ var fs = require('fs')
   , request = require('request')
   , podClaimer = require('../../pod-claimer')
   , lwip = require('lwip')
+  , http = require('http')
   ;
 
 var tag = 'API/THOUSAND';
@@ -31,6 +32,11 @@ var saveImageToFile = function(sketch, buffer) {
   });
 }
 
+var sketchPostAgent = new http.Agent({
+  keepAlive: true,
+  maxSockets: 40
+});
+
 var postImageToPod = function(sketch, buffer) {
   if (!sketch.url) {
     console.log(tag, 'POST disabled for this sketch', sketch.uiUrl);
@@ -49,7 +55,8 @@ var postImageToPod = function(sketch, buffer) {
     request.post({
       url: postUrl,
       body: buffer,
-      timeout: 5000
+      timeout: 5000,
+      pool: sketchPostAgent
     }, function (err, res, body) {
       if (err) {
         observer.onError({msg: 'Error POSTting sketch to ' + postUrl});

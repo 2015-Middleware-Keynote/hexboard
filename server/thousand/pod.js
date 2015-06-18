@@ -6,6 +6,7 @@ var Rx = require('rx')
   , request = require('request')
   , _ = require('underscore')
   , PodParser = require('./pod-parser')
+  , http = require('http')
   ;
 
 var tag = 'POD';
@@ -47,6 +48,11 @@ var optionsBase = {
   , auth   : null
 };
 
+var listWatchAgent = new http.Agent({
+  keepAlive: true,
+  maxSockets: 4
+});
+
 var environments = {
   live: {
     name: 'live'
@@ -58,7 +64,8 @@ var environments = {
     }, optionsBase)
   , watchOptions: _.defaults({
       url: buildWatchPodsUrl(config.live.openshiftServer, config.live.namespace),
-      auth: {bearer:  config.live.oauthToken}
+      auth: {bearer:  config.live.oauthToken},
+      pool: listWatchAgent
     }, optionsBase)
   , state: {first  : true, pods: {}}
   , config: config.live
@@ -89,6 +96,11 @@ var environments = {
 environments.live.parser = new PodParser(environments.live);
 environments.preStart.parser = new PodParser(environments.preStart);
 
+var verifyAgent = new http.Agent({
+  keepAlive: true,
+  maxSockets: 5
+});
+
 function verifyPodAvailable(parsed, timeout) {
   var pod = parsed.data;
   return Rx.Observable.create(function(observer) {
@@ -96,6 +108,7 @@ function verifyPodAvailable(parsed, timeout) {
       url: pod.url + '/status'
     , method: 'get'
     , timeout: timeout || 20000
+    , pool: verifyAgent
     }
     request(options, function(error, response, body) {
       if (!error && response && response.statusCode == 200) {
