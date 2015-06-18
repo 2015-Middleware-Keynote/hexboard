@@ -34,7 +34,7 @@ module.exports = exports = {
   },
 
   basicAuth: function(req, res, next) {
-    if (! process.env.BASIC_AUTH_USER || ! process.env.BASIC_AUTH_PASSWORD || req.path.indexOf('/api') === 0) {
+    if (! process.env.BASIC_AUTH_USER || ! process.env.BASIC_AUTH_PASSWORD || req.path.indexOf('/api') === 0 || req.path.indexOf('/pod') === 0) {
       next();
       return;
     }
