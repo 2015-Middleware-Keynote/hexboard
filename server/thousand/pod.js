@@ -56,11 +56,10 @@ var listWatchAgent = new http.Agent({
 var environments = {
   live: {
     name: 'live'
-  , listUrl: buildListPodsUrl(config.live.openshiftServer, config.live.namespace)
-  , watchUrl: buildWatchPodsUrl(config.live.openshiftServer, config.live.namespace)
   , listOptions: _.defaults({
       url: buildListPodsUrl(config.live.openshiftServer, config.live.namespace),
-      auth: {bearer:  config.live.oauthToken}
+      auth: {bearer:  config.live.oauthToken},
+      // pool: listWatchAgent
     }, optionsBase)
   , watchOptions: _.defaults({
       url: buildWatchPodsUrl(config.live.openshiftServer, config.live.namespace),
@@ -326,8 +325,8 @@ var verifyStream = function(env) {
   .publish();
 };
 
-verifyStream(environments.live).connect();
-verifyStream(environments.preStart).connect();
+// verifyStream(environments.live).connect();
+// verifyStream(environments.preStart).connect();
 
 var liveStream = Rx.Observable.merge(environments.live.subjects)
 var preStartStream = Rx.Observable.merge(environments.preStart.subjects);
