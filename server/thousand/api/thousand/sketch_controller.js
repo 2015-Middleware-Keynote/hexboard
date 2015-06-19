@@ -64,7 +64,7 @@ var postImageToPod = function(sketch, buffer) {
     request.post({
       url: postUrl,
       body: buffer,
-      timeout: 5000,
+      timeout: 4000,
       pool: sketchPostAgent
     }, function (err, res, body) {
       if (err) {
@@ -90,7 +90,7 @@ var postImageToPod = function(sketch, buffer) {
     });
   })
   .retryWhen(function(errors) {
-    var maxRetries = 5;
+    var maxRetries = 3;
     return errors.scan(0, function(errorCount, err) {
       if (errorCount === 0) {
         console.log(tag, err.msg);
