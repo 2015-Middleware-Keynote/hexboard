@@ -72,7 +72,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
   .subscribeOnError(hex.ui.errorObserver);
 
   // websocket controls
-  var websocketSubscription = hex.ui.messages.filter(function(message) {
+  var websocketStream = hex.ui.messages.filter(function(message) {
     return message.type === 'winner';
   }).tap(function(message) {
     var sketchesPresent = hex.ui.points.some(function(point) {
@@ -119,7 +119,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
   })
   .tap(function(event) {
     var p = d3.select(event.target).datum();
-    if (lastDoodle === p || hex.winner.isAlreadyWinner(p)) {
+    if (lastDoodle === p || ! hex.winner.isAllowedToWin(p)) {
       return;
     };
     var newId = p.id;
@@ -149,13 +149,13 @@ hex.controls = (function dataSimulator(d3, Rx) {
 
   var dispose = function() {
     keyboardSubscription.dispose();
-    websocketSubscription.dispose();
+    // websocketSubscription.dispose();
     mouseSubscription.dispose();
   };
 
   return {
     dispose: dispose,
-    websocketSubscription: websocketSubscription
+    websocketStream: websocketStream
   }
 
 })(d3, Rx);

@@ -68,7 +68,7 @@ hex.highlight = (function dataSimulator(d3, Rx) {
         return true;
       }
       if (point.sketch && point.sketch.length > 0) {
-        return ! hex.winner.isAlreadyWinner(point);
+        return hex.winner.isAllowedToWin(point);
       } else {
         return false;
       };
