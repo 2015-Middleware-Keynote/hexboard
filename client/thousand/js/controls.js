@@ -119,7 +119,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
   })
   .tap(function(event) {
     var p = d3.select(event.target).datum();
-    if (lastDoodle === p || hex.winner.isAlreadyWinner(p)) {
+    if (lastDoodle === p || ! hex.winner.isAllowedToWin(p)) {
       return;
     };
     var newId = p.id;

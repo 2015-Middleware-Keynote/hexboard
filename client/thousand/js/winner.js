@@ -15,12 +15,20 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
   var winners = [];
 
-  var isAlreadyWinner = function(point) {
-    return winners.some(function(winner) {
-      var sketch = point.sketch[point.sketch.length - 1];
+  var isAllowedToWin = function(point) {
+    if ( ! (point.sketch && point.sketch.length > 0) ) {
+      return false;
+    }
+    var sketch = point.sketch[point.sketch.length - 1];
+    if (!sketch.cuid) {
+      console.log('Sketch has no cuid:', sketch);
+      return false;
+    }
+    var alreadyWinner = winners.some(function(winner) {
       var winnerSketch = winner.sketch[winner.sketch.length - 1];
       return 'cuid' in winnerSketch && winnerSketch.cuid === sketch.cuid;
     });
+    return ! alreadyWinner;
   };
 
   var pickWinner = function(index) {
@@ -60,7 +68,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
       var index = getRandomInt(0, candidates.length);
       winners.push(candidates[index]);
       candidates = candidates.filter(function(point) {
-        return ! isAlreadyWinner(point);
+        return isAllowedToWin(point);
       });
     });
   };
@@ -187,6 +195,6 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
   return {
     pickWinner: pickWinner
-  , isAlreadyWinner: isAlreadyWinner
+  , isAllowedToWin: isAllowedToWin
   }
 })(d3, Rx);
