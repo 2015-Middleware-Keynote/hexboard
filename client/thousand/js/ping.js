@@ -20,7 +20,7 @@ hex.ping = (function dataSimulator(d3, Rx) {
       if (ws.readyState === ws.OPEN) {
         ws.send(ping);
         // console.log(">>> PING");
-        if (new Date().getTime() - lastPong > ttl * 3) {
+        if (new Date().getTime() - lastPong > ttl * 3000) {
           ws.close();
           throw new Error('Server has gone more than ' + 3 * ttl + 'ms without a response');
         }
