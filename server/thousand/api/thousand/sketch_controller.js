@@ -49,14 +49,14 @@ var sketchPostAgent = new http.Agent({
 var postImageToPod = function(sketch, buffer) {
   if (!sketch.url) {
     console.log(tag, 'POST disabled for this sketch', sketch.uiUrl);
-    sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl + '/page.html';
+    sketch.url = sketch.pageUrl;
     return Rx.Observable.return(sketch);
   }
   var postUrl = sketch.url + 'doodle?username='+sketch.name+'&cuid='+sketch.cuid+'&submission='+sketch.submissionId;
   console.log(tag, 'POST sketch to url:', postUrl);
   return Rx.Observable.create(function(observer) {
     if (! sketch.url) {
-      sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl + '/page.html';
+      sketch.url = sketch.pageUrl;
       observer.onNext({msg: 'No pod url, not POSTting'});
       observer.onCompleted();
       return;
@@ -98,14 +98,14 @@ var postImageToPod = function(sketch, buffer) {
       if (err.code && (err.code === 401 || err.code === 403)) {
         console.log(tag, err.code, 'Error', sketch.url);
         errorCount = maxRetries;
-        sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl + '/page.html';
+        sketch.url = sketch.pageUrl;
         delete(sketch.errorCount);
       } else {
         sketch.errorCount = ++errorCount;
         if (errorCount === maxRetries) {
           var msg = 'Error: too many retries: ' + sketch.url
           console.log(tag, msg);
-          sketch.url = 'http://1k.jbosskeynote.com' + sketch.uiUrl + '/page.html';
+          sketch.url = sketch.pageUrl;
           delete(sketch.errorCount);
           throw new Error(msg);
         }
@@ -174,11 +174,12 @@ module.exports = exports = {
     })
     .flatMap(function(buffer) {
       return podClaimer.getRandomPod.map(function(randomPod) {
-        // console.log(tag, 'randomPod', randomPod.id);
+        // console.log(tag, 'randomPod', randomPod);
         var sketch = {
           containerId: randomPod.id
         , url: randomPod.url
-        , uiUrl: '/api/sketch/' + randomPod.id
+        , uiUrl: '/api/sketch/' + randomPod.id + '/image.png?ts=' + new Date().getTime()
+        , pageUrl: '/api/sketch/' + randomPod.id + '/page.html'
         , name: req.query.name
         , cuid: req.query.cuid
         , submissionId: req.query.submission_id
