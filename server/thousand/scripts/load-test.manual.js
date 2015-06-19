@@ -7,7 +7,7 @@ var request = require('request')
   ;
 
 var numberOfPeople = 1026;
-var duration = 120; // seconds
+var duration = 60; // seconds
 
 // Returns a random integer between min included) and max (excluded)
 var getRandomInt = function (min, max) {
@@ -26,7 +26,8 @@ var postImage = function(submission) {
   var user = submission.person;
   var id = getRandomInt(0,1060);
   // var url = 'http://localhost:9000/api/sketch/0?name='+user.name+'&cuid='+user.cuid+'&submission_id='+user.submissionId;
-  var url = 'http://1k.jbosskeynote.com/api/sketch/0?name='+user.name+'&cuid='+user.cuid+'&submission_id='+user.submissionId;
+  // var url = 'http://1k.jbosskeynote.com/api/sketch/0?name='+user.name+'&cuid='+user.cuid+'&submission_id='+user.submissionId;
+  var url = 'http://ec2-52-7-153-116.compute-1.amazonaws.com:80/api/sketch/0?name='+user.name+'&cuid='+user.cuid+'&submission_id='+user.submissionId;
   var req = request.post({
     url: url,
     body: submission.buffer

@@ -170,6 +170,7 @@ var list = function(env) {
       } else {
         observer.onError({
           code: response.statusCode
+        , options: env.listOptions
         , msg: body
         });
       }
@@ -220,6 +221,7 @@ var watch = function(env) {
           }
           var error = {
             code: response.statusCode
+          , options: env.watchOptions
           , message: message
           };
           if (error.code === 401 || error.code === 403) {
