@@ -23,6 +23,7 @@ var secretEnvFile = process.env.HOME + '/demo2015-ui.env';
 try {
   secretEnvFile && env(secretEnvFile);
 } catch(error) {
+  console.log('Cannot load env file', secretEnvFile);
   // no env file to set.
 }
 

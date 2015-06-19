@@ -57,14 +57,14 @@ var environments = {
   live: {
     name: 'live'
   , listOptions: _.defaults({
-      url: buildListPodsUrl(config.live.openshiftServer, config.live.namespace),
-      auth: {bearer:  config.live.oauthToken},
-      // pool: listWatchAgent
+      url: buildListPodsUrl(config.live.openshiftServer, config.live.namespace)
+    , auth: {bearer:  config.live.oauthToken}
+    , pool: listWatchAgent
     }, optionsBase)
   , watchOptions: _.defaults({
-      url: buildWatchPodsUrl(config.live.openshiftServer, config.live.namespace),
-      auth: {bearer:  config.live.oauthToken},
-      pool: listWatchAgent
+      url: buildWatchPodsUrl(config.live.openshiftServer, config.live.namespace)
+    , auth: {bearer:  config.live.oauthToken}
+    , pool: listWatchAgent
     }, optionsBase)
   , state: {first  : true, pods: {}}
   , config: config.live
@@ -74,15 +74,15 @@ var environments = {
   }
 , preStart: {
     name: 'preStart'
-  , listUrl: buildListPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
-  , watchUrl: buildWatchPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
   , listOptions: _.defaults({
       url: buildListPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
     , auth: {bearer:  config.preStart.oauthToken}
+    , pool: listWatchAgent
     }, optionsBase)
   , watchOptions: _.defaults({
       url: buildWatchPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
     , auth: {bearer:  config.preStart.oauthToken}
+    , pool: listWatchAgent
     }, optionsBase)
   , state: {first  : true, pods: {}}
   , config: config.preStart
