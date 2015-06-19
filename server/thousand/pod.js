@@ -50,7 +50,7 @@ var optionsBase = {
 
 var listWatchAgent = new http.Agent({
   keepAlive: true,
-  maxSockets: 4
+  maxSockets: 8
 });
 
 var environments = {
