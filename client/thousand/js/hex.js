@@ -259,6 +259,13 @@ hex.ui = (function dataSimulator(d3, Rx) {
       .classed('sketch', function(d) { return d.sketch.length > 0});
   };
 
+  var clear = function(p) {
+    p.sketch = [];
+    hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
+      .style('fill', function(d) { return color(d)})
+      .classed('sketch', false);
+  }
+
   var openObserver = Rx.Observer.create(
     function(open) {
       var ws = open.target;
@@ -324,8 +331,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
   .flatMap(function(message) {
     return message.data;
   })
-  .tap(function(data) {
-    var sketch = data.sketch;
+  .tap(function(sketch) {
     var point = points[sketch.containerId];
     if (! point.sketch) {
       if (firstImage) {
@@ -349,7 +355,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
   })
   .tap(function(message) {
     var point = points.filter(function(point) {
-      return point.id === message.data.index;
+      return point.id === message.data.id;
     });
     if (point.length && point[0].sketch) {
       removeSketch(point[0]);
@@ -357,18 +363,17 @@ hex.ui = (function dataSimulator(d3, Rx) {
   });
 
   var removeBundleStream = messages.filter(function(message) {
-    return message.type === 'removeBundle';
+    return message.type === 'removeAll';
   })
-  .flatMap(function(message) {
-    return message.data;
-  })
-  .tap(function(data) {
-    var point = points.filter(function(point) {
-      return point.id === data.id;
+  .tap(function() {
+    hex.inspect.unhighlight();
+    hex.highlight.unhighlight();
+
+    points.forEach(function(point) {
+      if (point.sketch) {
+        clear(point);
+      };
     });
-    if (point.length && point[0].sketch) {
-      removeSketch(point[0]);
-    };
   });
 
   var cover = d3.select('#cover');

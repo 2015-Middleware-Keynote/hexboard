@@ -7,6 +7,7 @@ var Rx = require('rx')
   , _ = require('underscore')
   , PodParser = require('./pod-parser')
   , http = require('http')
+  , hexboards = require('./hexboards')
   ;
 
 var tag = 'POD';
@@ -71,6 +72,7 @@ var environments = {
   , subjects: _.range(1026).map(function(index) {
       return new Rx.ReplaySubject(1);
     })
+  , hexboard: hexboards.liveHexBoard
   }
 , preStart: {
     name: 'preStart'
@@ -89,6 +91,7 @@ var environments = {
   , subjects: _.range(1026).map(function(index) {
       return new Rx.ReplaySubject(1);
     })
+  , hexboard: hexboards.preStartHexBoard
   }
 };
 
@@ -310,18 +313,20 @@ var verifyStream = function(env) {
           var newParsed = _.clone(parsed)
           newParsed.data = _.clone(parsed.data);
           newParsed.data.stage = 5;
+          env.hexboard.assignPod(parsed);
           // env.state.pods[newParsed.object.metadata.name] = newParsed;
           return newParsed;
         })
       );
     };
   })
-  .tap(function(pod) {
-    var subject = env.subjects[pod.data.id];
-    subject.onNext(pod);
-    if (pod.data.stage === 0) {
+  .tap(function(parsed) {
+    var subject = env.subjects[parsed.data.id];
+    subject.onNext(parsed);
+    if (parsed.data.stage === 0) {
       subject.onCompleted();
-      env.subjects[pod.data.id] = new Rx.ReplaySubject(1);
+      env.hexboard.dropPod(parsed);
+      env.subjects[parsed.data.id] = new Rx.ReplaySubject(1);
     }
   })
   .publish();

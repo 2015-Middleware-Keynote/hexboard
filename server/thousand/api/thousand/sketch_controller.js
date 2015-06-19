@@ -7,7 +7,7 @@ var fs = require('fs')
   , randomSketches = require('../../random').randomSketches
   , thousandEmitter = require('../../thousandEmitter')
   , request = require('request')
-  , podClaimer = require('../../pod-claimer')
+  , hexboard = require('../../hexboards').preStartBoard
   , lwip = require('lwip')
   , http = require('http')
   ;
@@ -172,22 +172,18 @@ module.exports = exports = {
     processResponse(req).flatMap(function(buffer) {
       return scaleImage(buffer);
     })
-    .flatMap(function(buffer) {
-      return podClaimer.getRandomPod.map(function(randomPod) {
-        // console.log(tag, 'randomPod', randomPod);
-        var sketch = {
-          containerId: randomPod.id
-        , url: randomPod.url
-        , uiUrl: '/api/sketch/' + randomPod.id + '/image.png?ts=' + new Date().getTime()
-        , pageUrl: '/api/sketch/' + randomPod.id + '/page.html'
-        , name: req.query.name
-        , cuid: req.query.cuid
-        , submissionId: req.query.submission_id
-        };
-        randomPod.skecth = sketch;
-        sketch.buffer = buffer;
-        return sketch;
-      });
+    .map(function(buffer) {
+      var sketch = {
+        name: req.query.name
+      , cuid: req.query.cuid
+      , submissionId: req.query.submission_id
+      };
+      hexboard.claimHexagon(sketch);
+      sketch.uiUrl = '/api/sketch/' + hexagon.id + '/image.png?ts=' + new Date().getTime()
+      sketch.pageUrl = '/api/sketch/' + hexagon.id + '/page.html'
+      hexagon.skecth = sketch;
+      sketch.buffer = buffer;
+      return sketch;
     })
     .flatMap(function(sketch) {
       return Rx.Observable.forkJoin(
@@ -250,12 +246,10 @@ module.exports = exports = {
 
   randomSketches: function(req, res, next) {
     var numSketches = req.params.numSketches;
-    randomSketches(numSketches).flatMap(function(sketch) {
-      return podClaimer.getRandomPod.map(function(randomPod) {
-        sketch.containerId = randomPod.id
-        thousandEmitter.emit('new-sketch', sketch);
-        return sketch;
-      });
+    randomSketches(numSketches).map(function(sketch) {
+      hexboard.claimHexagon(sketch);
+      thousandEmitter.emit('new-sketch', sketch);
+      return sketch;
     })
     .subscribe(function(sketch) {
     }, function(error) {
