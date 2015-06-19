@@ -356,6 +356,21 @@ hex.ui = (function dataSimulator(d3, Rx) {
     };
   });
 
+  var removeBundleStream = messages.filter(function(message) {
+    return message.type === 'removeBundle';
+  })
+  .flatMap(function(message) {
+    return message.data;
+  })
+  .tap(function(data) {
+    var point = points.filter(function(point) {
+      return point.id === data.id;
+    });
+    if (point.length && point[0].sketch) {
+      removeSketch(point[0]);
+    };
+  });
+
   var cover = d3.select('#cover');
   if (cover) {
     cover.style({visibility: 'visible', opacity: '0.6'});
@@ -375,6 +390,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
     subscriptions.error = errorStream.subscribeOnError(errorObserver);
     subscriptions.sketchBundle = sketchBundleStream.subscribeOnError(errorObserver);
     subscriptions.remove = removeStream.subscribeOnError(errorObserver);
+    subscriptions.removeBundle = removeBundleStream.subscribeOnError(errorObserver);
     subscriptions.controls = hex.controls.websocketStream.subscribeOnError(errorObserver);
   }
 
@@ -384,6 +400,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
     subscriptions.error.dispose();
     subscriptions.sketchBundle.dispose();
     subscriptions.remove.dispose();
+    subscriptions.removeBundle.dispose();
     subscriptions.controls.dispose();
   };
 

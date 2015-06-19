@@ -99,12 +99,11 @@ module.exports = function(server) {
   });
 
   thousandEmitter.on('remove-all', function() {
-    var sketchesAvailable = sketches.list.filter(function(data) {
+    var removals = sketches.list.filter(function(data) {
       return data.sketch;
-    })
-    .forEach(function(data) {
-      wss.broadcast(JSON.stringify({type: 'remove', data: {index: data.sketch.containerId}}));
-    })
+    });
+
+    wss.broadcast(JSON.stringify({type: 'removeBundle', data: removals}));
     sketches.clear();
   });
 
