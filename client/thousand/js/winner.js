@@ -117,6 +117,21 @@ hex.winner = (function dataSimulator(d3, Rx) {
         displayWinner(p, index);
       }
     });
+    logWinners(winners);
+  }
+
+  var logWinners = function(winners) {
+    var winningSketches = winners.map(function(winner) {
+      return winner.sketch[winner.sketch.length - 1];
+    })
+    var data = JSON.stringify(winningSketches);
+    console.log(data);
+    var xhr = d3.xhr('/api/winners');
+    xhr.header('Content-Type', 'application/json');
+    xhr.send('PUT', data, function(err, res) {
+      console.log('winningSketches logged');
+      console.log(err || res);
+    });
   }
 
   var stageWinner = function(p, index) {
@@ -133,7 +148,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
   var displayWinner = function(p, index) {
     animateWinner(p, stageSpots[index], winnerSpots[index], 1, 3.5, true);
     var sketch = p.sketch[p.sketch.length - 1];
-    console.log('Winner name:', sketch.name, 'cuid:', sketch.cuid, 'submission:', sketch.submissionId);
+    console.log('Winner name:', sketch.name, 'cuid:', sketch.cuid, 'submission:', sketch.submissionId, 'sketch:', sketch.url);
   }
 
   var animateWinner = function(p, p0, p1, zoom1, zoom2, shownames, cb) {

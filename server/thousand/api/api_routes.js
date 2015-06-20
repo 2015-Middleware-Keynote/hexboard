@@ -10,4 +10,8 @@ module.exports = exports = function (router) {
   router.route('/sketch/:containerId').post(sketchController.receiveImage);
   router.route('/sketch/:containerId').delete(sketchController.removeImage);
   router.route('/sketch/random/:numSketches').get(sketchController.randomSketches);
+  router.route('/winners').put(function(req, res, next) {
+    console.log('Winners', req.body);
+    res.send('ok');
+  });
 }
