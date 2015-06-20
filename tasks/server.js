@@ -22,7 +22,9 @@ module.exports = function(gulp, opts) {
       .on('start', function() {
         if (started) {
           gutil.log('...nodemon start, reloading lr');
-          livereload.changed('*', opts.lr);
+          if (opts.lr) {
+            livereload.changed('*', opts.lr);
+          }
         } else {
           gutil.log('...nodemon start');
           started = true;
