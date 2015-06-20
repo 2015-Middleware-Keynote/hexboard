@@ -28,13 +28,11 @@ var HexBoard = function() {
     var hexagon = hexagons[parsed.data.id];
     var pod = parsed.data;
     hexagon.pod = pod;
-    pod.hexagon = hexagon;
   };
 
   var dropPod = function(parsed) {
     var pod = parsed.data;
     var hexagon = pod.hexagon;
-    delete pod.hexagon;
     delete hexagon.pod;
   };
 
