@@ -33,7 +33,6 @@
     "gulp-rename": "^1.2.0",
     "gulp-template": "^3.0.0",
     "gulp-util": "^3.0.4",
-    "lwip": "0.0.7",
     "morgan": "^1.5.2",
     "node-env-file": "^0.1.7",
     "open": "0.0.5",

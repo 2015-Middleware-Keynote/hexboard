@@ -8,13 +8,10 @@ var fs = require('fs')
   , thousandEmitter = require('../../thousandEmitter')
   , request = require('request')
   , hexboard = require('../../hexboards').preStartBoard
-  , lwip = require('lwip')
   , http = require('http')
   ;
 
 var tag = 'API/THOUSAND';
-
-var bufferMap = {};
 
 var indexFile = fs.readFileSync(__dirname + '/index.html', {encoding: 'utf8'});
 var rxWriteFile = Rx.Observable.fromNodeCallback(fs.writeFile);
@@ -32,13 +29,20 @@ var saveIndexFile = function(sketch) {
     });
 }
 
-var saveImageToFile = function(sketch, buffer) {
+var saveImageToFile = function(sketch, req) {
   var filename = 'thousand-sketch' + sketch.containerId + '.png';
   console.log(tag, 'Saving sketch to file:', filename);
-  return rxWriteFile(os.tmpdir() + '/' + filename, buffer)
-    .map(function() {
-      return sketch;
+  return Rx.Observable.create(function(observer) {
+    req.on('end', function() {
+      // console.log('File save complete:', filename);
+      observer.onNext(sketch);
+      observer.onCompleted();
     });
+    req.on('error', function(error) {
+      observer.onError(error);
+    });
+    var stream = req.pipe(fs.createWriteStream(os.tmpdir() + '/' + filename));
+  });
 }
 
 var sketchPostAgent = new http.Agent({
@@ -46,7 +50,7 @@ var sketchPostAgent = new http.Agent({
   maxSockets: 40
 });
 
-var postImageToPod = function(sketch, buffer) {
+var postImageToPod = function(sketch, req) {
   if (!sketch.url) {
     console.log(tag, 'POST disabled for this sketch', sketch.uiUrl);
     sketch.url = sketch.pageUrl;
@@ -61,9 +65,8 @@ var postImageToPod = function(sketch, buffer) {
       observer.onCompleted();
       return;
     }
-    request.post({
+    req.pipe(request.post({
       url: postUrl,
-      body: buffer,
       timeout: 4000,
       pool: sketchPostAgent
     }, function (err, res, body) {
@@ -87,7 +90,7 @@ var postImageToPod = function(sketch, buffer) {
         observer.onError({msg: msg + 'Error POSTting sketch to ' + postUrl});
         return;
       }
-    });
+    }));
   })
   .retryWhen(function(errors) {
     var maxRetries = 3;
@@ -119,84 +122,26 @@ var postImageToPod = function(sketch, buffer) {
   .catch(Rx.Observable.return(sketch));
 };
 
-var processResponse = function(req) {
-  return Rx.Observable.create(function(observer) {
-    // console.log(tag, 'Processing response');
-    var data = new Buffer('');
-    req.on('data', function(chunk) {
-      data = Buffer.concat([data, chunk]);
-    });
-    req.on('error', function(err) {
-      observer.onError(err);
-    });
-    req.on('end', function() {
-      // console.log(tag, 'Processed response');
-      observer.onNext(data);
-      observer.onCompleted();
-    });
-  })
-};
-
-var scaleImage = function(buffer) {
-  return Rx.Observable.create(function(observer) {
-    // console.log(tag, 'Scaling image');
-    lwip.open(buffer, 'png', function(err, image) {
-      // console.log(tag, 'Buffer open');
-      if (err) {
-        observer.onError(err);
-        return;
-      }
-      image.contain(150, 150, function(err, image) {
-        // console.log(tag, 'Image scaled');
-        if (err) {
-          observer.onError(err);
-          return;
-        }
-        image.toBuffer('png', function(err, buffer) {
-          // console.log(tag, 'Buffer created');
-          if (err) {
-            observer.onError(err);
-            return;
-          }
-          observer.onNext(buffer);
-          observer.onCompleted();
-        });
-      });
-    });
-
-  })
-}
-
 module.exports = exports = {
   receiveImage: function(req, res, next) {
-    processResponse(req).flatMap(function(buffer) {
-      return scaleImage(buffer);
-    })
-    .map(function(buffer) {
-      var sketch = {
-        name: req.query.name
-      , cuid: req.query.cuid
-      , submissionId: req.query.submission_id
-      };
-      hexboard.claimHexagon(sketch);
-      sketch.url = sketch.pod ? sketch.pod.url : null;
-      sketch.uiUrl = '/api/sketch/' + sketch.containerId + '/image.png?ts=' + new Date().getTime()
-      sketch.pageUrl = '/api/sketch/' + sketch.containerId + '/page.html'
-      sketch.buffer = buffer;
-      return sketch;
-    })
+    var sketch = {
+      name: req.query.name
+    , cuid: req.query.cuid
+    , submissionId: req.query.submission_id
+    };
+    hexboard.claimHexagon(sketch);
+    sketch.url = sketch.pod ? sketch.pod.url : null;
+    sketch.uiUrl = '/api/sketch/' + sketch.containerId + '/image.png?ts=' + new Date().getTime()
+    sketch.pageUrl = '/api/sketch/' + sketch.containerId + '/page.html'
+    Rx.Observable.return(sketch)
     .flatMap(function(sketch) {
       return Rx.Observable.forkJoin(
         saveIndexFile(sketch)
-      , saveImageToFile(sketch, sketch.buffer)
-      , postImageToPod(sketch, sketch.buffer)
+      , saveImageToFile(sketch, req)
+      , postImageToPod(sketch, req)
       ).map(function(arr) {
         return arr[0]
       })
-    })
-    .tap(function(sketch) {
-      bufferMap[sketch.containerId] = sketch.buffer;
-      delete sketch['buffer'];
     })
     .subscribe(function(sketch) {
       //console.log(tag, 'new sketch', sketch.url, sketch.cuid);
@@ -213,13 +158,7 @@ module.exports = exports = {
   getImage: function(req, res, next) {
     var containerId = parseInt(req.params.containerId);
     var filename = 'thousand-sketch' + containerId + '.png';
-    var buffer = bufferMap[containerId];
-    if (buffer) {
-      res.send(buffer);
-      delete bufferMap[containerId];
-    } else {
-      res.sendFile(os.tmpdir() + '/' + filename);
-    };
+    res.sendFile(os.tmpdir() + '/' + filename);
   },
 
   getImagePage: function(req, res, next) {
@@ -232,11 +171,9 @@ module.exports = exports = {
     var containerId = req.params.containerId;
     if (containerId === 'all') {
       thousandEmitter.emit('remove-all');
-      bufferMap = {};
       res.send('removed all');
     } else {
       containerId = parseInt(containerId);
-      delete bufferMap[containerId];
       var filename = 'thousand-sketch' + containerId + '.png';
       thousandEmitter.emit('remove-sketch', containerId);
       fs.createReadStream('./server/thousand/api/thousand/censored.png').pipe(fs.createWriteStream(os.tmpdir() + '/' + filename));
