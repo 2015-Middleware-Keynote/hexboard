@@ -322,7 +322,20 @@ hex.ui = (function dataSimulator(d3, Rx) {
         flipAll();
       }
     }
-    image(point, sketch);
+    if (!hex.controls.adminEnabled) {
+      image(point, sketch);
+    } else {
+      if (point.skecth) {
+        point.sketch.push(sketch);
+      } else {
+        point.sketch = [sketch];
+      }
+      var skecthId = createSketchId(point);
+      createBackground(sketch, skecthId);
+      hexagons.filter(function(d) { return d.x === point.x && d.y === point.y; })
+        .attr('class', 'hexagon sketch')
+        .style('fill', 'url(#' + skecthId + ')');
+    }
   });
 
   var sketchBundleStream = messages.filter(function(message) {

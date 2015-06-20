@@ -155,7 +155,8 @@ hex.controls = (function dataSimulator(d3, Rx) {
 
   return {
     dispose: dispose,
-    websocketStream: websocketStream
+    websocketStream: websocketStream,
+    adminEnabled: adminEnabled
   }
 
 })(d3, Rx);
