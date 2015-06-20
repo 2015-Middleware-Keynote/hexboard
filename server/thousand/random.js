@@ -46,7 +46,7 @@ var randomSketches = function(numSketches) {
           , url: '/thousand/sketches/thousand-sketch' + imageIndex + '.png'
           , uiUrl: '/thousand/sketches/thousand-sketch' + imageIndex + '.png'
           , name: 'FirstName' + containerId + ' LastName' + containerId
-          , cuid: imageIndex
+          , cuid: 'cuid' + imageIndex
           , submissionId: submissionCount++
           };
           return sketch;

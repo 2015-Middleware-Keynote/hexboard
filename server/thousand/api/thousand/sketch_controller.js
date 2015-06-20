@@ -179,9 +179,9 @@ module.exports = exports = {
       , submissionId: req.query.submission_id
       };
       hexboard.claimHexagon(sketch);
-      sketch.uiUrl = '/api/sketch/' + hexagon.id + '/image.png?ts=' + new Date().getTime()
-      sketch.pageUrl = '/api/sketch/' + hexagon.id + '/page.html'
-      hexagon.skecth = sketch;
+      sketch.url = sketch.pod ? sketch.pod.url : null;
+      sketch.uiUrl = '/api/sketch/' + sketch.containerId + '/image.png?ts=' + new Date().getTime()
+      sketch.pageUrl = '/api/sketch/' + sketch.containerId + '/page.html'
       sketch.buffer = buffer;
       return sketch;
     })
