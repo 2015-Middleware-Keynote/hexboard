@@ -35,7 +35,7 @@ var eventReplay = function() {
 
   var startTime = null;
   var previousInterval = null;
-  var interval = 2000; //ms
+  var interval = 1000; //ms
 
   // An observable triggerred by <interval> changes in logEvents
   var replayProgress = logEvents.flatMap(function(event) {
@@ -57,7 +57,7 @@ var eventReplay = function() {
   // Zip the buffered events to an interval for real-time playback
   var replay = Rx.Observable.zip(
     bufferedEvents
-  , Rx.Observable.interval(20) // ms
+  , Rx.Observable.interval(30) // ms
   , function(podEvents, index) { return podEvents}
   )
   .flatMap(function(podEvents) {
