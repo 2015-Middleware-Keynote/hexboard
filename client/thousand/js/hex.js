@@ -61,7 +61,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
         }
         var x = honeycomb.spacing.x * x_i;
         var y = honeycomb.spacing.y * y_i;
-        return {id: index, x: x, y: y, stage: 0};
+        return {id: index, x: x, y: y, stage: 0, skecthCount: 0};
       });
 
   console.log(points.length);
@@ -180,7 +180,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
   };
 
   var createSketchId = function(point) {
-    return 'img' + point.id + '_' + point.sketch.length;
+    return 'img' + point.id + '_' + point.skecthCount;
   }
 
   var createBackground = function(sketch, id) {
@@ -217,6 +217,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
     var p0 = {x: perspective * (p.x - c.x) + c.x, y: perspective * (p.y - c.y) + c.y};
 
     p.sketch = p.sketch || [];
+    p.skecthCount++;
     p.sketch.push(sketch);
     var skecthId = createSketchId(p);
     createBackground(sketch, skecthId);
@@ -234,21 +235,26 @@ hex.ui = (function dataSimulator(d3, Rx) {
         .ease('quad-in')
         .attr('transform', 'translate(' + p.x + ',' + p.y + ')')
         .remove();
-    };
 
-    hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
-      .transition()
-      .duration(duration)
-      .ease('linear')
-      .each('end', function() {
-        d3.select(this).attr('class', 'hexagon sketch')
-      })
-      .attr('transform', function(d) {return 'matrix(1, 0, 0, 1, '+ d.x +', '+ d.y +')'}) // finish off any half-flipped hexagons
-      .styleTween('fill', function(d, i, a) {
-        return function(t) {
-          return t < 1 ? a : 'url(#' + skecthId + ')';
-        };
-      });
+      hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
+        .transition()
+        .duration(duration)
+        .ease('linear')
+        .each('end', function() {
+          d3.select(this).attr('class', 'hexagon sketch')
+        })
+        .attr('transform', function(d) {return 'matrix(1, 0, 0, 1, '+ d.x +', '+ d.y +')'}) // finish off any half-flipped hexagons
+        .styleTween('fill', function(d, i, a) {
+          return function(t) {
+            return t < 1 ? a : 'url(#' + skecthId + ')';
+          };
+        });
+      } else {
+        hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
+          .attr('class', 'hexagon sketch')
+          .attr('transform', function(d) {return 'matrix(1, 0, 0, 1, '+ d.x +', '+ d.y +')'}) // finish off any half-flipped hexagons
+          .style('fill', function(d) { return 'url(#' + skecthId + ')'; });
+      }
   };
 
   var removeSketch = function(p) {
