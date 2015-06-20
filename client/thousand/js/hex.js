@@ -180,7 +180,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
   };
 
   var createSketchId = function(point) {
-    return 'img' + point.id + '_' + point.skecthCount;
+    return 'img' + point.id + '_' + point.currentSketch;
   }
 
   var createBackground = function(sketch, id) {
@@ -217,7 +217,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
     var p0 = {x: perspective * (p.x - c.x) + c.x, y: perspective * (p.y - c.y) + c.y};
 
     p.sketch = p.sketch || [];
-    p.skecthCount++;
+    p.currentSketch = ++p.skecthCount;
     p.sketch.push(sketch);
     var skecthId = createSketchId(p);
     createBackground(sketch, skecthId);
@@ -259,6 +259,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
 
   var removeSketch = function(p) {
     hex.inspect.unhighlight();
+    p.currentSketch--;
     p.sketch.pop();
     hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
       .style('fill', function(d) { return d.sketch.length ? 'url(#' + createSketchId(d) + ')' : color(d)})
