@@ -82,8 +82,8 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
   var winnerSpots = d3.range(10).map(function(spot, index) {
     var c = {x: hex.ui.content.x / 2, y: hex.ui.content.y / 2}
-      , delta = {x: hex.ui.honeycomb.dimensions.x/4, y: hex.ui.honeycomb.dimensions.y/3}
-      , offset = {x: 0, y: - 0.17}  // an adjustment to make room for the names
+      , delta = {x: hex.ui.honeycomb.dimensions.x/4, y: hex.ui.honeycomb.dimensions.y/3.5}
+      , offset = {x: 0, y: 0}  // an adjustment to make room for the names
 
     if (index <= 2) {
       return {
@@ -146,7 +146,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
   }
 
   var displayWinner = function(p, index) {
-    animateWinner(p, stageSpots[index], winnerSpots[index], 1, 3.5, true);
+    animateWinner(p, stageSpots[index], winnerSpots[index], 1, 6.5, false);
     var sketch = p.sketch[p.sketch.length - 1];
     console.log('Winner name:', sketch.name, 'cuid:', sketch.cuid, 'submission:', sketch.submissionId, 'sketch:', sketch.url);
   }
