@@ -28,10 +28,12 @@ var postImage = function(submission) {
   var url = 'http://localhost:9000/api/sketch/0?name='+user.name+'&cuid='+user.cuid+'&submission_id='+user.submissionId;
   // var url = 'http://1k.jbosskeynote.com/api/sketch/0?name='+user.name+'&cuid='+user.cuid+'&submission_id='+user.submissionId;
   // var url = 'http://ec2-52-7-153-116.compute-1.amazonaws.com:80/api/sketch/0?name='+user.name+'&cuid='+user.cuid+'&submission_id='+user.submissionId;
-  var req = request.post({
+  var options = {
     url: url,
     body: submission.buffer
-  }, function (err, res, body) {
+  };
+  // console.log(options);
+  var req = request.post(options, function (err, res, body) {
     if (err) {
       console.log('*** Error ***:',err);
       console.log('*** Body *** :',body);
@@ -50,9 +52,11 @@ var bufferList = Rx.Observable.fromNodeCallback(fs.readdir)('client/thousand/ske
   })
   .toArray();
 
-var randomEvents = Rx.Observable.range(0, numberOfPeople)
-  .map(function(index) {
+var randomEvents = bufferList.flatMap(function(buffers) {
+  return Rx.Observable.range(0, buffers.length)
+}).map(function(index) {
     return {
+      id: index,
       name: 'Firstname' + index + ' Lastname' + index,
       cuid: index,
       submissionId: index + '_' + index
@@ -65,10 +69,10 @@ var randomEvents = Rx.Observable.range(0, numberOfPeople)
 
   bufferList.flatMap(function(buffers) {
   return randomEvents.map(function(person) {
-    var index = getRandomInt(0, buffers.length);
+    // var index = getRandomInt(0, buffers.length);
     var submission = {
       person: person,
-      buffer: buffers[index]
+      buffer: buffers[person.id]
     };
     return submission;
   })
