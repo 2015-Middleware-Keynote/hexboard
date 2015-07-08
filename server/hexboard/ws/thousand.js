@@ -1,13 +1,11 @@
 'use strict';
 
 var WebSocketServer = require('ws').Server
-  , random = require('../random')
   , pod = require('../pod')
-  , playback = require('../playback')
   , thousandEmitter = require('../thousandEmitter')
   , debuglog = require('debuglog')('thousand')
   , Rx = require('rx')
-  , hexboard = require('../hexboards').preStartBoard
+  , hexboard = require('../hexboard')
   ;
 
 var tag = 'WS/THOUSAND';
@@ -42,7 +40,7 @@ module.exports = function(server) {
       var message = JSON.parse(data);
       if (message.type === 'subscribe') {
         console.log('Subscribe event:', message)
-        subscription = subscribeToPodEvents(ws, message.feed);
+        subscription = subscribeToPodEvents(ws);
       };
       if (message.type === 'ping') {
         ws.send(JSON.stringify({type: 'pong'}));
@@ -54,27 +52,10 @@ module.exports = function(server) {
     };
   });
 
-  var subscribeToPodEvents = function(ws, feed) {
-    var eventFeed;
-    switch (feed) {
-      case 'live':
-        eventFeed = pod.liveStream.map(function(parsed) {
-          return parsed.data;
-        });
-        break;
-      case 'sketch':
-        eventFeed = pod.preStartStream.map(function(parsed) {
-          return parsed.data;
-        });
-        break;
-      case 'random':
-        eventFeed = random.events;
-        break;
-      case 'playback':
-      default:
-        eventFeed = playback.events();
-        break;
-    }
+  var subscribeToPodEvents = function(ws) {
+    var eventFeed = pod.liveStream.map(function(parsed) {
+      return parsed.data;
+    });
     var subscription = eventFeed.tap(function(pod) {
       debuglog('pod event, id:', pod.id, 'stage:', pod.stage, 'creationTimestamp', pod.creationTimestamp);
       if (ws.readyState === ws.OPEN) {

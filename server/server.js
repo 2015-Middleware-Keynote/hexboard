@@ -13,5 +13,5 @@ var server = http.createServer(app);
 server.listen(port, ip);
 console.log(tag, 'Listening on ' + ip + ':' + port);
 
-require('./thousand/ws/thousand')(server);
-require('./thousand/ws/winner')(server);
+require('./hexboard/ws/thousand')(server);
+require('./hexboard/ws/winner')(server);

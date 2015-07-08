@@ -7,7 +7,7 @@ var Rx = require('rx')
   , _ = require('underscore')
   , PodParser = require('./pod-parser')
   , http = require('http')
-  , hexboards = require('./hexboards')
+  , hexboard = require('./hexboard')
   ;
 
 var tag = 'POD';
@@ -19,13 +19,6 @@ var config = {
     namespace: process.env.NAMESPACE_LIVE || 'demo1', //summit1
     openshiftServer: process.env.OPENSHIFT_SERVER_LIVE || 'openshift-master.summit2.paas.ninja:8443',
     proxy: process.env.PROXY_LIVE || 'http://sketch.demo.apps.summit2.paas.ninja'
-  },
-  preStart: {
-    oauthToken: process.env.ACCESS_TOKEN_PRESTART || false,
-    namespace: process.env.NAMESPACE_PRESTART || 'demo-test',  //summit2
-    openshiftServer: process.env.OPENSHIFT_SERVER_PRESTART || 'openshift-master.summit3.paas.ninja:8443',
-    // proxy: process.env.PROXY || 'http://openshiftproxy-bleathemredhat.rhcloud.com'
-    proxy: process.env.PROXY_PRESTART || 'http://sketch.demo.apps.summit3.paas.ninja'
   }
 };
 
@@ -72,31 +65,11 @@ var environments = {
   , subjects: _.range(1026).map(function(index) {
       return new Rx.ReplaySubject(1);
     })
-  , hexboard: hexboards.liveBoard
-  }
-, preStart: {
-    name: 'preStart'
-  , listOptions: _.defaults({
-      url: buildListPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
-    , auth: {bearer:  config.preStart.oauthToken}
-    , pool: listWatchAgent
-    }, optionsBase)
-  , watchOptions: _.defaults({
-      url: buildWatchPodsUrl(config.preStart.openshiftServer, config.preStart.namespace)
-    , auth: {bearer:  config.preStart.oauthToken}
-    , pool: listWatchAgent
-    }, optionsBase)
-  , state: {first  : true, pods: {}}
-  , config: config.preStart
-  , subjects: _.range(1026).map(function(index) {
-      return new Rx.ReplaySubject(1);
-    })
-  , hexboard: hexboards.preStartBoard
+  , hexboard: hexboard
   }
 };
 
 environments.live.parser = new PodParser(environments.live);
-environments.preStart.parser = new PodParser(environments.preStart);
 
 var verifyAgent = new http.Agent({
   keepAlive: true,
@@ -334,10 +307,8 @@ var verifyStream = function(env) {
 };
 
 verifyStream(environments.live).connect();
-verifyStream(environments.preStart).connect();
 
 var liveStream = Rx.Observable.merge(environments.live.subjects)
-var preStartStream = Rx.Observable.merge(environments.preStart.subjects);
 
 var watchStream = function(env, stream) {
   return Rx.Observable.interval(100)
@@ -382,11 +353,6 @@ var watchStream = function(env, stream) {
     });
 };
 
-// Rx.Observable.return(0).delay(40000).subscribe(function() { // when all initial checks are done
-//   var watchSubscription = watchStream(environments.preStart, preStartStream);
-// });
-
 module.exports = {
   liveStream: liveStream
-, preStartStream: preStartStream
 };

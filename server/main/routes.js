@@ -1,7 +1,7 @@
 'use strict';
 
-var sketchController = require('./thousand/sketch_controller.js')
-  , winnersController = require('./thousand/winners_controller.js')
+var sketchController = require('../hexboard/api/sketch_controller.js')
+  , winnersController = require('../hexboard/api/winners_controller.js')
   ;
 
 module.exports = exports = function (router) {

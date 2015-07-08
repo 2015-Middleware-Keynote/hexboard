@@ -4,30 +4,15 @@ var fs = require('fs')
   , os = require('os')
   , Rx = require('rx')
   , RxNode = require('rx-node')
-  , randomSketches = require('../../random').randomSketches
-  , thousandEmitter = require('../../thousandEmitter')
+  , thousandEmitter = require('../thousandEmitter')
   , request = require('request')
-  , hexboard = require('../../hexboards').preStartBoard
+  , hexboard = require('../hexboard')
   , http = require('http')
   ;
 
 var tag = 'API/THOUSAND';
 
-var indexFile = fs.readFileSync(__dirname + '/index.html', {encoding: 'utf8'});
 var rxWriteFile = Rx.Observable.fromNodeCallback(fs.writeFile);
-
-var saveIndexFile = function(sketch) {
-  var html = indexFile.toString()
-             .replace( /\{\{SUBMISSION\}\}/, sketch.submissionId)
-             .replace( /\{\{USERNAME\}\}/, sketch.name)
-             .replace( /\{\{CUID\}\}/, sketch.cuid)
-             .replace( /\{\{DOODLE\}\}/, sketch.uiUrl);
-  var filename = 'thousand-sketch' + sketch.containerId + '-index.html';
-  return rxWriteFile(os.tmpdir() + '/' + filename, html)
-    .map(function() {
-      return sketch;
-    });
-}
 
 var saveImageToFile = function(sketch, req) {
   var filename = 'thousand-sketch' + sketch.containerId + '.png';
@@ -122,6 +107,28 @@ var postImageToPod = function(sketch, req) {
   .catch(Rx.Observable.return(sketch));
 };
 
+var randomSketches = function(numSketches) {
+  var sketches = Rx.Observable.range(0, numSketches)
+    .flatMap(function(x) {
+      var imageIndex = getRandomInt(0, 20);
+      return Rx.Observable.range(0,1)
+        .map(function() {
+          var containerId = getRandomInt(0, 1026);
+          var sketch = {
+            containerId: containerId
+          , url: '/thousand/sketches/thousand-sketch' + imageIndex + '.png'
+          , uiUrl: '/thousand/sketches/thousand-sketch' + imageIndex + '.png'
+          , name: 'FirstName' + containerId + ' LastName' + containerId
+          , cuid: 'cuid' + imageIndex
+          , submissionId: submissionCount++
+          };
+          return sketch;
+        })
+        .delay(getRandomInt(0, 1000));
+    });
+  return sketches;
+}
+
 module.exports = exports = {
   receiveImage: function(req, res, next) {
     var sketch = {
@@ -136,8 +143,7 @@ module.exports = exports = {
     Rx.Observable.return(sketch)
     .flatMap(function(sketch) {
       return Rx.Observable.forkJoin(
-        saveIndexFile(sketch)
-      , saveImageToFile(sketch, req)
+        saveImageToFile(sketch, req)
       , postImageToPod(sketch, req)
       ).map(function(arr) {
         return arr[0]

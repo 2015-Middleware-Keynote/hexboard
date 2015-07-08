@@ -85,7 +85,4 @@ var HexBoard = function() {
   }
 }
 
-module.exports = {
-  liveBoard: new HexBoard()
-, preStartBoard: new HexBoard()
-};
+module.exports = new HexBoard();

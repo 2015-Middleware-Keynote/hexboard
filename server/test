@@ -1,7 +1,0 @@
-var Rx = require('rx');
-var RxNode = require('rx-node');
-
-//var source = Rx.Observable.range(0, 5);
-var source = Rx.Observable.interval(5);
-
-var subscription = RxNode.writeToStream(source.publish(), process.stdout, 'utf8');
