@@ -1,0 +1,141 @@
+ @import "common.less";
+
+// legend ==========================================================
+
+.legend{
+  text-align: center;
+  margin-top: 40px;
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  ul{
+    margin: 0;
+    padding: 10px 10px 10px 0;
+    list-style: none;
+    background: #fff;
+    border-radius: 1px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.15);
+    display: inline-block;
+    border-radius: 2px;
+  }
+  li{
+    display: inline-block;
+    font-size: @font-size-h5;
+    line-height: 30px;
+    background-image: url(../img/legend.png);
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    padding-left: 30px;
+    margin-left: 10px;
+    &:nth-child(1){     background-position: 0 -150px;}
+    &:nth-child(2){     background-position: 0 -120px;}
+    &:nth-child(3){     background-position: 0 -90px;}
+    &:nth-child(4){     background-position: 0 -60px;}
+    &:nth-child(5){     background-position: 0 -30px;}
+    &:nth-child(6){     background-position: 0 0;}
+  }
+}
+
+
+body {
+  margin: 0;
+}
+
+.map{
+}
+
+.axis text {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.hexagon {
+  stroke: #fff;
+  stroke-width: 0.5px;
+}
+
+.hexagon.falling {
+  stroke: rgba(255,255,255,.5);
+}
+
+.sketch rect {
+  fill: white;
+  fill-opacity: 1.0;
+}
+
+.shadowman rect {
+  fill: black;
+}
+
+.hexagon.inspect {
+  stroke: rgba(204, 0, 0, .7);
+  stroke-width: 2.0px;
+}
+
+.hexagon.highlight {
+  stroke: rgba(0, 136, 206, .8); //#0088ce;
+  stroke-width: 2.0px;
+}
+
+.hexagon.sketch {
+  stroke: rgba(0, 136, 206, .8); //#0088ce;
+}
+
+.hexagon.sketch.falling {
+  stroke: rgba(57, 165, 220, .2); //#39a5dc;
+
+}
+
+.winner {
+  .hexagon {
+    stroke: rgba(0, 67, 104, 0.5); //#004368;
+  }
+
+  text {
+    fill: #004368;
+    font-size: 9px;
+  }
+
+  rect {
+    fill: white;
+  }
+}
+
+#cover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: black;
+  z-index: 500;
+  width: 100%;
+  height: 100%;
+  visibility: visible;
+  opacity: 0.6;
+  transition: visibility 0.1s linear 0.1s, opacity 0.1s linear 0.1s;
+}
+
+.cover-button-outer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+
+
+.cover-button-inner {
+  width: 200px;
+  height: 200px;
+  position: relative;
+  top: -100px;
+  left: -100px;
+}
+
+#cover .fa {
+  font-size: 200px;
+}

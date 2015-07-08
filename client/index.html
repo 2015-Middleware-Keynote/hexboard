@@ -2,8 +2,35 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Red Hat Summit Middleware Keynote Demos.</title>
-  <link rel="stylesheet" type="text/css" href="thousand/css/styles.css">
+  <link rel="shortcut icon" href="/favicon/favicon.ico">
+  <link rel="icon" type="image/png" href="/favicon/favicon.png">
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/favicon/apple-touch-icon-144-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/favicon/apple-touch-icon-114-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/favicon/apple-touch-icon-72-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" href="/favicon/apple-touch-icon-57-precomposed.png">
+  <title>Red Hat Summit 2015 | Middleware Keynote</title>
+  <link rel="stylesheet" type="text/css" href="css/styles.css">
+  <script>
+    var hex = hex || {};
+    hex.datafeed = 'live';
+    hex.shadowman = true;
+    hex.showSketches = false;
+    hex.autoStart = true;
+  </script>
+  <script defer src="../lib/d3/d3.js"></script>
+  <script defer src="../lib/rxjs/dist/rx.lite.js"></script>
+  <script defer src="../lib/rxjs/dist/rx.aggregates.js"></script>
+  <script defer src="../lib/rxjs/dist/rx.binding.js"></script>
+  <script defer src="../lib/rxjs/dist/rx.coincidence.js"></script>
+  <script defer src="../lib/rx-dom/dist/rx.dom.js "></script>
+  <script defer src="js/config.js"></script>
+  <script defer src="js/ping.js"></script>
+  <script defer src="js/hex.js"></script>
+  <script defer src="js/highlight.js"></script>
+  <script defer src="js/inspect.js"></script>
+  <script defer src="js/winner.js"></script>
+  <script defer src="js/controls.js"></script>
+  <script defer src="js/app.js"></script>
 </head>
 
 <body>
@@ -16,24 +43,57 @@
         <span class="icon-bar"></span>
       </button>
       <a class="navbar-brand" href="index.html">
-        <img src="/common/img/logo.svg" alt="brand" height="10">
+        <img src="/img/logo.svg" alt="brand" height="10">
       </a>
     </div>
 
+    <div class="collapse navbar-collapse navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-utility">
+        <li>
+          <a href="?admin=true" id='admin-enable' title='Edit mode'>
+            <i class="fa fa-pencil"></i>
+            Edit mode
+          </a>
+        </li>
+        <li>
+          <a href="#" id='push-sketches' title='Push sketches'>
+            <i class="fa fa-paint-brush"></i>
+            Push some sketches
+          </a>
+        </li>
+        <li>
+          <a href="#" id='remove-sketches' title='Remove sketches'>
+            <i class="fa pficon-delete"></i>
+            Clear the sketches
+          </a>
+        </li>
+        <li>
+          <a href="#" id='winners' title='Pick winners'>
+            <i class="fa fa-trophy"></i>
+            Pick winners
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="collapse navbar-collapse navbar-collapse-1">
+    </div>
   </nav>
 
-  <div style="margin: 20px;">
-    <h1>A hexboard for visualizing Kubernetes pod status in OpenShift</h1>
+  <div class="legend">
+    <ul>
+      <li class="scaer">empty</li>
+      <li class="deque">awaiting</li>
+      <li class="chein">pending</li>
+      <li class="cheout">running</li>
+      <li class="retnsmit">live</li>
+      <li class="retnsmit">responding</li>
+    </ul>
+  </div><!-- legend -->
 
-    <h3>Thousand containers:</h3>
-      <ul>
-        <li><a href="/thousand">A live visualisation of the state changes</a> pulling data from /api/v1beta3/watch/pods.
-        <li><a href="/thousand/sketch.html">A visualisation of the pre-started pods</a> pulling data from /api/v1beta3/watch/pods.
-        <li><a href="/thousand/playback.html">A playback of the of the state changes</a> using real data stored in a file.
-        <li><a href="/thousand/random.html">A visualisation of random state changes</a> to show an optimal use case.
-      </ul>
 
-  </div>
+
+  <div class="map">
+  </div><!-- /map-->
 </body>
 
 </html>

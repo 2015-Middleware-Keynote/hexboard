@@ -6,10 +6,8 @@ var less    = require('gulp-less')
 
 module.exports = function(gulp, opts) {
   // Compiles less on to /css
-gulp.task('less', ['less-thousand', 'less-map', 'less-broker']);
-
-  gulp.task('less-map', function () {
-    gulp.src('./client/map/less/**/*.less')
+  gulp.task('less', function () {
+    gulp.src('./client/less/styles.less')
       .pipe(plumber({
           errorHandler: function (err) {
               console.log(err);
@@ -17,34 +15,6 @@ gulp.task('less', ['less-thousand', 'less-map', 'less-broker']);
           }
       }))
       .pipe(less())
-      .pipe(gulp.dest('./client/map/css'));
+      .pipe(gulp.dest('./client/css'));
   });
-  
-  gulp.task('less-thousand', function () {
-    gulp.src('./client/thousand/less/**/*.less')
-      .pipe(plumber({
-          errorHandler: function (err) {
-              console.log(err);
-              this.emit('end');
-          }
-      }))
-      .pipe(less())
-      .pipe(gulp.dest('./client/thousand/css'));
-  });
-
-
-  gulp.task('less-broker', function () {
-    gulp.src('./client/broker/less/**/*.less')
-      .pipe(plumber({
-          errorHandler: function (err) {
-              console.log(err);
-              this.emit('end');
-          }
-      }))
-      .pipe(less())
-      .pipe(gulp.dest('./client/broker/css'));
-  });
-
-
-
 };
