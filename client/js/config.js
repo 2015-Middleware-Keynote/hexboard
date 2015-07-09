@@ -12,7 +12,7 @@ hex.config = (function() {
 
   return {
       backend: {
-        ws: '<%= backend_ws %>'
+        ws: 'ws://' + window.location.host
       }
   };
 })();

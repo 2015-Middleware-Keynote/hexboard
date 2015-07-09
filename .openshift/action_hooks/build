@@ -1,3 +1,1 @@
 source ${OPENSHIFT_REPO_DIR}/env/production.env;
-cd ${OPENSHIFT_REPO_DIR}
-HOME=$OPENSHIFT_REPO_DIR NODE_ENV='production' ./node_modules/gulp/bin/gulp.js config;
