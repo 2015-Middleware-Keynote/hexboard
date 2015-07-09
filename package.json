@@ -20,7 +20,7 @@
     "basic-auth": "^1.0.1",
     "body-parser": "^1.12.2",
     "bootstrap": "^3.3.5",
-    "config-multipaas": "^0.1.0",
+    "config-multipaas": "https://registry.npmjs.org/config-multipaas/-/config-multipaas-0.1.0.tgz",
     "d3": "^3.5.6",
     "debuglog": "^1.0.1",
     "express": "^4.12.3",
