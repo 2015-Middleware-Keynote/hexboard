@@ -3,7 +3,7 @@
 var _ = require('underscore')
   , template = require('gulp-template')
   , rename = require('gulp-rename')
-  , config = require('../server/hexboard/config')
+  , config = require('../server/config')
   ;
 
 var opts = {

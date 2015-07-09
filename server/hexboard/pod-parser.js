@@ -2,7 +2,7 @@
 
 var Rx = require('rx')
   , RxNode = require('rx-node')
-  , config = require('./config')
+  , config = require('../config')
   , _ = require('underscore')
   ;
 

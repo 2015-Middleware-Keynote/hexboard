@@ -1,11 +1,11 @@
 'use strict';
 
-var WebSocketServer = require('ws').Server
-  , pod = require('../pod')
-  , thousandEmitter = require('../thousandEmitter')
+var Rx = require('rx')
+  , WebSocketServer = require('ws').Server
   , debuglog = require('debuglog')('thousand')
-  , Rx = require('rx')
-  , hexboard = require('../hexboard')
+  , pod = require('../hexboard/pod')
+  , hexboard = require('../hexboard/hexboard')
+  , thousandEmitter = require('../hexboard/thousandEmitter')
   ;
 
 var tag = 'WS/THOUSAND';

@@ -4,9 +4,9 @@ var fs = require('fs')
   , os = require('os')
   , Rx = require('rx')
   , RxNode = require('rx-node')
-  , thousandEmitter = require('../thousandEmitter')
+  , thousandEmitter = require('../hexboard/thousandEmitter')
   , request = require('request')
-  , hexboard = require('../hexboard')
+  , hexboard = require('../hexboard/hexboard')
   , http = require('http')
   ;
 

@@ -7,8 +7,8 @@ var express = require('express')
   , bodyParser = require('body-parser')
   , middle = require('./middleware')
   , http = require('http')
-  , sketchController = require('../hexboard/api/sketch_controller.js')
-  , winnersController = require('../hexboard/api/winners_controller.js')
+  , sketchController = require('./api/sketch_controller.js')
+  , winnersController = require('./api/winners_controller.js')
   ;
 
 // Allow self-signed SSL
@@ -21,9 +21,8 @@ app.use(middle.basicAuth);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(middle.cors);
-var staticRoot = __dirname + '/../../client/src';
-app.use(express.static(__dirname + '/../../client'));
-app.use('/node_modules', express.static(__dirname + '/../../node_modules'));
+app.use(express.static(__dirname + '/../client'));
+app.use('/node_modules', express.static(__dirname + '/../node_modules'));
 app.use('/api', router);
 app.use(middle.logError);
 app.use(middle.handleError);

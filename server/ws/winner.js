@@ -1,7 +1,7 @@
 'use strict';
 
 var WebSocketServer = require('ws').Server
-  , thousandEmitter = require('../thousandEmitter')
+  , thousandEmitter = require('../hexboard/thousandEmitter')
   ;
 
 var tag = 'WS/WINNER';
