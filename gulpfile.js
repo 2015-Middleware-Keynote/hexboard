@@ -29,7 +29,6 @@ try {
 
 var opts = require('./tasks/gulp-config.js')(gulp, {});
 
-require('./tasks/bower.js')(gulp, opts);
 require('./tasks/styles.js')(gulp, opts);
 require('./tasks/server.js')(gulp, opts);
 require('./tasks/debug.js')(gulp, opts);
