@@ -21,7 +21,7 @@ app.use(middle.basicAuth);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(middle.cors);
-app.use(express.static(__dirname + '/../client'));
+app.use(express.static(__dirname + '/../static'));
 app.use('/node_modules', express.static(__dirname + '/../node_modules'));
 app.use('/api', router);
 app.use(middle.logError);

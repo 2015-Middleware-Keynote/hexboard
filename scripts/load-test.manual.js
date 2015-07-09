@@ -43,12 +43,12 @@ var postImage = function(submission) {
   });
 }
 
-var bufferList = Rx.Observable.fromNodeCallback(fs.readdir)('client/thousand/sketches/')
+var bufferList = Rx.Observable.fromNodeCallback(fs.readdir)('static/thousand/sketches/')
   .flatMap(function(filenames) {
     return filenames;
   })
   .flatMap(function(filename) {
-    return Rx.Observable.fromNodeCallback(fs.readFile)('client/thousand/sketches/' + filename);
+    return Rx.Observable.fromNodeCallback(fs.readFile)('static/thousand/sketches/' + filename);
   })
   .toArray();
 

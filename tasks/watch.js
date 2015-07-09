@@ -12,7 +12,7 @@ module.exports = function(gulp, opts) {
   });
 
   gulp.task('watch-client', ['livereload-start', 'watch-less'], function() {
-    var scriptSource = 'client/**/*.{html,js,css}';
+    var scriptSource = 'static/**/*.{html,js,css}';
     gulp.watch(scriptSource, function(event) {
       livereload.changed(event.path, opts.lr);
     });
@@ -20,6 +20,6 @@ module.exports = function(gulp, opts) {
 
   gulp.task('watch-less', function() {
     var scriptSource = gulp.src([]);
-    gulp.watch('client/**/*.less', ['less']);
+    gulp.watch('static/**/*.less', ['less']);
   });
 };
