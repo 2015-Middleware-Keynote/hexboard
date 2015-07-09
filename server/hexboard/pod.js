@@ -2,6 +2,7 @@
 
 var Rx = require('rx')
   , RxNode = require('rx-node')
+  , config = require('./config')
   , split = require('split')
   , request = require('request')
   , _ = require('underscore')
@@ -11,27 +12,6 @@ var Rx = require('rx')
   ;
 
 var tag = 'POD';
-
-// Config
-var config = {
-  live: {
-    oauthToken: process.env.ACCESS_TOKEN_LIVE || false,
-    namespace: process.env.NAMESPACE_LIVE || 'demo1', //summit1
-    openshiftServer: process.env.OPENSHIFT_SERVER_LIVE || 'openshift-master.summit2.paas.ninja:8443',
-    proxy: process.env.PROXY_LIVE || 'http://sketch.demo.apps.summit2.paas.ninja'
-  }
-};
-
-// Allow self-signed SSL
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-
-var buildWatchPodsUrl = function(server, namespace) {
-  return 'https://' + server + '/api/v1beta3/watch/namespaces/' + namespace + '/pods';
-};
-
-var buildListPodsUrl = function(server, namespace) {
-  return 'https://' + server + '/api/v1beta3/namespaces/' + namespace + '/pods';
-};
 
 var optionsBase = {
     method : 'get'
@@ -47,34 +27,29 @@ var listWatchAgent = new http.Agent({
   maxSockets: 8
 });
 
-var environments = {
-  live: {
-    name: 'live'
-  , listOptions: _.defaults({
-      url: buildListPodsUrl(config.live.openshiftServer, config.live.namespace)
-    , auth: {bearer:  config.live.oauthToken}
-    , pool: listWatchAgent
-    }, optionsBase)
-  , watchOptions: _.defaults({
-      url: buildWatchPodsUrl(config.live.openshiftServer, config.live.namespace)
-    , auth: {bearer:  config.live.oauthToken}
-    , pool: listWatchAgent
-    }, optionsBase)
-  , state: {first  : true, pods: {}}
-  , config: config.live
-  , subjects: _.range(1026).map(function(index) {
-      return new Rx.ReplaySubject(1);
-    })
-  , hexboard: hexboard
-  }
-};
-
-environments.live.parser = new PodParser(environments.live);
-
 var verifyAgent = new http.Agent({
   keepAlive: true,
   maxSockets: 5
 });
+
+var environment = {
+  listOptions: _.defaults({
+    url: 'https://' + config.get('openshif_server') + '/api/v1beta3/namespaces/' + config.get('namespace') + '/pods'
+  , auth: {bearer:  config.get('oauthToken')}
+  , pool: listWatchAgent
+  }, optionsBase)
+, watchOptions: _.defaults({
+    url: 'https://' + config.get('openshif_server') + '/api/v1beta3/watch/namespaces/' + config.get('namespace') + '/pods'
+  , auth: {bearer:  config.get('oauthToken')}
+  , pool: listWatchAgent
+  }, optionsBase)
+, state: {first  : true, pods: {}}
+, subjects: _.range(1026).map(function(index) {
+    return new Rx.ReplaySubject(1);
+  })
+, parser: new PodParser()
+, hexboard: hexboard
+};
 
 function verifyPodAvailable(parsed, timeout) {
   var pod = parsed.data;
@@ -306,9 +281,9 @@ var verifyStream = function(env) {
   .publish();
 };
 
-verifyStream(environments.live).connect();
+verifyStream(environment).connect();
 
-var liveStream = Rx.Observable.merge(environments.live.subjects)
+var liveStream = Rx.Observable.merge(environment.subjects)
 
 var watchStream = function(env, stream) {
   return Rx.Observable.interval(100)

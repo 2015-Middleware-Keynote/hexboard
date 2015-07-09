@@ -1,7 +1,7 @@
 'use strict';
 
 var Rx = require('rx')
-  , app   = require('./main/app.js')
+  , app   = require('./hexboard/app.js')
   , http = require('http')
   , port  = app.get('port')
   , ip = app.get('base url')

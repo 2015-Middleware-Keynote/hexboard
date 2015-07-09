@@ -2,6 +2,7 @@
 
 var Rx = require('rx')
   , RxNode = require('rx-node')
+  , config = require('./config')
   , _ = require('underscore')
   ;
 
@@ -11,7 +12,7 @@ var getRandomInt = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 };
 
-var PodParser = function(env) {
+var PodParser = function() {
 
   var idMap = {};
   var availableIds = _.range(1026);
@@ -73,7 +74,7 @@ var PodParser = function(env) {
         update.data.stage = 3;
       } else if (update.object.status.phase === 'Running' && update.object.status.Condition[0].type == 'Ready' && update.object.status.Condition[0].status === 'True') {
         update.data.ip = update.object.status.podIP;
-        update.data.url = env.config.proxy + '/direct/' + update.data.ip + '/';
+        update.data.url = config.get('proxy') + '/direct/' + update.data.ip + '/';
         update.data.stage = 4;
       } else {
         console.log(tag, "New data type found:" + JSON.stringify(update, null, '  '))

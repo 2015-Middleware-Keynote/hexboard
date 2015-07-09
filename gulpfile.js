@@ -2,23 +2,6 @@ var gulp = require('gulp')
   , env = require('node-env-file')
   ;
 
-var envFile;
-switch (process.env.NODE_ENV_FILE || process.env.NODE_ENV) {
-  case 'ec2':
-    envFile = 'ec2.env';
-    break;
-  case 'production':
-    envFile = 'production.env';
-    break;
-  case 'development':
-  default:
-    envFile = 'development.env';
-    break;
-}
-
-console.log('Loading env file:', envFile);
-env(__dirname + '/env/' + envFile);
-
 var secretEnvFile = process.env.HOME + '/demo2015-ui.env';
 try {
   secretEnvFile && env(secretEnvFile);

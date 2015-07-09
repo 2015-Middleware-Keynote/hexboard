@@ -2,7 +2,8 @@
 
 var _ = require('underscore')
   , template = require('gulp-template')
-  , rename = require("gulp-rename")
+  , rename = require('gulp-rename')
+  , config = require('../server/hexboard/config')
   ;
 
 var opts = {
@@ -15,14 +16,9 @@ var opts = {
 , lrPort: 35729
 , frontend: {
     hostname: 'localhost'
-  , port: process.env.PORT || '9000'
-  }
-, backend: {
-    ws: process.env.WS_HOST || 'ws://localhost:9000'
+  , port: config.get('PORT')
   }
 };
-
-process.env.PORT = opts.frontend.port;
 
 module.exports = function(gulp, baseOpts) {
   var newOpts = _.extend({}, baseOpts, opts);

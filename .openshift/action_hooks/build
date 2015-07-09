@@ -1,1 +1,0 @@
-source ${OPENSHIFT_REPO_DIR}/env/production.env;
