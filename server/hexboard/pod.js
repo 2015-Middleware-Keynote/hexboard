@@ -34,13 +34,13 @@ var verifyAgent = new http.Agent({
 
 var environment = {
   listOptions: _.defaults({
-    url: 'https://' + config.get('openshif_server') + '/api/v1beta3/namespaces/' + config.get('namespace') + '/pods'
-  , auth: {bearer:  config.get('oauthToken')}
+    url: 'https://' + config.get('OPENSHIFT_SERVER') + '/api/v1beta3/namespaces/' + config.get('NAMESPACE') + '/pods'
+  , auth: {bearer:  config.get('OAUTH_TOKEN')
   , pool: listWatchAgent
   }, optionsBase)
 , watchOptions: _.defaults({
-    url: 'https://' + config.get('openshif_server') + '/api/v1beta3/watch/namespaces/' + config.get('namespace') + '/pods'
-  , auth: {bearer:  config.get('oauthToken')}
+    url: 'https://' + config.get('OPENSHIFT_SERVER') + '/api/v1beta3/watch/namespaces/' + config.get('NAMESPACE') + '/pods'
+  , auth: {bearer:  config.get('OAUTH_TOKEN')}
   , pool: listWatchAgent
   }, optionsBase)
 , state: {first  : true, pods: {}}

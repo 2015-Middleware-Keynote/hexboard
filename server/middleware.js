@@ -36,12 +36,12 @@ module.exports = exports = {
   },
 
   basicAuth: function(req, res, next) {
-    if (! config.get('basic_auth_user') || ! config.get('basic_auth_password') || req.path.indexOf('/api') === 0 || req.path.indexOf('/pod') === 0) {
+    if (! config.get('BASIC_AUTH_USER') || ! config.get('BASIC_AUTH_PASSWORD') || req.path.indexOf('/api') === 0 || req.path.indexOf('/pod') === 0) {
       next();
       return;
     }
     var credentials = auth(req)
-    if (!credentials || credentials.name !== config.get('basic_auth_user') || credentials.pass !== config.get('basic_auth_password')) {
+    if (!credentials || credentials.name !== config.get('BASIC_AUTH_USER') || credentials.pass !== config.get('BASIC_AUTH_PASSWORD')) {
       res.writeHead(401, {
         'WWW-Authenticate': 'Basic realm="example"'
       });
