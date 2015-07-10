@@ -3,6 +3,7 @@
 var express = require('express')
   , app = express()
   , config = require('./config')
+  , proxy = require('./proxy')
   , router = express.Router()
   , bodyParser = require('body-parser')
   , middle = require('./middleware')
@@ -28,6 +29,23 @@ app.use(middle.logError);
 app.use(middle.handleError);
 
 // routes
+app.get( new RegExp("/direct\/([.0-9]+)\/(.*)"), proxy.directPath);
+app.get( new RegExp("/direct\/([.0-9]+)"), proxy.directPath);
+app.put( new RegExp("/direct\/([.0-9]+)\/(.*)"), proxy.directPath);
+app.put( new RegExp("/direct\/([.0-9]+)"), proxy.directPath);
+app.post(new RegExp("/direct\/([.0-9]+)\/(.*)"), proxy.directPath);
+app.post(new RegExp("/direct\/([.0-9]+)"), proxy.directPath);
+app.get( new RegExp("/("+config.get('namespace')+")\/pods\/([-a-zA-Z0-9_]+)\/proxy\/(.*)"), proxy.apiPath);
+app.get( new RegExp("/("+config.get('namespace')+")\/pods\/([-a-zA-Z0-9_]+)\/(.*)"), proxy.apiPath);
+app.get( new RegExp("/("+config.get('namespace')+")\/([-a-zA-Z0-9_]+)\/(.*)"), proxy.apiPath);
+app.put( new RegExp("/("+config.get('namespace')+")\/([-a-zA-Z0-9_]+)\/(.*)"), proxy.apiPath);
+app.post(new RegExp("/("+config.get('namespace')+")\/([-a-zA-Z0-9_]+)\/(.*)"), proxy.apiPath);
+app.get( new RegExp("/("+config.get('namespace')+")\/([-a-zA-Z0-9_]+)"), proxy.apiPath);
+app.put( new RegExp("/("+config.get('namespace')+")\/([-a-zA-Z0-9_]+)"), proxy.apiPath);
+app.post(new RegExp("/("+config.get('namespace')+")\/([-a-zA-Z0-9_]+)"), proxy.apiPath);
+app.get( /^\/api\/v1beta3\/namespaces\/(\w)\/pods\/(\w)\/proxy\/(.*)/, proxy.apiPath);
+app.get( /^\/api\/v1beta3\/namespaces\/(\w)\/pods\/(\w)\/proxy/, proxy.apiPath);
+
 router.route('/sketch/:containerId').get(sketchController.getImage);
 router.route('/sketch/:containerId/image.png').get(sketchController.getImage);
 router.route('/sketch/:containerId/page.html').get(sketchController.getImagePage);
