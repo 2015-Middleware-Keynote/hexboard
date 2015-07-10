@@ -160,7 +160,7 @@ var watch = function(env) {
     var lines = stream.pipe(split());
     stream.on('response', function(response) {
       if (response.statusCode === 200) {
-        console.log(tag, 'Connection success', env.name);
+        console.log(tag, 'Connection success to watch endpoint');
         observer.onNext(lines)
       } else {
         response.on('data', function(data) {
