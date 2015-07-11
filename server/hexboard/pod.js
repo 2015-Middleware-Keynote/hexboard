@@ -55,7 +55,7 @@ function verifyPodAvailable(parsed, timeout) {
   var pod = parsed.data;
   return Rx.Observable.create(function(observer) {
     var options = {
-      url: pod.url + 'status'
+      url: pod.url + '/status'
     , method: 'get'
     , timeout: timeout || 20000
     , pool: verifyAgent
