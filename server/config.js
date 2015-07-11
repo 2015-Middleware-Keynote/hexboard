@@ -5,8 +5,8 @@ var autoconfig = function (config_overrides){
   , OAUTH_TOKEN: process.env.ACCESS_TOKEN || false
   , ALLOWED_SUBNET : process.env.ALLOWED_SUBNET || false
   , NAMESPACE  : process.env.NAMESPACE || 'demo'
-  , OPENSHIFT_SERVER: process.env.OPENSHIFT_SERVER || 'openshift-master.summit.paas.ninja:8443'
-  , OPENSHIFT_APP_BASENAME: process.env.APP_ROOT_URL || 'apps.summit.paas.ninja:8443'
+  , OPENSHIFT_SERVER: process.env.OPENSHIFT_SERVER || 'localhost:8443'
+  , OPENSHIFT_APP_BASENAME: process.env.APP_ROOT_URL || 'localhost:8443'
   , BASIC_AUTH_USER: process.env.BASIC_AUTH_USER || ''
   , BASIC_AUTH_PASSWORD: process.env.BASIC_AUTH_PASSWORD || ''
   })
