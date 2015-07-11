@@ -52,9 +52,9 @@ var HexBoard = function() {
     var available = getUnclaimedHexagons(hexagons);
     // prioritize hexagons with pods
     var groups = _.groupBy(available, function(hexagon) {
-      return hexagon.pod ? 'yesPod' : 'noPod';
+      return hexagon.pod ? 'hasPod' : 'noPod';
     });
-    var available = groups.yesPod && groups.yesPod.length > 0 ? groups.yesPod : groups.noPod;
+    var available = groups.hasPod && groups.hasPod.length > 0 ? groups.hasPod : groups.noPod;
     var index = getRandomInt(0, available.length);
     var hexagon = available[index];
     sketch.containerId = hexagon.id;
