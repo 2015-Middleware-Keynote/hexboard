@@ -54,8 +54,9 @@ var environment = {
 function verifyPodAvailable(parsed, timeout) {
   var pod = parsed.data;
   return Rx.Observable.create(function(observer) {
+    var statusPath = pod.url.slice(-1) === '/' ?  'status' : '/status'
     var options = {
-      url: pod.url + '/status'
+      url: pod.url + statusPath
     , method: 'get'
     , timeout: timeout || 20000
     , pool: verifyAgent
