@@ -2965,6 +2965,23 @@
         }
       }
     },
+    "http-proxy": {
+      "version": "1.11.1",
+      "from": "http-proxy@*",
+      "resolved": "https://registry.npmjs.org/http-proxy/-/http-proxy-1.11.1.tgz",
+      "dependencies": {
+        "eventemitter3": {
+          "version": "1.1.1",
+          "from": "eventemitter3@>=1.0.0 <2.0.0",
+          "resolved": "https://registry.npmjs.org/eventemitter3/-/eventemitter3-1.1.1.tgz"
+        },
+        "requires-port": {
+          "version": "0.0.1",
+          "from": "requires-port@>=0.0.0 <1.0.0",
+          "resolved": "https://registry.npmjs.org/requires-port/-/requires-port-0.0.1.tgz"
+        }
+      }
+    },
     "morgan": {
       "version": "1.5.3",
       "from": "morgan@>=1.5.2 <2.0.0",
@@ -3005,6 +3022,11 @@
           }
         }
       }
+    },
+    "netmask": {
+      "version": "1.0.5",
+      "from": "netmask@*",
+      "resolved": "https://registry.npmjs.org/netmask/-/netmask-1.0.5.tgz"
     },
     "node-env-file": {
       "version": "0.1.7",
