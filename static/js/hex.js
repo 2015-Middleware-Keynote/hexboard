@@ -66,11 +66,11 @@ hex.ui = (function dataSimulator(d3, Rx) {
 
   console.log(points.length);
 
-  var color = function(p) {
-    if (p.stage === 5 && firstImage && hex.shadowman) {
-      return 'url(#redhat'+p.id+')';
+  var color = function(point) {
+    if (point.stage === 5 && firstImage && hex.shadowman) {
+      return 'url(#redhat'+point.id+')';
     }
-    return colorScale(p.stage);
+    return colorScale(point.stage);
   }
 
   var colorScale = d3.scale.linear()
@@ -119,13 +119,15 @@ hex.ui = (function dataSimulator(d3, Rx) {
 
   var hexagons = svg.append('g')
       .attr('clip-path', 'url(#clip)')
-    .selectAll('.hexagon')
-      .data(points)
+    .selectAll('.hexagon').data(points)
+
+  hexagons
     .enter().append('path')
       .attr('class', 'hexagon')
       .attr('d', 'm' + hexagon(honeycomb.size).join('l') + 'z')
       .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; })
-      .style('fill', function(d) { return colorScale(0); });
+      .style('fill', function(d) { return colorScale(0); })
+      .append('title').text(function(d) {return d.title})
 
   function flipAll() {
     var duration = 1000;
@@ -147,27 +149,28 @@ hex.ui = (function dataSimulator(d3, Rx) {
       });
   }
 
-  function particle(p, stage) {
+  function particle(point, pod) {
     var c = {x: content.x / 2, y: content.y / 2};
     var perspective = 1.5
       , duration = 500
       , scale = 0.4
       , opacity = { initial: 0.01, final: 0.9};
-    var p0 = {x: perspective * (p.x - c.x) + c.x, y: perspective * (p.y - c.y) + c.y};
-    p.stage = stage;
+    var p0 = {x: perspective * (point.x - c.x) + c.x, y: perspective * (point.y - c.y) + c.y};
+    point.stage = pod.stage;
+    point.name = pod.name;
     svg.insert('path')
       .attr('class', 'hexagon falling')
       .attr('d', 'm' + hexagon(honeycomb.size).join('l') + 'z')
       .attr('transform', function(d) { return 'matrix('+1/scale+', 0, 0, '+1/scale+', '+ p0.x +', '+ p0.y +')'; })
-      .style('fill', function(d) { return color(p); })
+      .style('fill', function(d) { return color(point); })
       .style('fill-opacity', opacity.initial)
     .transition()
       .duration(duration)
       .ease('quad-out')
-      .attr('transform', 'translate(' + p.x + ',' + p.y + ')')
+      .attr('transform', 'translate(' + point.x + ',' + point.y + ')')
       .style('fill-opacity', opacity.final)
       .remove();
-    hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
+    hexagons.filter(function(d) { return d.x === point.x && d.y === point.y; })
       .transition()
       .duration(duration)
       .ease('linear')
@@ -176,6 +179,9 @@ hex.ui = (function dataSimulator(d3, Rx) {
         return function(t) {
           return t < 1 ? a : fill;
         };
+      })
+      .each('end', function() {
+        d3.select(this).select('title').text(point.name)
       })
   };
 
@@ -208,23 +214,23 @@ hex.ui = (function dataSimulator(d3, Rx) {
       .attr('y', 0);
   }
 
-  var image = function(p, sketch, animate) {
+  var image = function(point, sketch, animate) {
     console.log('Adding sketch:', sketch.submissionId, 'for cuid: ', sketch.cuid);
     var c = {x: content.x / 2, y: content.y / 2};
     var perspective = 0.5
       , duration = animate ? 1000 : 0
       , scale = 0.2
-    var p0 = {x: perspective * (p.x - c.x) + c.x, y: perspective * (p.y - c.y) + c.y};
+    var p0 = {x: perspective * (point.x - c.x) + c.x, y: perspective * (point.y - c.y) + c.y};
 
-    p.sketch = p.sketch || [];
-    p.currentSketch = ++p.skecthCount;
-    p.sketch.push(sketch);
-    var skecthId = createSketchId(p);
+    point.sketch = point.sketch || [];
+    point.currentSketch = ++point.skecthCount;
+    point.sketch.push(sketch);
+    var skecthId = createSketchId(point);
     createBackground(sketch, skecthId);
 
     if (animate) {
       svg.insert('path')
-        .datum(p)
+        .datum(point)
         .attr('class', 'hexagon sketch falling')
         .attr('d', 'm' + hexagon(honeycomb.size).join('l') + 'z')
         .attr('transform', function(d) { return 'matrix('+1/scale+', 0, 0, '+1/scale+', '+ p0.x +', '+ p0.y +')'})
@@ -233,10 +239,10 @@ hex.ui = (function dataSimulator(d3, Rx) {
       .transition()
         .duration(duration)
         .ease('quad-in')
-        .attr('transform', 'translate(' + p.x + ',' + p.y + ')')
+        .attr('transform', 'translate(' + point.x + ',' + point.y + ')')
         .remove();
 
-      hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
+      hexagons.filter(function(d) { return d.x === point.x && d.y === point.y; })
         .transition()
         .duration(duration)
         .ease('linear')
@@ -250,25 +256,25 @@ hex.ui = (function dataSimulator(d3, Rx) {
           };
         });
       } else {
-        hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
+        hexagons.filter(function(d) { return d.x === point.x && d.y === point.y; })
           .attr('class', 'hexagon sketch')
           .attr('transform', function(d) {return 'matrix(1, 0, 0, 1, '+ d.x +', '+ d.y +')'}) // finish off any half-flipped hexagons
           .style('fill', function(d) { return 'url(#' + skecthId + ')'; });
       }
   };
 
-  var removeSketch = function(p) {
+  var removeSketch = function(point) {
     hex.inspect.unhighlight();
-    p.currentSketch--;
-    p.sketch.pop();
-    hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
+    point.currentSketch--;
+    point.sketch.pop();
+    hexagons.filter(function(d) { return d.x === point.x && d.y === point.y; })
       .style('fill', function(d) { return d.sketch.length ? 'url(#' + createSketchId(d) + ')' : color(d)})
       .classed('sketch', function(d) { return d.sketch.length > 0});
   };
 
-  var clear = function(p) {
-    p.sketch = [];
-    hexagons.filter(function(d) { return d.x === p.x && d.y === p.y; })
+  var clear = function(point) {
+    point.sketch = [];
+    hexagons.filter(function(d) { return d.x === point.x && d.y === point.y; })
       .style('fill', function(d) { return color(d)})
       .classed('sketch', false);
   }
@@ -300,7 +306,7 @@ hex.ui = (function dataSimulator(d3, Rx) {
   })
   .tap(function(message) {
     var event = message.data;
-    particle(points[parseInt(event.id)], event.stage);
+    particle(points[parseInt(event.id)], event);
   });
 
   var errorStream = messages.filter(function(message) {
