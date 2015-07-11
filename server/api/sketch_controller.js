@@ -8,6 +8,8 @@ var fs = require('fs')
   , request = require('request')
   , hexboard = require('../hexboard/hexboard')
   , http = require('http')
+  , config = require('../config')
+  , sketcher = require('../hexboard/sketch')
   ;
 
 var tag = 'API/THOUSAND';
@@ -107,28 +109,6 @@ var postImageToPod = function(sketch, req) {
   .catch(Rx.Observable.return(sketch));
 };
 
-var randomSketches = function(numSketches) {
-  var sketches = Rx.Observable.range(0, numSketches)
-    .flatMap(function(x) {
-      var imageIndex = getRandomInt(0, 20);
-      return Rx.Observable.range(0,1)
-        .map(function() {
-          var containerId = getRandomInt(0, 1026);
-          var sketch = {
-            containerId: containerId
-          , url: '/thousand/sketches/thousand-sketch' + imageIndex + '.png'
-          , uiUrl: '/thousand/sketches/thousand-sketch' + imageIndex + '.png'
-          , name: 'FirstName' + containerId + ' LastName' + containerId
-          , cuid: 'cuid' + imageIndex
-          , submissionId: submissionCount++
-          };
-          return sketch;
-        })
-        .delay(getRandomInt(0, 1000));
-    });
-  return sketches;
-}
-
 module.exports = exports = {
   receiveImage: function(req, res, next) {
     var sketch = {
@@ -189,12 +169,10 @@ module.exports = exports = {
 
   randomSketches: function(req, res, next) {
     var numSketches = req.params.numSketches;
-    randomSketches(numSketches).map(function(sketch) {
-      hexboard.claimHexagon(sketch);
-      thousandEmitter.emit('new-sketch', sketch);
-      return sketch;
+    Rx.Observable.range(0, numSketches).map(function(index) {
+      sketcher.postRandomImage(config.get('HOSTNAME') + ':' + config.get('PORT'));
     })
-    .subscribe(function(sketch) {
+    .subscribe(function() {
     }, function(error) {
       next(error)
     }, function() {
