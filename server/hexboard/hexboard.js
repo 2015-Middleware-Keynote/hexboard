@@ -31,7 +31,6 @@ var HexBoard = function() {
   };
 
   var dropPod = function(parsed) {
-    console.log(parsed);
     var pod = parsed.data;
     var hexagon = hexagons[pod.id];
     delete hexagon.pod;
