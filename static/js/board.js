@@ -42,6 +42,27 @@ hex.board = (function board(d3, Rx) {
   var hexboard = {};
 
   var init = function(honeycomb) {
+    var minMargin = 25;
+    var legendHeight = document.querySelector('.legend').clientHeight;
+    var navbarHeight = document.querySelector('.navbar').clientHeight;
+
+    var maxContent = {
+      x: display.x - 2 * minMargin
+    , y: display.y - 2 * minMargin - legendHeight - navbarHeight
+    };
+
+    var maxSpacing = {
+      x: maxContent.x / (honeycomb.cols + 1)
+    , y: maxContent.y / (honeycomb.rows + 1)
+    }
+
+    var minSize = {
+      x: maxSpacing.x / (2 * Math.sin(Math.PI*2/3))
+    , y: maxSpacing.y / (1 + Math.cos(Math.PI/3))
+    }
+
+    honeycomb.size = Math.min(minSize.x, minSize.y);
+
     honeycomb.spacing = {
         x: honeycomb.size * 2 * Math.sin(Math.PI*2/3) + .5
       , y: honeycomb.size * (1 + Math.cos(Math.PI/3)) + .5
@@ -53,16 +74,16 @@ hex.board = (function board(d3, Rx) {
     };
 
     var margin = {
-        top: (display.y - honeycomb.dimensions.y) / 2
+        top: 1/2 * (display.y - honeycomb.dimensions.y - legendHeight - navbarHeight) + minMargin
       , right: (display.x - honeycomb.dimensions.x) / 2
-      , bottom: (display.y - honeycomb.dimensions.y) / 2
+      , bottom: 1/2 * (display.y - honeycomb.dimensions.y - legendHeight - navbarHeight) - minMargin
       , left: (display.x - honeycomb.dimensions.x) / 2
     };
 
     var content = {
-      x: display.x - margin.left - margin.right
-    , y: display.y - margin.top - margin.bottom
-    };
+      x: honeycomb.dimensions.x
+    , y: honeycomb.dimensions.y + minMargin
+    }
 
     var points = d3.range(honeycomb.count).map(function(currentValue, index) {
           var x_i =  (index % honeycomb.cols) + 1
