@@ -36,6 +36,7 @@ hex.feed = (function dataSimulator(d3, Rx) {
   })
   .tap(function(message) {
      hex.board.init(message.data);
+     hex.winner.init();
   });
 
   var eventStream = messages.filter(function(message) {
