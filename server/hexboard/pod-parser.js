@@ -4,6 +4,7 @@ var Rx = require('rx')
   , RxNode = require('rx-node')
   , config = require('../config')
   , _ = require('underscore')
+  , hexboard = require('./hexboard')
   ;
 
 var tag = 'PODSTREAMS';
@@ -15,7 +16,7 @@ var getRandomInt = function (min, max) {
 var PodParser = function() {
 
   var idMap = {};
-  var availableIds = _.range(1026);
+  var availableIds = _.range(hexboard.layout.count);
 
   var takeRandomId = function() {
     var index = getRandomInt(0, availableIds.length);

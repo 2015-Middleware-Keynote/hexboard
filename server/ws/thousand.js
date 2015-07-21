@@ -33,6 +33,7 @@ module.exports = function(server) {
     clients[id] = ws;
     ws.id = id;
     console.log(tag, '/thousand connection');
+    ws.send(JSON.stringify({type: 'setup', data: hexboard.layout}));
     var subscription;
     var sketchesAvailable = hexboard.currentSketches();
     ws.send(JSON.stringify({type: 'sketch-bundle', data: sketchesAvailable}));

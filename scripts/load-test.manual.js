@@ -67,7 +67,7 @@ var randomEvents = bufferList.flatMap(function(buffers) {
     return Rx.Observable.return(person).delay(delay);
   });
 
-  bufferList.flatMap(function(buffers) {
+bufferList.flatMap(function(buffers) {
   return randomEvents.map(function(person) {
     // var index = getRandomInt(0, buffers.length);
     var submission = {

@@ -44,7 +44,7 @@ var environment = {
   , pool: listWatchAgent
   }, optionsBase)
 , state: {first  : true, pods: {}}
-, subjects: _.range(1026).map(function(index) {
+, subjects: _.range(hexboard.layout.count).map(function(index) {
     return new Rx.ReplaySubject(1);
   })
 , parser: new PodParser()
@@ -148,7 +148,7 @@ var list = function(env) {
 
 var watch = function(env) {
   return Rx.Observable.create(function(observer) {
-    console.log(tag, 'list options', env.watchOptions.url, env.watchOptions.qs);
+    console.log(tag, 'watch options', env.watchOptions.url, env.watchOptions.qs);
     var stream = request(env.watchOptions);
     stream.on('error', function(error) {
       console.log(tag, 'error:', error);
@@ -273,9 +273,9 @@ var verifyStream = function(env) {
     var subject = env.subjects[parsed.data.id];
     subject.onNext(parsed);
     if (parsed.data.stage === 0) {
-      subject.onCompleted();
+      // subject.onCompleted();
       env.hexboard.dropPod(parsed);
-      env.subjects[parsed.data.id] = new Rx.ReplaySubject(1);
+      // env.subjects[parsed.data.id] = new Rx.ReplaySubject(1);
     }
   })
   .publish();
@@ -288,7 +288,7 @@ var liveStream = Rx.Observable.merge(environment.subjects)
 var watchStream = function(env, stream) {
   return Rx.Observable.interval(100)
     .flatMap(function(index) {
-      var n = index % 1026;
+      var n = index % hexboard.layout.count;
       return stream.skip(n).take(1)
     })
     .filter(function(pod) {
@@ -323,9 +323,9 @@ var watchStream = function(env, stream) {
       .retryWhen(retryVerification(10))
       .catch(Rx.Observable.return(pod));
     })
-    .subscribeOnError(function(err) {
-      console.log(error);
-    });
+    // .subscribeOnError(function(err) {
+    //   console.log(error);
+    // });
 };
 
 module.exports = {

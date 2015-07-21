@@ -17,12 +17,12 @@ hex.inspect = (function dataSimulator(d3, Rx) {
       , duration = 200
       , zoom = 1.5;
 
-    var p = hex.ui.points[index];
-    highlightedHexagon = hex.ui.svg.insert('path');
-    var sketchId = hex.ui.createSketchId(p);
+    var p = hex.board.points[index];
+    highlightedHexagon = hex.board.hexboard.svg.insert('path');
+    var sketchId = hex.board.createSketchId(p);
     highlightedHexagon
       .attr('class', 'hexagon inspect')
-      .attr('d', 'm' + hex.ui.hexagon(hex.ui.honeycomb.size).join('l') + 'z')
+      .attr('d', 'm' + hex.board.hexagon(hex.board.hexboard.honeycomb.size).join('l') + 'z')
       .attr('transform', 'translate(' + p.x + ',' + p.y + ')')
       .attr('fill', 'url(#' + sketchId + ')')
       .style('fill-opacity', 1.0)

@@ -6,7 +6,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
   Rx.Observable.fromEvent(d3.select('#winners').node(), 'click').tap(function() {
     pickWinners();
     stageWinners();
-  }).subscribeOnError(hex.ui.errorObserver);
+  }).subscribeOnError(hex.feed.errorObserver);
 
   // Returns a random integer between min included) and max (excluded)
   var getRandomInt = function (min, max) {
@@ -47,7 +47,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
       return;
     }
     console.log('picking winner', index);
-    var winner = hex.ui.points[index];
+    var winner = hex.board.points[index];
     if (!winner.sketch) {
       return;
     };
@@ -57,7 +57,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
   var pickWinners = function() {
     var numWinners = 10;
-    var candidates = hex.ui.points.filter(function(point) {
+    var candidates = hex.board.hexboard.points.filter(function(point) {
       return point.sketch;
     });
 
@@ -73,35 +73,39 @@ hex.winner = (function dataSimulator(d3, Rx) {
     });
   };
 
-  var stageSpots = d3.range(10).map(function(spot, index) {
-    return {
-      x: (Math.floor(index / 5) * 2 - 1) * (hex.ui.honeycomb.dimensions.x / 2 + 50) + hex.ui.content.x/2
-    , y: hex.ui.content.y / 2 + 10 * hex.ui.honeycomb.spacing.y / 2 * (index % 5 - 2)
-    }
-  });
+  var stageSpots, winnerSpots;
 
-  var winnerSpots = d3.range(10).map(function(spot, index) {
-    var c = {x: hex.ui.content.x / 2, y: hex.ui.content.y / 2}
-      , delta = {x: hex.ui.honeycomb.dimensions.x/4, y: hex.ui.honeycomb.dimensions.y/3.5}
-      , offset = {x: 0, y: 0}  // an adjustment to make room for the names
+  var init = function() {
+    stageSpots = d3.range(10).map(function(spot, index) {
+      return {
+        x: (Math.floor(index / 5) * 2 - 1) * (hex.board.hexboard.honeycomb.dimensions.x / 2 + 50) + hex.board.hexboard.content.x/2
+      , y: hex.board.hexboard.content.y / 2 + 10 * hex.board.hexboard.honeycomb.spacing.y / 2 * (index % 5 - 2)
+      }
+    });
 
-    if (index <= 2) {
-      return {
-        x: c.x + (index - 1) * delta.x,
-        y: c.y + (Math.floor(index / 3) - 1 + offset.y) * delta.y
-      };
-    } else if (index <= 6) {
-      return {
-        x: c.x + (index - 4.5) * delta.x,
-        y: c.y + offset.y * delta.y
-      };
-    } else {
-      return {
-        x: c.x + (index - 8) * delta.x,
-        y: c.y + (Math.floor((index - 1) / 3) - 1 + offset.y) * delta.y
-      };
-    }
-  });
+    winnerSpots = d3.range(10).map(function(spot, index) {
+      var c = {x: hex.board.hexboard.content.x / 2, y: hex.board.hexboard.content.y / 2}
+        , delta = {x: hex.board.hexboard.honeycomb.dimensions.x/4, y: hex.board.hexboard.honeycomb.dimensions.y/3.5}
+        , offset = {x: 0, y: 0}  // an adjustment to make room for the names
+
+      if (index <= 2) {
+        return {
+          x: c.x + (index - 1) * delta.x,
+          y: c.y + (Math.floor(index / 3) - 1 + offset.y) * delta.y
+        };
+      } else if (index <= 6) {
+        return {
+          x: c.x + (index - 4.5) * delta.x,
+          y: c.y + offset.y * delta.y
+        };
+      } else {
+        return {
+          x: c.x + (index - 8) * delta.x,
+          y: c.y + (Math.floor((index - 1) / 3) - 1 + offset.y) * delta.y
+        };
+      }
+    });
+  }
 
   var stageWinners = function() {
     winners.forEach(function(p, index) {
@@ -137,7 +141,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
   var stageWinner = function(p, index) {
     animateWinner(p, p, stageSpots[index], 1, 2.5, false, function() {
       if (winners.length === 10 && index === 9) {
-        hex.ui.dispose();
+        hex.feed.dispose();
         hex.controls.dispose();
         hex.highlight.unhighlight();
         displayWinners();
@@ -157,31 +161,31 @@ hex.winner = (function dataSimulator(d3, Rx) {
     var spaceIndex = sketch.name.indexOf(' ');
     sketch.firstname = sketch.name.substring(0,spaceIndex);
     sketch.lastname = sketch.name.substring(spaceIndex+1);
-    var sketchId = hex.ui.createSketchId(p);
+    var sketchId = hex.board.createSketchId(p);
 
     if (!p.group) {
-      p.group = hex.ui.svg.insert('g')
+      p.group = hex.board.hexboard.svg.insert('g')
         .attr('class', 'winner')
         .attr('transform', function(d) { return 'translate(' + p0.x + ',' + p0.y + ')'; });
 
       p.group.insert('path')
         .attr('class', 'hexagon')
-        .attr('d', 'm' + hex.ui.hexagon(hex.ui.honeycomb.size).join('l') + 'z')
+        .attr('d', 'm' + hex.board.hexagon(hex.board.hexboard.honeycomb.size).join('l') + 'z')
         .attr('fill', 'url(#' + sketchId + ')')
         .attr('transform', 'matrix('+zoom1+', 0, 0, '+zoom1+', 0, 0)');
     }
 
     if (shownames) {
-      var textWidth = hex.ui.honeycomb.size * 3.5
-        , textHeight = hex.ui.honeycomb.size * 1.3;
+      var textWidth = hex.board.hexboard.honeycomb.size * 3.5
+        , textHeight = hex.board.hexboard.honeycomb.size * 1.3;
       var textGroup = p.group.insert('g')
         .attr('class', 'text')
-        .attr('transform', 'matrix('+1/zoom1+', 0, 0, '+1/zoom1+', 0, '+ hex.ui.honeycomb.size/zoom1 * 1.5 +')')
+        .attr('transform', 'matrix('+1/zoom1+', 0, 0, '+1/zoom1+', 0, '+ hex.board.hexboard.honeycomb.size/zoom1 * 1.5 +')')
       textGroup.insert('rect')
         .attr('width', textWidth)
         .attr('height', textHeight)
         .attr('x', -textWidth / 2)
-        .attr('y', -hex.ui.honeycomb.size / 2.2)
+        .attr('y', -hex.board.hexboard.honeycomb.size / 2.2)
         .attr('rx', 3)
         .attr('ry', 3);
 
@@ -193,7 +197,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
       textGroup.insert('text')
         .attr('class', 'lastname')
         .attr('text-anchor', 'middle')
-        .attr('y', hex.ui.honeycomb.size / 1.5)
+        .attr('y', hex.board.hexboard.honeycomb.size / 1.5)
         .text(sketch.lastname);
     }
 
@@ -211,5 +215,6 @@ hex.winner = (function dataSimulator(d3, Rx) {
   return {
     pickWinner: pickWinner
   , isAllowedToWin: isAllowedToWin
+  , init: init
   }
 })(d3, Rx);

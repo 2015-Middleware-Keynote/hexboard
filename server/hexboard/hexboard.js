@@ -2,11 +2,39 @@
 
 var Rx = require('rx')
   , _ = require('underscore')
+  , config = require('../config')
   ;
 
 var HexBoard = function() {
 
-  var hexagons = _.range(1026).map(function(index) {
+  var layouts = {
+    large: {
+      size: 20,
+      cols: 38,
+      rows: 27
+    },
+    medium: {
+      size: 35,
+      cols: 19,
+      rows: 14
+    },
+    small: {
+      size: 45,
+      cols: 12,
+      rows: 9
+    },
+    xsmall: {
+      size: 125,
+      cols: 4,
+      rows: 3
+    }
+
+  };
+
+  var layout = layouts[config.get('HEXBOARD_SIZE')];
+  layout.count = layout.cols * layout.rows;
+
+  var hexagons = _.range(layout.count).map(function(index) {
     return {
       id: index,
       pod: null,
@@ -82,6 +110,7 @@ var HexBoard = function() {
   , assignPod: assignPod
   , dropPod: dropPod
   , currentSketches: currentSketches
+  , layout: layout
   }
 }
 

@@ -31,12 +31,12 @@ hex.controls = (function dataSimulator(d3, Rx) {
   if (plabackButton) {
     Rx.Observable.fromEvent(plabackButton, 'click').subscribe(function() {
       console.log('Playback start');
-      hex.ui.subscribe();
+      hex.feed.subscribe();
     });
   }
 
   var winnerSocket = Rx.DOM.fromWebSocket(hex.config.backend.ws + '/winner');
-  winnerSocket.subscribeOnError(hex.ui.errorHandler);
+  winnerSocket.subscribeOnError(hex.feed.errorHandler);
 
   // keyboard controls
   var keyboardSubscription = Rx.Observable.fromEvent(document.getElementsByTagName('body')[0], 'keyup')
@@ -69,13 +69,13 @@ hex.controls = (function dataSimulator(d3, Rx) {
         break;
     };
   })
-  .subscribeOnError(hex.ui.errorObserver);
+  .subscribeOnError(hex.feed.errorObserver);
 
   // websocket controls
-  var websocketStream = hex.ui.messages.filter(function(message) {
+  var websocketStream = hex.feed.messages.filter(function(message) {
     return message.type === 'winner';
   }).tap(function(message) {
-    var sketchesPresent = hex.ui.points.some(function(point) {
+    var sketchesPresent = hex.board.hexboard.points.some(function(point) {
       return !! point.sketch;
     });
     if (! sketchesPresent) {
@@ -129,7 +129,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
       hex.highlight.highlight(newId);
     }
   })
-  .subscribeOnError(hex.ui.errorObserver);
+  .subscribeOnError(hex.feed.errorObserver);
 
   Rx.Observable.fromEvent(document.querySelector('.map'), 'click')
   .filter(function(event) {
@@ -143,9 +143,9 @@ hex.controls = (function dataSimulator(d3, Rx) {
       console.log('removing ', index);
       console.log(err || res);
     });
-    // hex.ui.removeSketch(p);
+    // hex.board.removeSketch(p);
   })
-  .subscribeOnError(hex.ui.errorObserver);
+  .subscribeOnError(hex.feed.errorObserver);
 
   var dispose = function() {
     keyboardSubscription.dispose();
