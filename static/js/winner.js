@@ -79,7 +79,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
     stageSpots = d3.range(10).map(function(spot, index) {
       return {
         x: (Math.floor(index / 5) * 2 - 1) * (hex.board.hexboard.honeycomb.dimensions.x / 2 + 50) + hex.board.hexboard.content.x/2
-      , y: hex.board.hexboard.content.y / 2 + 10 * hex.board.hexboard.honeycomb.spacing.y / 2 * (index % 5 - 2)
+      , y: hex.board.hexboard.content.y / 2 + hex.board.hexboard.content.y / 5 * (index % 5 - 2)
       }
     });
 
@@ -156,6 +156,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
   }
 
   var animateWinner = function(p, p0, p1, zoom1, zoom2, shownames, cb) {
+    zoom1 = zoom1 * 20 / hex.board.hexboard.honeycomb.size;
     var duration = 1000;
     var sketch = p.sketch[p.sketch.length - 1];
     var spaceIndex = sketch.name.indexOf(' ');
