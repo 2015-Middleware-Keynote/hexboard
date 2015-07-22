@@ -24,7 +24,7 @@ hex.board = (function board(d3, Rx) {
   };
 
   var color = function(point) {
-    if (point.stage === 0 && firstImage && hex.shadowman) {
+    if (point.stage === 5 && firstImage && hex.shadowman) {
       return 'url(#redhat'+point.id+')';
     }
     return colorScale(point.stage);

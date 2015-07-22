@@ -22,23 +22,23 @@ proxy.on('error',  function (error, req, res) {
 });
 
 var path = function(req, res, next) {
-  var namespace = req.params[0] || config.get('namespace');
+  var namespace = req.params[0] || config.get('NAMESPACE');
   var podId     = req.params[1];
   var filePath  = req.params[2] || '';
-  var pod_host  = "https://"+config.get('openshift_server');
+  var pod_host  = "https://"+config.get('OPENSHIFT_SERVER');
   var qs        = url.parse(req.url).search
   req.url = '/api/v1beta3/namespaces/'+namespace+'/pods/'+ podId +'/proxy/'+filePath
   if( qs && qs !== ''){
     req.url += qs;
   }
-  req.headers.authorization = 'Bearer ' + config.get('oauth_token');
+  req.headers.authorization = 'Bearer ' + config.get('OAUTH_TOKEN');
   //console.log("namespace, podid, filepath: " + namespace +" "+podId+" "+filePath)
   proxy.web(req, res, { target: pod_host });
   console.log('PROXY req.url', pod_host+req.url);
 };
 
 var directPath  = function(req, res, next){
-  var namespace = config.get('namespace');
+  var namespace = config.get('NAMESPACE');
   var podIp     = req.params[0];
   var filePath  = req.params[1] || '';
   var pod_host  = "http://"+podIp+":8080";
@@ -47,8 +47,8 @@ var directPath  = function(req, res, next){
   if( qs && qs !== ''){
     req.url += qs;
   }
-  if(config.get('allowed_subnet')){
-    var block = new Netmask(config.get('allowed_subnet'));
+  if(config.get('ALLOWED_SUBNET')){
+    var block = new Netmask(config.get('ALLOWED_SUBNET'));
     if( !block.contains(podIp) ){
       console.log('PROXY request FILTERED - req.url', pod_host+req.url);
     }

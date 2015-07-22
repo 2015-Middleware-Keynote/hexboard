@@ -238,7 +238,7 @@ var watchStream = function(env) {
 
 var parseStream = function(env) {
   return watchStream(env).map(function(json) {
-    return env.parser.parseData(json, true);
+    return env.parser.parseData(json);
   })
   .filter(function(parsed) {
     return parsed && parsed.data && parsed.data.type && parsed.data.id <= 1025;

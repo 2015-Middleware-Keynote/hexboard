@@ -44,7 +44,7 @@ var PodParser = function() {
     return idMap[stringId];
   };
 
-  var parseData = function(update, proxy) {
+  var parseData = function(update) {
     if (! (update && update.object && update.object.spec && update.object.spec.containers && update.object.spec.containers.length > 0)) {
       return update;
     };
@@ -77,6 +77,7 @@ var PodParser = function() {
         update.data.ip = update.object.status.podIP;
         update.data.port = 8080;
         update.data.url = config.get('PROXY') + '/direct/' + update.data.ip + '/';
+        console.log(update.data.url)
         update.data.stage = 4;
       } else {
         console.log(tag, "New data type found:" + JSON.stringify(update, null, '  '))

@@ -118,6 +118,9 @@ module.exports = exports = {
     };
     hexboard.claimHexagon(sketch);
     sketch.url = sketch.pod ? sketch.pod.url : null;
+    if (sketch.url && sketch.url.indexOf('/') === 0) {
+      sketch.url = 'http://' + req.get('Host') + sketch.url;
+    };
     sketch.uiUrl = '/api/sketch/' + sketch.containerId + '/image.png?ts=' + new Date().getTime()
     sketch.pageUrl = 'http://1k.jbosskeynote.com/api/sketch/' + sketch.containerId + '/page.html'
     Rx.Observable.return(sketch)

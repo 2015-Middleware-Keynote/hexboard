@@ -10,10 +10,8 @@ var autoconfig = function (config_overrides){
   , BASIC_AUTH_USER: process.env.BASIC_AUTH_USER || ''
   , BASIC_AUTH_PASSWORD: process.env.BASIC_AUTH_PASSWORD || ''
   , HEXBOARD_SIZE: process.env.HEXBOARD_SIZE || 'xsmall' // xsmall, small, medium, large
+  , PROXY : process.env.PROXY || ''
   })
-  config.add({
-    PROXY      : process.env.PROXY || config.get('HOSTNAME')
-  });
   return config;
 }
 exports = module.exports = autoconfig();
