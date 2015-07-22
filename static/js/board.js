@@ -24,7 +24,7 @@ hex.board = (function board(d3, Rx) {
   };
 
   var color = function(point) {
-    if (point.stage === 5 && firstImage && hex.shadowman) {
+    if (point.stage === 0 && firstImage && hex.shadowman) {
       return 'url(#redhat'+point.id+')';
     }
     return colorScale(point.stage);
@@ -144,10 +144,10 @@ hex.board = (function board(d3, Rx) {
 
       pattern.append('image')
         .attr('xlink:href', '/img/redhat.svg')
-        .attr('width', honeycomb.dimensions.x * 0.98)
-        .attr('height', honeycomb.dimensions.y)
-        .attr('x', -point.x + 2.6 * honeycomb.size )
-        .attr('y', -point.y - 1.1 * honeycomb.size );
+        .attr('width', (honeycomb.cols - 1) * honeycomb.spacing.x)
+        .attr('height', (honeycomb.rows - 1) * honeycomb.spacing.y)
+        .attr('x', -point.x + 2 * honeycomb.spacing.x)
+        .attr('y', -point.y + 1.5 * honeycomb.spacing.y);
     });
 
     svg.append('clipPath')
