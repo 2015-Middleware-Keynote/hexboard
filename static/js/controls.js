@@ -113,7 +113,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
 
   // mouse controls
   var lastDoodle;
-  var mouseSubscription = Rx.Observable.fromEvent(document.querySelector('.map'), 'mousemove')
+  var mouseSubscription = Rx.Observable.fromEvent(document.querySelector('.svg-container'), 'mousemove')
   .filter(function(event) {
     return event.target.classList.contains('sketch');
   })
@@ -131,7 +131,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
   })
   .subscribeOnError(hex.feed.errorObserver);
 
-  Rx.Observable.fromEvent(document.querySelector('.map'), 'click')
+  Rx.Observable.fromEvent(document.querySelector('.svg-container'), 'click')
   .filter(function(event) {
     return event.target.classList.contains('inspect') && adminEnabled;
   })

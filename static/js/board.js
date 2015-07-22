@@ -9,11 +9,6 @@ hex.board = (function board(d3, Rx) {
 
   var firstImage = true;
 
-  var display = {
-    x: Math.max(document.documentElement.clientWidth, window.innerWidth) || 1920
-  , y: Math.max(document.documentElement.clientHeight, window.innerHeight) - 4 - 39
-  };
-
   var hexAngles = d3.range(0, 2 * Math.PI, Math.PI / 3);
 
   var hexagon = function(radius) {
@@ -41,7 +36,13 @@ hex.board = (function board(d3, Rx) {
 
   var hexboard = {};
 
-  var init = function(honeycomb) {
+  var init = function() {
+    var honeycomb = hexboard.honeycomb;
+    var display = {
+      x: Math.max(document.documentElement.clientWidth, window.innerWidth) || 1920
+    , y: Math.max(document.documentElement.clientHeight, window.innerHeight) - 4 - 39
+    };
+
     var minMargin = 25;
     var legendHeight = document.querySelector('.legend').clientHeight;
     var navbarHeight = document.querySelector('.navbar').clientHeight;
@@ -85,18 +86,38 @@ hex.board = (function board(d3, Rx) {
     , y: honeycomb.dimensions.y + minMargin
     }
 
-    var points = d3.range(honeycomb.count).map(function(currentValue, index) {
-          var x_i =  (index % honeycomb.cols) + 1
-            , y_i = (Math.floor(index / honeycomb.cols)) + 1;
-          if (y_i % 2 !== 0) {
-            x_i = x_i + 0.5
-          }
-          var x = honeycomb.spacing.x * x_i;
-          var y = honeycomb.spacing.y * y_i;
-          return {id: index, x: x, y: y, stage: 0, skecthCount: 0};
-        });
+    var points
+    if (!hexboard.points) {
+      points = d3.range(honeycomb.count).map(function(currentValue, index) {
+        var x_i =  (index % honeycomb.cols) + 1
+          , y_i = (Math.floor(index / honeycomb.cols)) + 1;
+        if (y_i % 2 !== 0) {
+          x_i = x_i + 0.5
+        }
+        var x = honeycomb.spacing.x * x_i;
+        var y = honeycomb.spacing.y * y_i;
+        return {id: index, x: x, y: y, stage: 0, skecthCount: 0};
+      });
+    } else {
+      points = hexboard.points;
+      points.forEach(function(p, index) {
+        var x_i =  (index % honeycomb.cols) + 1
+          , y_i = (Math.floor(index / honeycomb.cols)) + 1;
+        if (y_i % 2 !== 0) {
+          x_i = x_i + 0.5
+        }
+        p.x = honeycomb.spacing.x * x_i;
+        p.y = honeycomb.spacing.y * y_i;
+      })
+    }
+    var svgContainer = d3.select('.svg-container');
 
-    var svg = d3.select('.map').append('svg')
+    var oldSvg = svgContainer.select('svg');
+    if (oldSvg) {
+      oldSvg.remove();
+    };
+
+    var svg = svgContainer.append('svg')
         .attr('width', content.x + margin.left + margin.right)
         .attr('height', content.y + margin.top + margin.bottom)
       .append('g')
@@ -145,7 +166,7 @@ hex.board = (function board(d3, Rx) {
         .attr('class', 'hexagon')
         .attr('d', 'm' + hexagon(honeycomb.size).join('l') + 'z')
         .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; })
-        .style('fill', function(d) { return colorScale(0); })
+        .style('fill', function(d) { return color(d); })
         .append('title').text(function(d) {return d.title})
 
     hexboard.honeycomb = honeycomb;
@@ -154,6 +175,17 @@ hex.board = (function board(d3, Rx) {
     hexboard.hexagons = hexagons;
     hexboard.svg = svg;
     hexboard.defs = defs;
+
+    points.forEach(function(point) {
+      if (point.sketch && point.sketch.length) {
+        var skecthId = createSketchId(point);
+        var sketch = point.sketch[point.sketch.length - 1];
+        createBackground(sketch, skecthId);
+        hexagons.filter(function(d) { return d.x === point.x && d.y === point.y; })
+          .attr('class', 'hexagon sketch')
+          .style('fill', function(d) { return 'url(#' + skecthId + ')'; });
+      };
+    });
   };
 
   function flipAll() {

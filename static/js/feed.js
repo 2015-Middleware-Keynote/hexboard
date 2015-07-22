@@ -35,8 +35,9 @@ hex.feed = (function dataSimulator(d3, Rx) {
     return message.type === 'setup';
   })
   .tap(function(message) {
-     hex.board.init(message.data);
-     hex.winner.init();
+    hex.board.hexboard.honeycomb = message.data;
+    hex.board.init();
+    hex.winner.init();
   });
 
   var eventStream = messages.filter(function(message) {

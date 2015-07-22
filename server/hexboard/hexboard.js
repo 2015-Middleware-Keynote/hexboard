@@ -9,22 +9,18 @@ var HexBoard = function() {
 
   var layouts = {
     large: {
-      size: 20,
       cols: 38,
       rows: 27
     },
     medium: {
-      size: 35,
       cols: 19,
       rows: 14
     },
     small: {
-      size: 45,
       cols: 12,
       rows: 9
     },
     xsmall: {
-      size: 125,
       cols: 4,
       rows: 3
     }
