@@ -71,7 +71,7 @@ hex.feed = (function dataSimulator(d3, Rx) {
         return point.stage === 5;
       });
       if (flipRequired) {
-        flipAll();
+        hex.board.flipAll();
       }
     }
     hex.board.image(point, sketch, ! hex.controls.adminEnabled);
