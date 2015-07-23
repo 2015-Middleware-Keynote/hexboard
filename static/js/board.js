@@ -7,7 +7,9 @@ hex.board = (function board(d3, Rx) {
     console.error(error.stack || error);
   };
 
-  var firstImage = true;
+  var hexboard = {
+    firstImage: true
+  };
 
   var hexAngles = d3.range(0, 2 * Math.PI, Math.PI / 3);
 
@@ -24,7 +26,7 @@ hex.board = (function board(d3, Rx) {
   };
 
   var color = function(point) {
-    if (point.stage === 5 && firstImage && hex.shadowman) {
+    if (point.stage === 5 && hexboard.firstImage && hex.shadowman) {
       return 'url(#redhat'+point.id+')';
     }
     return colorScale(point.stage);
@@ -34,7 +36,7 @@ hex.board = (function board(d3, Rx) {
     .domain([0, 1, 2, 3, 4, 5])  // 5 states
     .range(['#39a5dc', '#0088ce', '#00659c', '#004368', '#002235', '#000000']);
 
-  var hexboard = {};
+
 
   var init = function() {
     var honeycomb = hexboard.honeycomb;

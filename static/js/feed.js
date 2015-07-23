@@ -7,8 +7,6 @@ hex.feed = (function dataSimulator(d3, Rx) {
     console.error(error.stack || error);
   };
 
-  var firstImage = true;
-
   var openObserver = Rx.Observer.create(
     function(open) {
       var ws = open.target;
@@ -65,8 +63,8 @@ hex.feed = (function dataSimulator(d3, Rx) {
   .tap(function(message) {
     var sketch = message.data;
     var point = hex.board.hexboard.points[sketch.containerId];
-    if (firstImage) {
-      firstImage = false;
+    if (hex.board.hexboard.firstImage) {
+      hex.board.hexboard.firstImage = false;
       var flipRequired = hex.board.hexboard.points.some(function(point) {
         return point.stage === 5;
       });
@@ -86,8 +84,8 @@ hex.feed = (function dataSimulator(d3, Rx) {
   .tap(function(sketch) {
     var point = hex.board.hexboard.points[sketch.containerId];
     if (! point.sketch) {
-      if (firstImage) {
-        firstImage = false;
+      if (hex.board.hexboard.firstImage) {
+        hex.board.hexboard.firstImage = false;
         if (hex.board.hexboard.points.some(function(point) {
           return point.stage === 4;
         }))
