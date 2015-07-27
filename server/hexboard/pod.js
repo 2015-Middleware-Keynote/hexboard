@@ -54,8 +54,9 @@ var environment = {
 function verifyPodAvailable(parsed, timeout) {
   var pod = parsed.data;
   return Rx.Observable.create(function(observer) {
+    var url = config.get('PROXY') ? pod.url : 'http://' + pod.ip + ':' + pod.port + '/';
     var options = {
-      url: 'http://' + pod.ip + ':' + pod.port + '/status'
+      url: url + 'status'
     , method: 'get'
     , timeout: timeout || 20000
     , pool: verifyAgent
