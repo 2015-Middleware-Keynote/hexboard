@@ -16,10 +16,10 @@ Take note of the OAUTH token in the `config view` for your openshift cluster.
 == Create the projects
 [source, bash]
 ----
-> oc new-project
+> oc new-project <project-name>
 > oc new-app openshift/nodejs-010-centos7~http://github.com/bleathem/sketchpod
 > oc new-app openshift/nodejs-010-centos7~http://github.com/bleathem/keynote2015-hexboard
-> oc get-builds -w
+> oc get builds -w
 ----
 
 wait for the _sketchpod_ and _hexboard_ builds to complete
@@ -28,7 +28,7 @@ wait for the _sketchpod_ and _hexboard_ builds to complete
 [source, bash]
 ----
 > oc env dc/keynote2015-hexboard ACCESS_TOKEN=<access-token>
-> oc get-pods -w
+> oc get pods -w
 ----
 
 wait for the deployment to complete.

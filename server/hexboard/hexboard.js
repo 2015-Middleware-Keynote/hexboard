@@ -8,9 +8,13 @@ var Rx = require('rx')
 var HexBoard = function() {
 
   var layouts = {
-    large: {
+    xlarge: {
       cols: 38,
       rows: 27
+    },
+    large: {
+      cols: 27,
+      rows: 19
     },
     medium: {
       cols: 19,

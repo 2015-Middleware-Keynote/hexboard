@@ -9,7 +9,7 @@ var autoconfig = function (config_overrides){
   , OPENSHIFT_APP_BASENAME: process.env.APP_ROOT_URL || 'localhost:8443'
   , BASIC_AUTH_USER: process.env.BASIC_AUTH_USER || ''
   , BASIC_AUTH_PASSWORD: process.env.BASIC_AUTH_PASSWORD || ''
-  , HEXBOARD_SIZE: process.env.HEXBOARD_SIZE || 'xsmall' // xsmall, small, medium, large
+  , HEXBOARD_SIZE: process.env.HEXBOARD_SIZE || 'small' // xsmall, small, medium, large, xlarge
   , PROXY : process.env.PROXY || ''
   })
   return config;
