@@ -118,7 +118,7 @@ module.exports = exports = {
     };
     hexboard.claimHexagon(sketch);
     sketch.url = sketch.pod ? sketch.pod.url : null;
-    if (sketch.url && sketch.url.indexOf('/') === 0) {
+    if (sketch.url && sketch.url.indexOf('/') === 0) {  // config.get('PROXY') == ''
       sketch.url = 'http://' + req.get('Host') + sketch.url;
     };
     sketch.uiUrl = '/api/sketch/' + sketch.containerId + '/image.png?ts=' + new Date().getTime()
