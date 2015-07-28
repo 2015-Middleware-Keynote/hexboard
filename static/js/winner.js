@@ -15,7 +15,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
   var winners = [];
 
-  var isAllowedToWin = function(point) {
+  var isAllowedToWin = function(point, exclusions) {
     if ( ! (point.sketch && point.sketch.length > 0) ) {
       return false;
     }
@@ -28,7 +28,14 @@ hex.winner = (function dataSimulator(d3, Rx) {
       var winnerSketch = winner.sketch[winner.sketch.length - 1];
       return 'cuid' in winnerSketch && winnerSketch.cuid === sketch.cuid;
     });
-    return ! alreadyWinner;
+    var excluded = false;
+    if (!alreadyWinner && exclusions) {
+      excluded = exclusions.some(function(exclusion) {
+        var excludedSketch = exclusion.sketch[exclusion.sketch.length - 1];
+        return 'cuid' in excludedSketch && excludedSketch.cuid === sketch.cuid;
+      });
+    }
+    return ! alreadyWinner && ! excluded;
   };
 
   var pickWinner = function(index) {
@@ -61,14 +68,17 @@ hex.winner = (function dataSimulator(d3, Rx) {
       return point.sketch;
     });
 
+    var thisWinners = [];
+
     d3.range(numWinners - winners.length).map(function(currentValue, index) {
       if (candidates.length === 0) {
         return;
       };
       var index = getRandomInt(0, candidates.length);
-      winners.push(candidates[index]);
+      thisWinners.push(candidates[index]);
+      hex.controls.winnerSocket.onNext(JSON.stringify({key: 'test', msg: {action: 'pick', value: candidates[index].id}}));
       candidates = candidates.filter(function(point) {
-        return isAllowedToWin(point);
+        return isAllowedToWin(point, thisWinners);
       });
     });
   };

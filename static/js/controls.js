@@ -53,19 +53,23 @@ hex.controls = (function dataSimulator(d3, Rx) {
     }
     switch(event.keyCode) {
       case 37: // LEFT
-      winnerSocket.onNext(JSON.stringify({key: 'test', msg: 'left'}));
+      winnerSocket.onNext(JSON.stringify({key: 'test', msg: {action: 'left'}}));
         break;
       case 38: // UP
-        winnerSocket.onNext(JSON.stringify({key: 'test', msg: 'up'}));
+        winnerSocket.onNext(JSON.stringify({key: 'test', msg: {action: 'up'}}));
         break;
       case 39: // RIGHT
-        winnerSocket.onNext(JSON.stringify({key: 'test', msg: 'right'}));
+        winnerSocket.onNext(JSON.stringify({key: 'test', msg: {action: 'right'}}));
         break;
       case 40: // DOWN
-        winnerSocket.onNext(JSON.stringify({key: 'test', msg: 'down'}));
+        winnerSocket.onNext(JSON.stringify({key: 'test', msg: {action: 'down'}}));
         break;
       case 13: // ENTER
-        winnerSocket.onNext(JSON.stringify({key: 'test', msg: 'pick'}));
+        var highlightedHexagon = hex.highlight.getHighlightedHexagon();
+        if (highlightedHexagon) {
+          var index = highlightedHexagon.datum().id;
+          winnerSocket.onNext(JSON.stringify({key: 'test', msg: {action: 'pick', value: index}}));
+        }
         break;
     };
   })
@@ -81,7 +85,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
     if (! sketchesPresent) {
       return;
     }
-    var action = message.data;
+    var action = message.data.action;
     console.log('Winner action: ', action);
     var newId;
     switch (action) {
@@ -106,7 +110,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
         hex.highlight.highlight(newId);
         break;
       case 'pick':
-        hex.winner.pickWinner();
+        hex.winner.pickWinner(message.data.value);
         break;
     };
   });
@@ -145,7 +149,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
   .tap(function(event) {
     var p = d3.select(event.target).datum();
     if ((event.metaKey || event.ctrlKey) && p.sketch) {
-      winnerSocket.onNext(JSON.stringify({key: 'test', msg: 'pick'}));
+      winnerSocket.onNext(JSON.stringify({key: 'test', msg: {action: 'pick', value: p.id}}));
     } else if (event.target.classList.contains('inspect') && adminEnabled) {
       var index = p.id;
       var xhr = d3.xhr('/api/sketch/' + p.id);
@@ -168,6 +172,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
   return {
     dispose: dispose,
     websocketStream: websocketStream,
+    winnerSocket: winnerSocket,
     adminEnabled: adminEnabled
   }
 
