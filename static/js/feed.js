@@ -87,7 +87,7 @@ hex.feed = (function dataSimulator(d3, Rx) {
       if (hex.board.hexboard.firstImage) {
         hex.board.hexboard.firstImage = false;
         if (hex.board.hexboard.points.some(function(point) {
-          return point.stage === 4;
+          return point.stage === 5;
         }))
         flipAll();
       }

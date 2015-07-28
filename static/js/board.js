@@ -210,9 +210,14 @@ hex.board = (function board(d3, Rx) {
           return 'matrix('+scale+', 0, 0, 1, '+ d.x +', '+ d.y +')'
         }
       })
-      .styleTween('fill', function(d, i, a) {
+      .styleTween('fill', function(point, i, a) {
         return function(t) {
-          return t < 0.5 ? a : color(d);
+          if (point.sketch) {
+            var skecthId = createSketchId(point);
+            return t < 0.5 ? a : 'url(#' + skecthId + ')';
+          } else {
+            return t < 0.5 ? a : color(point);
+          }
         };
       });
   }
