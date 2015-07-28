@@ -36,14 +36,18 @@ hex.board = (function board(d3, Rx) {
     .domain([0, 1, 2, 3, 4, 5])  // 5 states
     .range(['#39a5dc', '#0088ce', '#00659c', '#004368', '#002235', '#000000']);
 
-
-
   var init = function() {
     var honeycomb = hexboard.honeycomb;
     var display = {
       x: Math.max(document.documentElement.clientWidth, window.innerWidth) || 1920
     , y: Math.max(document.documentElement.clientHeight, window.innerHeight) - 4 - 39
     };
+
+    if (display.x / display.y < 1 !== honeycomb.cols / honeycomb.rows < 1 ) {
+      var tmp = honeycomb.cols;
+      honeycomb.cols = honeycomb.rows;
+      honeycomb.rows = tmp;
+    }
 
     var minMargin = { x: 125, y: 25 };
     var legendHeight = document.querySelector('.legend').clientHeight;
