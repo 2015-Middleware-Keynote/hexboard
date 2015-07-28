@@ -68,16 +68,25 @@ run `gulp` in it's own terminal:
 > PROXY="http://localhost:8080" OPENSHIFT_MASTER="localhost:8443" gulp
 ----
 
-= Configuring the number of Pods
+= Scaling the number of Pods
+Animations of falling hexagons are triggered as the number of pods is scaled.
+To scale the number of hexagons (either up or down) run the command:
+
+[source, bash]
+----
+> oc scale dc/sketchpod --replicas=<number>
+----
+
+= Configuring the maximum number of Pods
 The number of pods in the hexboard can be controlled by setting the `HEXBOARD_SIZE` environment variable:
 [options="header"]
 |===
-| HEXBOARD_SIZE | # of pods
-| xsmall | 12
-| small | 108
-| medium | 266
-| large _(default)_ | 513
-| xlarge | 1,026
+| HEXBOARD_SIZE | # of pods |
+| xsmall | 12 | _when running on a laptop_
+| small | 108 | _minimum size when on ec2_
+| medium | 266 |
+| large _(default)_ | 513 |
+| xlarge | 1,026 | _the "keynote" size_
 |===
 
 [source, bash]
