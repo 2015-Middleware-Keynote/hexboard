@@ -46,6 +46,7 @@ app.post(new RegExp("/("+config.get('NAMESPACE')+")\/([-a-zA-Z0-9_]+)"), proxy.p
 app.get( /^\/api\/v1beta3\/NAMESPACEs\/(\w)\/pods\/(\w)\/proxy\/(.*)/, proxy.path);
 app.get( /^\/api\/v1beta3\/NAMESPACEs\/(\w)\/pods\/(\w)\/proxy/, proxy.path);
 
+app.get('/status', function (req, res, next) { res.send("{status: 'ok'}"); return next() });
 router.route('/sketch/:containerId').get(sketchController.getImage);
 router.route('/sketch/:containerId/image.png').get(sketchController.getImage);
 router.route('/sketch/:containerId/page.html').get(sketchController.getImagePage);
