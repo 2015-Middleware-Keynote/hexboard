@@ -144,7 +144,9 @@ hex.controls = (function dataSimulator(d3, Rx) {
   })
   .tap(function(event) {
     var p = d3.select(event.target).datum();
-    if (event.target.classList.contains('inspect') && adminEnabled) {
+    if ((event.metaKey || event.ctrlKey) && p.sketch) {
+      winnerSocket.onNext(JSON.stringify({key: 'test', msg: 'pick'}));
+    } else if (event.target.classList.contains('inspect') && adminEnabled) {
       var index = p.id;
       var xhr = d3.xhr('/api/sketch/' + p.id);
       xhr.send('DELETE', function(err, res) {
@@ -152,7 +154,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
         console.log(err || res);
       });
     } else if (p.stage === 5 && p.url) {
-      window.open(p.url, '_pod');
+      // window.open(p.url, '_pod');
     };
   })
   .subscribeOnError(hex.feed.errorObserver);

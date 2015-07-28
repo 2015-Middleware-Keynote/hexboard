@@ -186,12 +186,16 @@ hex.board = (function board(d3, Rx) {
     hexboard.defs = defs;
 
     points.forEach(function(point) {
+      if (point.stage === 5) {
+        hexagons.filter(function(d) { return d.x === point.x && d.y === point.y; })
+          .classed('clickable', true);
+      };
       if (point.sketch && point.sketch.length) {
         var skecthId = createSketchId(point);
         var sketch = point.sketch[point.sketch.length - 1];
         createBackground(sketch, skecthId);
         hexagons.filter(function(d) { return d.x === point.x && d.y === point.y; })
-          .attr('class', 'hexagon sketch')
+          .classed({'hexagon': true, 'sketch': true})
           .style('fill', function(d) { return 'url(#' + skecthId + ')'; });
       };
     });
@@ -327,7 +331,7 @@ hex.board = (function board(d3, Rx) {
         .duration(duration)
         .ease('linear')
         .each('end', function() {
-          d3.select(this).attr('class', 'hexagon sketch')
+          d3.select(this).classed({'hexagon': true, 'sketch': true});
         })
         .attr('transform', function(d) {return 'matrix(1, 0, 0, 1, '+ d.x +', '+ d.y +')'}) // finish off any half-flipped hexagons
         .styleTween('fill', function(d, i, a) {
@@ -337,7 +341,7 @@ hex.board = (function board(d3, Rx) {
         });
       } else {
         hexboard.hexagons.filter(function(d) { return d.x === point.x && d.y === point.y; })
-          .attr('class', 'hexagon sketch')
+          .classed({'hexagon': true, 'sketch': true})
           .attr('transform', function(d) {return 'matrix(1, 0, 0, 1, '+ d.x +', '+ d.y +')'}) // finish off any half-flipped hexagons
           .style('fill', function(d) { return 'url(#' + skecthId + ')'; });
       }

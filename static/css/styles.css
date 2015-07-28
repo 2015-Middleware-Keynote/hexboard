@@ -5787,7 +5787,8 @@ body {
 .hexagon.sketch.falling {
   stroke: rgba(57, 165, 220, 0.2);
 }
-.clickable {
+.clickable,
+.highlight {
   cursor: pointer;
 }
 .winner .hexagon {
