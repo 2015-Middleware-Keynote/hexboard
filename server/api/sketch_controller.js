@@ -38,20 +38,14 @@ var sketchPostAgent = new http.Agent({
 });
 
 var postImageToPod = function(sketch, req) {
-  if (!sketch.url) {
+  if (!sketch.podUrl) {
     console.log(tag, 'POST disabled for this sketch', sketch.uiUrl);
     sketch.url = sketch.pageUrl;
     return Rx.Observable.return(sketch);
   }
-  var postUrl = 'http://' + sketch.pod.ip + ':' + sketch.pod.port + '/doodle?username='+sketch.name+'&cuid='+sketch.cuid+'&submission='+sketch.submissionId;
+  var postUrl = sketch.podUrl + '/doodle?username='+sketch.name+'&cuid='+sketch.cuid+'&submission='+sketch.submissionId;
   console.log(tag, 'POST sketch to url:', postUrl);
   return Rx.Observable.create(function(observer) {
-    if (! sketch.url) {
-      sketch.url = sketch.pageUrl;
-      observer.onNext({msg: 'No pod url, not POSTting'});
-      observer.onCompleted();
-      return;
-    }
     req.pipe(request.post({
       url: postUrl,
       timeout: 4000,
@@ -62,12 +56,11 @@ var postImageToPod = function(sketch, req) {
         return;
       };
       if (res && res.statusCode == 200) {
-        // console.log('Post complete:', sketch.url);
         if (sketch.errorCount) {
-          console.log(tag, 'POST Recovery (#', sketch.errorCount, ') for url:', sketch.url);
+          console.log(tag, 'POST Recovery (#', sketch.errorCount, ') for url:', postUrl);
           delete(sketch.errorCount);
         } else {
-          console.log(tag, 'POST success for url:', sketch.url);
+          console.log(tag, 'POST success for url:', postUrl);
         }
         observer.onNext(res.body);
         observer.onCompleted();
@@ -86,14 +79,14 @@ var postImageToPod = function(sketch, req) {
         console.log(tag, err.msg);
       };
       if (err.code && (err.code === 401 || err.code === 403)) {
-        console.log(tag, err.code, 'Error', sketch.url);
+        console.log(tag, err.code, 'Error', postUrl);
         errorCount = maxRetries;
         sketch.url = sketch.pageUrl;
         delete(sketch.errorCount);
       } else {
         sketch.errorCount = ++errorCount;
         if (errorCount === maxRetries) {
-          var msg = 'Error: too many retries: ' + sketch.url
+          var msg = 'Error: too many retries: ' + postUrl
           console.log(tag, msg);
           sketch.url = sketch.pageUrl;
           delete(sketch.errorCount);
@@ -117,12 +110,20 @@ module.exports = exports = {
     , submissionId: req.query.submission_id
     };
     hexboard.claimHexagon(sketch);
-    sketch.url = sketch.pod ? sketch.pod.url : null;
-    if (sketch.url && sketch.url.indexOf('/') === 0) {  // config.get('PROXY') == ''
-      sketch.url = 'http://' + req.get('Host') + sketch.url;
+    if (sketch.pod && sketch.pod.url) {  // config.get('PROXY') == ''
+      console.log(tag, 'pod.url', sketch.pod.url);
+      if (sketch.pod.url.indexOf('/') === 0) {
+        sketch.externalUrl = 'http://' + req.get('Host') + sketch.pod.url;
+        sketch.podUrl = 'http://' + sketch.pod.ip + ':' + sketch.pod.port;
+      } else {
+        sketch.externalUrl = sketch.pod.url;
+        sketch.podUrl = sketch.pod.url;
+      }
+      console.log(tag, 'sketch.podUrl', sketch.pod.url);
+      sketch.url = sketch.externalUrl;
     };
-    sketch.uiUrl = '/api/sketch/' + sketch.containerId + '/image.png?ts=' + new Date().getTime()
-    sketch.pageUrl = 'http://1k.jbosskeynote.com/api/sketch/' + sketch.containerId + '/page.html'
+    sketch.uiUrl = '/api/sketch/' + sketch.containerId + '/image.png?ts=' + new Date().getTime();
+    sketch.pageUrl = 'http://' + req.get('Host') + '/api/sketch/' + sketch.containerId + '/page.html';
     Rx.Observable.return(sketch)
     .flatMap(function(sketch) {
       return Rx.Observable.forkJoin(
@@ -133,7 +134,6 @@ module.exports = exports = {
       })
     })
     .subscribe(function(sketch) {
-      //console.log(tag, 'new sketch', sketch.url, sketch.cuid);
       thousandEmitter.emit('new-sketch', sketch);
       res.json(sketch);
     }, function(err) {
