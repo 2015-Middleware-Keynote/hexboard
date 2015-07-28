@@ -2,6 +2,8 @@
 
 A hexboard for visualizing Kubernetes pod status
 
+toc::[]
+
 = Run the project on an OpenShift cluster
 
 == Login to the cluster
@@ -64,3 +66,23 @@ run `gulp` in it's own terminal:
 ----
 > PROXY="http://localhost:8080" OPENSHIFT_MASTER="localhost:8443" gulp
 ----
+
+= Configuring the number of Pods
+The number of pods in the hexboard can be controlled by setting the `HEXBOARD_SIZE` environment variable:
+[options="header"]
+|===
+| HEXBOARD_SIZE | # of pods
+| xsmall | 12
+| small | 108
+| medium | 266
+| large _(default)_ | 513
+| xlarge | 1,026
+|===
+
+[source, bash]
+----
+> oc env dc/keynote2015-hexboard HEXBOARD_SIZE=<hexboard-size>
+> oc get pods -w
+----
+
+NOTE: setting an environment variable triggers a new deployment, so watch the `oc get pods -w` output to see when the deployment is complete.
