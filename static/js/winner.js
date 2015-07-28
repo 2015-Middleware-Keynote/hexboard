@@ -73,13 +73,17 @@ hex.winner = (function dataSimulator(d3, Rx) {
     });
   };
 
-  var stageSpots, winnerSpots;
+  var stageSpots, winnerSpots, zoom = {};
 
   var init = function() {
+    zoom.stage = (hex.board.hexboard.content.y / 5) / (2 * hex.board.hexboard.honeycomb.size);
+    zoom.winner = (hex.board.hexboard.content.y / 3) / (2 * hex.board.hexboard.honeycomb.size);
     stageSpots = d3.range(10).map(function(spot, index) {
       if (hex.board.hexboard.content.aspect === 'wide') {
+        var offsetMultiplier = Math.floor(index / 5) === 0 ? 1/4 : 1/2;
+        var offset = (offsetMultiplier + (zoom.stage - 1) / 2) * hex.board.hexboard.honeycomb.spacing.x;
         return {
-          x: (Math.floor(index / 5) * 2 - 1) * (hex.board.hexboard.honeycomb.dimensions.x / 2 + 50) + hex.board.hexboard.content.x/2
+          x: (Math.floor(index / 5) * 2 - 1) * (hex.board.hexboard.content.x/2 + offset + 20) + hex.board.hexboard.content.x/2
         , y: hex.board.hexboard.content.y / 2 + hex.board.hexboard.content.y / 5 * (index % 5 - 2)
         }
       } else {
@@ -146,8 +150,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
   }
 
   var stageWinner = function(p, index) {
-    var zoom = (hex.board.hexboard.content.y / 5) / (2* hex.board.hexboard.honeycomb.size);
-    animateWinner(p, p, stageSpots[index], 1, zoom, false, function() {
+    animateWinner(p, p, stageSpots[index], 1, zoom.stage, false, function() {
       if (winners.length === 10 && index === 9) {
         hex.feed.dispose();
         hex.controls.dispose();
@@ -158,8 +161,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
   }
 
   var displayWinner = function(p, index) {
-    var zoom = (hex.board.hexboard.content.y / 3) / (2* hex.board.hexboard.honeycomb.size);
-    animateWinner(p, stageSpots[index], winnerSpots[index], 1, zoom, false);
+    animateWinner(p, stageSpots[index], winnerSpots[index], 1, zoom.winner, false);
     var sketch = p.sketch[p.sketch.length - 1];
     console.log('Winner name:', sketch.name, 'cuid:', sketch.cuid, 'submission:', sketch.submissionId, 'sketch:', sketch.url);
   }
