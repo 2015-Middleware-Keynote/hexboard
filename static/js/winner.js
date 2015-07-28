@@ -47,7 +47,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
       return;
     }
     console.log('picking winner', index);
-    var winner = hex.board.points[index];
+    var winner = hex.board.hexboard.points[index];
     if (!winner.sketch) {
       return;
     };
