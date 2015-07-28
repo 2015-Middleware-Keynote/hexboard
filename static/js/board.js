@@ -232,6 +232,7 @@ hex.board = (function board(d3, Rx) {
     var p0 = {x: perspective * (point.x - c.x) + c.x, y: perspective * (point.y - c.y) + c.y};
     point.stage = pod.stage;
     point.name = pod.name;
+    point.url = pod.url;
     hexboard.svg.insert('path')
       .attr('class', 'hexagon falling')
       .attr('d', 'm' + hexagon(hexboard.honeycomb.size).join('l') + 'z')
@@ -255,7 +256,12 @@ hex.board = (function board(d3, Rx) {
         };
       })
       .each('end', function() {
-        d3.select(this).select('title').text(point.name)
+        var element = d3.select(this);
+        element.select('title').text(point.name);
+        var p = element.datum();
+        if (p.stage === 5) {
+          element.classed('clickable', true);
+        }
       })
   };
 

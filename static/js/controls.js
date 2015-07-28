@@ -140,17 +140,20 @@ hex.controls = (function dataSimulator(d3, Rx) {
 
   Rx.Observable.fromEvent(document.querySelector('.svg-container'), 'click')
   .filter(function(event) {
-    return event.target.classList.contains('inspect') && adminEnabled;
+    return event.target.classList.contains('hexagon');
   })
   .tap(function(event) {
     var p = d3.select(event.target).datum();
-    var index = p.id;
-    var xhr = d3.xhr('/api/sketch/' + p.id);
-    xhr.send('DELETE', function(err, res) {
-      console.log('removing ', index);
-      console.log(err || res);
-    });
-    // hex.board.removeSketch(p);
+    if (event.target.classList.contains('inspect') && adminEnabled) {
+      var index = p.id;
+      var xhr = d3.xhr('/api/sketch/' + p.id);
+      xhr.send('DELETE', function(err, res) {
+        console.log('removing ', index);
+        console.log(err || res);
+      });
+    } else if (p.stage === 5 && p.url) {
+      window.open(p.url, '_pod');
+    };
   })
   .subscribeOnError(hex.feed.errorObserver);
 
