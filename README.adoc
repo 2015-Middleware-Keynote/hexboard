@@ -1,3 +1,4 @@
+:toc: macro
 = Hexboard UI
 
 A hexboard for visualizing Kubernetes pod status
