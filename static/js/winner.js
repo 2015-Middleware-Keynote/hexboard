@@ -77,9 +77,16 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
   var init = function() {
     stageSpots = d3.range(10).map(function(spot, index) {
-      return {
-        x: (Math.floor(index / 5) * 2 - 1) * (hex.board.hexboard.honeycomb.dimensions.x / 2 + 50) + hex.board.hexboard.content.x/2
-      , y: hex.board.hexboard.content.y / 2 + hex.board.hexboard.content.y / 5 * (index % 5 - 2)
+      if (hex.board.hexboard.content.aspect === 'wide') {
+        return {
+          x: (Math.floor(index / 5) * 2 - 1) * (hex.board.hexboard.honeycomb.dimensions.x / 2 + 50) + hex.board.hexboard.content.x/2
+        , y: hex.board.hexboard.content.y / 2 + hex.board.hexboard.content.y / 5 * (index % 5 - 2)
+        }
+      } else {
+        return {
+          x: hex.board.hexboard.content.x / 2 + hex.board.hexboard.content.x / 5 * (index % 5 - 2)
+        , y: (Math.floor(index / 5) * 2 - 1) * (hex.board.hexboard.honeycomb.dimensions.y / 2 + 50) + hex.board.hexboard.content.y/2
+        }
       }
     });
 

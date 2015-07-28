@@ -42,14 +42,16 @@ hex.board = (function board(d3, Rx) {
       x: Math.max(document.documentElement.clientWidth, window.innerWidth) || 1920
     , y: Math.max(document.documentElement.clientHeight, window.innerHeight) - 4 - 39
     };
+    var aspect = display.x / display.y > honeycomb.cols / honeycomb.rows ? 'wide' : 'narrow';
 
-    if (display.x / display.y < 1 !== honeycomb.cols / honeycomb.rows < 1 ) {
-      var tmp = honeycomb.cols;
-      honeycomb.cols = honeycomb.rows;
-      honeycomb.rows = tmp;
+    var minMargin = { x: 25, y: 25 };
+    // Leave space for staging the winners
+    if (aspect === 'narrow') {
+      minMargin.y += 100;
+    } else {
+      minMargin.x += 100;
     }
 
-    var minMargin = { x: 125, y: 25 };
     var legendHeight = document.querySelector('.legend').clientHeight;
     var navbarHeight = document.querySelector('.navbar').clientHeight;
 
@@ -77,25 +79,26 @@ hex.board = (function board(d3, Rx) {
 
     honeycomb.dimensions = {
       x: (honeycomb.cols +1) * honeycomb.spacing.x + 1
-    , y: (honeycomb.rows + 1) * honeycomb.spacing.y
+    , y: (honeycomb.rows + 1) * honeycomb.spacing.y + 1
     };
 
     var margin = {
-        top: 1/2 * (display.y - honeycomb.dimensions.y - legendHeight - navbarHeight) + minMargin.y
-      , right: (display.x - honeycomb.dimensions.x) / 2
-      , bottom: 1/2 * (display.y - honeycomb.dimensions.y - legendHeight - navbarHeight) - minMargin.y
-      , left: (display.x - honeycomb.dimensions.x) / 2
+        top: 1/2 * (display.y - honeycomb.dimensions.y - legendHeight - navbarHeight)
+      , right: 1/2 * (display.x - honeycomb.dimensions.x)
+      , bottom: 1/2 * (display.y - honeycomb.dimensions.y - legendHeight - navbarHeight)
+      , left: 1/2 * (display.x - honeycomb.dimensions.x)
     };
 
     var content = {
       x: honeycomb.dimensions.x
-    , y: honeycomb.dimensions.y + minMargin.y
-    }
+    , y: honeycomb.dimensions.y
+    , aspect: aspect
+    };
 
     var points
     if (!hexboard.points) {
       points = d3.range(honeycomb.count).map(function(currentValue, index) {
-        var x_i =  (index % honeycomb.cols) + 1
+        var x_i =  (index % honeycomb.cols) + 0.75
           , y_i = (Math.floor(index / honeycomb.cols)) + 1;
         if (y_i % 2 !== 0) {
           x_i = x_i + 0.5
