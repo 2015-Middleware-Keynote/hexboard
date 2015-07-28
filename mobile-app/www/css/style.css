@@ -1,0 +1,4 @@
+/* Empty. Add your own CSS if you like */
+.item-image img:first-child, .item-image .list-img {
+    width: 90%;
+}

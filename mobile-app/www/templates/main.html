@@ -1,0 +1,21 @@
+    <ion-pane>
+      <ion-header-bar class="bar-header bar-assertive">
+        <a href="#/" class="button button-icon icon ion-ios-arrow-thin-left"></a>
+        <div class="h1 title">Enter your name</div>
+      </ion-header-bar>
+
+      <ion-content>
+
+        <div class="container">
+          <p>Register by simple giving us your name:</p>
+
+          <label class="item item-input">
+            <input type="text" name="name" placeholder="Name" ng-model="name">
+          </label>
+
+          <button class="button button-block button-positive" ng-click="goToDraw(name)">
+            Continue to Draw
+          </button>
+        </div>
+      </ion-content>
+    </ion-pane>

@@ -1,0 +1,25 @@
+<ion-pane>
+      <ion-header-bar class="bar-header bar-assertive">
+        <div class="h1 title">Red Hat Demo</div>
+         <a href="#/main" class="button button-clear button-light">Draw</a>
+      </ion-header-bar>
+      <ion-content>
+        <div class="list card" ng-repeat="container in containers.slice().reverse()">
+          <div class="item item-image">
+            <img ng-src="{{container.img}}">
+          </div>
+          <a class="item item-icon-left assertive" href="#">
+            <i class="icon ion-ios-cloud-outline"></i>
+            Go to container
+          </a>
+        </div>
+
+        <div class="container">
+          <a href="#/main" class="button button-block button-positive">
+            <i class="icon ion-ios-cloud-upload-outline"></i>
+             Draw another sketch
+          </a>
+        </div>
+
+      </ion-content>
+    </ion-pane>
