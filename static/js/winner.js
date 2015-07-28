@@ -146,7 +146,8 @@ hex.winner = (function dataSimulator(d3, Rx) {
   }
 
   var stageWinner = function(p, index) {
-    animateWinner(p, p, stageSpots[index], 1, 2.5, false, function() {
+    var zoom = (hex.board.hexboard.content.y / 5) / (2* hex.board.hexboard.honeycomb.size);
+    animateWinner(p, p, stageSpots[index], 1, zoom, false, function() {
       if (winners.length === 10 && index === 9) {
         hex.feed.dispose();
         hex.controls.dispose();
@@ -157,13 +158,13 @@ hex.winner = (function dataSimulator(d3, Rx) {
   }
 
   var displayWinner = function(p, index) {
-    animateWinner(p, stageSpots[index], winnerSpots[index], 1, 6.5, false);
+    var zoom = (hex.board.hexboard.content.y / 3) / (2* hex.board.hexboard.honeycomb.size);
+    animateWinner(p, stageSpots[index], winnerSpots[index], 1, zoom, false);
     var sketch = p.sketch[p.sketch.length - 1];
     console.log('Winner name:', sketch.name, 'cuid:', sketch.cuid, 'submission:', sketch.submissionId, 'sketch:', sketch.url);
   }
 
   var animateWinner = function(p, p0, p1, zoom1, zoom2, shownames, cb) {
-    zoom1 = zoom1 * 20 / hex.board.hexboard.honeycomb.size;
     var duration = 1000;
     var sketch = p.sketch[p.sketch.length - 1];
     var spaceIndex = sketch.name.indexOf(' ');
