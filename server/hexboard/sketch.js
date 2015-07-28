@@ -29,7 +29,7 @@ var postRandomImage = function(hostname) {
       if (err) {
         throw new Error(err);
       }
-      console.log('res', res.body);
+      console.log(tag, 'res', res.body);
     });
      //
     readStream.pipe(req);

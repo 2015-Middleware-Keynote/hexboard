@@ -14,7 +14,21 @@ var fs = require('fs')
 
 var tag = 'API/THOUSAND';
 
+var indexFile = fs.readFileSync(__dirname + '/../../static/pod/index.html', {encoding: 'utf8'});
 var rxWriteFile = Rx.Observable.fromNodeCallback(fs.writeFile);
+
+var saveIndexFile = function(sketch) {
+  var html = indexFile.toString()
+             .replace( /\{\{SUBMISSION\}\}/, sketch.submissionId)
+             .replace( /\{\{USERNAME\}\}/, sketch.name)
+             .replace( /\{\{CUID\}\}/, sketch.cuid)
+             .replace( /\{\{DOODLE\}\}/, sketch.uiUrl);
+  var filename = 'thousand-sketch' + sketch.containerId + '-index.html';
+  return rxWriteFile(os.tmpdir() + '/' + filename, html)
+    .map(function() {
+      return sketch;
+    });
+}
 
 var saveImageToFile = function(sketch, req) {
   var filename = 'thousand-sketch' + sketch.containerId + '.png';
@@ -128,6 +142,7 @@ module.exports = exports = {
     .flatMap(function(sketch) {
       return Rx.Observable.forkJoin(
         saveImageToFile(sketch, req)
+      , saveIndexFile(sketch)
       , postImageToPod(sketch, req)
       ).map(function(arr) {
         return arr[0]
