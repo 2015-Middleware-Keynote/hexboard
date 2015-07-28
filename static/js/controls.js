@@ -114,20 +114,27 @@ hex.controls = (function dataSimulator(d3, Rx) {
   // mouse controls
   var lastDoodle;
   var mouseSubscription = Rx.Observable.fromEvent(document.querySelector('.svg-container'), 'mousemove')
-  .filter(function(event) {
-    return event.target.classList.contains('sketch');
-  })
   .tap(function(event) {
-    var p = d3.select(event.target).datum();
-    if (lastDoodle === p || ! hex.winner.isAllowedToWin(p)) {
+    if (event.target.classList.contains('highlight')) {
+      event.stopPropagation();
       return;
-    };
-    var newId = p.id;
-    if (adminEnabled) {
-      hex.inspect.highlight(newId);
-    } else {
-      hex.highlight.highlight(newId);
     }
+    if (event.target.classList.contains('sketch')) {
+      event.stopPropagation();
+      var p = d3.select(event.target).datum();
+      if (lastDoodle === p || ! hex.winner.isAllowedToWin(p)) {
+        return;
+      };
+      var newId = p.id;
+      if (adminEnabled) {
+        hex.inspect.highlight(newId);
+      } else {
+        hex.highlight.highlight(newId);
+      }
+    } else {
+      event.stopPropagation();
+      hex.highlight.unhighlight();
+    };
   })
   .subscribeOnError(hex.feed.errorObserver);
 
