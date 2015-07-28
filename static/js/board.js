@@ -303,7 +303,7 @@ hex.board = (function board(d3, Rx) {
     var c = {x: hexboard.content.x / 2, y: hexboard.content.y / 2};
     var perspective = 0.5
       , duration = animate ? 1000 : 0
-      , scale = 0.2
+      , scale = (hexboard.content.y / 2) / (2 * hexboard.honeycomb.size)
     var p0 = {x: perspective * (point.x - c.x) + c.x, y: perspective * (point.y - c.y) + c.y};
 
     point.sketch = point.sketch || [];
@@ -317,7 +317,7 @@ hex.board = (function board(d3, Rx) {
         .datum(point)
         .attr('class', 'hexagon sketch falling')
         .attr('d', 'm' + hexagon(hexboard.honeycomb.size).join('l') + 'z')
-        .attr('transform', function(d) { return 'matrix('+1/scale+', 0, 0, '+1/scale+', '+ p0.x +', '+ p0.y +')'})
+        .attr('transform', function(d) { return 'matrix('+scale+', 0, 0, '+scale+', '+ p0.x +', '+ p0.y +')'})
         .style('fill-opacity', 1.0)
         .attr('fill', 'url(#' + skecthId + ')')
       .transition()

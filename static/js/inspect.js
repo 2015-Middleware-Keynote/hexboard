@@ -15,7 +15,7 @@ hex.inspect = (function dataSimulator(d3, Rx) {
     }
     var perspective = 1.5
       , duration = 200
-      , zoom = 1.5;
+      , zoom = (hex.board.hexboard.honeycomb.size + 25) / hex.board.hexboard.honeycomb.size;
 
     var p = hex.board.hexboard.points[index];
     highlightedHexagon = hex.board.hexboard.svg.insert('path');
