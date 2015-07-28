@@ -17,7 +17,7 @@ hex.inspect = (function dataSimulator(d3, Rx) {
       , duration = 200
       , zoom = 1.5;
 
-    var p = hex.board.points[index];
+    var p = hex.board.hexboard.points[index];
     highlightedHexagon = hex.board.hexboard.svg.insert('path');
     var sketchId = hex.board.createSketchId(p);
     highlightedHexagon

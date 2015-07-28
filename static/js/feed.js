@@ -104,7 +104,7 @@ hex.feed = (function dataSimulator(d3, Rx) {
       return point.id === message.data.id;
     });
     if (point.length && point[0].sketch) {
-      removeSketch(point[0]);
+      hex.board.removeSketch(point[0]);
     };
   });
 
