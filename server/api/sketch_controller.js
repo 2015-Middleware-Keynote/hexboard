@@ -10,6 +10,7 @@ var fs = require('fs')
   , http = require('http')
   , config = require('../config')
   , sketcher = require('../hexboard/sketch')
+  , multiparty = require('multiparty')
   ;
 
 var tag = 'API/THOUSAND';
@@ -34,17 +35,23 @@ var saveImageToFile = function(sketch, req) {
   var filename = 'thousand-sketch' + sketch.containerId + '.png';
   console.log(tag, 'Saving sketch to file:', filename);
   return Rx.Observable.create(function(observer) {
-    req.on('end', function() {
+    var form = new multiparty.Form();
+    form.on('close', function() {
       // console.log('File save complete:', filename);
       observer.onNext(sketch);
       observer.onCompleted();
     });
-    req.on('error', function(error) {
+    form.on('part', function (part) {
+      part.pipe(fs.createWriteStream(os.tmpdir() + '/' + filename));
+    });
+    form.on('error', function(error) {
       observer.onError(error);
     });
-    var stream = req.pipe(fs.createWriteStream(os.tmpdir() + '/' + filename));
+
+    form.parse(req);
+    //var stream = req.pipe(fs.createWriteStream(os.tmpdir() + '/' + filename));
   });
-}
+};
 
 var sketchPostAgent = new http.Agent({
   keepAlive: true,
