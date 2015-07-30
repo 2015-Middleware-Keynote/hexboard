@@ -8,14 +8,16 @@
 
         <div class="container">
           <p>Register by simple giving us your name:</p>
+          <form name='userForm' ng-submit="goToDraw(name)" novalidate>
 
           <label class="item item-input">
-            <input type="text" name="name" placeholder="Name" ng-model="name">
+            <input type="text" id="name" name="name" placeholder="Name" ng-model="name" value="root.name" required>
           </label>
 
-          <button class="button button-block button-positive" ng-click="goToDraw(name)">
+          <button type="submit" class="button button-block button-positive" ng-disabled="userForm.$invalid">
             Continue to Draw
           </button>
+          </form>
         </div>
       </ion-content>
     </ion-pane>

@@ -10,6 +10,7 @@ angular.module('starter.controllers', [])
   //});
 
   $scope.goToDraw = function (name) {
+
     $rootScope = {
       name: name
     };
@@ -31,70 +32,9 @@ angular.module('starter.controllers', [])
   });
 })
 
-.controller('DrawCtrl', function ($scope, $state) {
+.controller('DrawCtrl', function ($scope, $state, $http) {
 
-  var canvas = document.querySelector('canvas'),
-    ctx = canvas.getContext('2d'),
-    oldX = 0,
-    oldY = 0,
-    originX = canvas.offsetLeft,
-    originY = canvas.offsetTop;
-  var currentColor = [];
-
-  var colors = {
-        "0": "black",
-        "1": "blue",
-        "2": "green",
-        "3": "red",
-        "4": "white",
-        "5": "yellow"
-    };
-
-    canvas.height = (window.innerHeight - 75);
-    canvas.width = (window.innerWidth);
-    ctx.lineWidth = 16;
-    ctx.lineCap = 'round';
-
-    ctx.translate( -originX, -originY );
-
-  var touchstart = function (evt) {
-    evt.preventDefault();
-
-    var max = 5,
-      min = 0;
-
-    currentColor = colors[Math.floor(Math.random() * (max - min + 1)) + min];
-  };
-
-  var touchend = function (evt) {
-    evt.preventDefault();
-    oldX = 0;
-    oldY = 0;
-  };
-
-  var touchmove = function (evt) {
-    evt.preventDefault();
-    var x = evt.changedTouches[ 0 ].clientX,
-      y = evt.changedTouches[ 0 ].clientY;
-
-      ctx.strokeStyle = currentColor;
-      ctx.fillStyle = currentColor;
-      ctx.beginPath();
-      if (oldX > 0 && oldY > 0) {
-          ctx.moveTo(oldX, oldY);
-      }
-      ctx.lineTo(x + 1, y + 1);
-      ctx.stroke();
-      ctx.closePath();
-
-      oldX = x;
-      oldY = y;
-  };
-
-  canvas.addEventListener( "touchstart", touchstart, false );
-  canvas.addEventListener( "touchend", touchend, false );
-  canvas.addEventListener( "touchmove", touchmove, false );
-
+  $scope.super_awesome_multitouch_drawing_canvas_thingy = new CanvasDrawr({id:"example", size: 15 });
 
   $scope.backAndClear = function () {
     ctx.clearRect(0,0, document.width, document.height);
@@ -102,26 +42,37 @@ angular.module('starter.controllers', [])
 
   $scope.submitToContainer = function () {
     // Submit to container then on success go to the List Page
-    var items = localStorage.getItem('keynote2015-mobile-app');
+    var canvas = document.querySelector('canvas').toDataURL();
+    $http
+      .post('/api/sketch/1', {sketchImage: canvas})
+      .success(function () {
+        console.log('success', arguments);
+        // Need the container link
+        var items = localStorage.getItem('keynote2015-mobile-app');
 
-    if (!items) {
-      items = {containers: []};
-    }
+        if (!items) {
+          items = {containers: []};
+        }
 
-    try {
-      items = JSON.parse(items);
-    } catch (err) {
-      items = {containers: []};
-    }
+        try {
+          items = JSON.parse(items);
+        } catch (err) {
+          items = {containers: []};
+        }
 
-    items.containers.push({
-      img: canvas.toDataURL()
-    });
+        items.containers.push({
+          img: canvas
+        });
 
-    items = JSON.stringify(items);
+        items = JSON.stringify(items);
 
-    localStorage.setItem('keynote2015-mobile-app', items);
-    $state.go('list');
+        // Save to the local storage
+        localStorage.setItem('keynote2015-mobile-app', items);
+        $state.go('list');
+      })
+      .error(function () {
+        console.log('err', arguments);
+      });
   };
 });
 
