@@ -158,7 +158,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
         console.log(err || res);
       });
     } else if (p.stage === 5 && p.url) {
-      // window.open(p.url, '_pod');
+      window.open(p.url, '_pod');
     };
   })
   .subscribeOnError(hex.feed.errorObserver);

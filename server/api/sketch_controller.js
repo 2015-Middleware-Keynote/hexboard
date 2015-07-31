@@ -10,7 +10,8 @@ var fs = require('fs')
   , http = require('http')
   , config = require('../config')
   , sketcher = require('../hexboard/sketch')
-  , multiparty = require('multiparty')
+  , base64 = require('base64-stream')
+  , through = require('through2')
   ;
 
 var tag = 'API/THOUSAND';
@@ -35,21 +36,15 @@ var saveImageToFile = function(sketch, req) {
   var filename = 'thousand-sketch' + sketch.containerId + '.png';
   console.log(tag, 'Saving sketch to file:', filename);
   return Rx.Observable.create(function(observer) {
-    var form = new multiparty.Form();
-    form.on('close', function() {
+    req.on('end', function() {
       // console.log('File save complete:', filename);
       observer.onNext(sketch);
       observer.onCompleted();
     });
-    form.on('part', function (part) {
-      part.pipe(fs.createWriteStream(os.tmpdir() + '/' + filename));
-    });
-    form.on('error', function(error) {
+    req.on('error', function(error) {
       observer.onError(error);
     });
-
-    form.parse(req);
-    //var stream = req.pipe(fs.createWriteStream(os.tmpdir() + '/' + filename));
+    var stream = req.pipe(fs.createWriteStream(os.tmpdir() + '/' + filename));
   });
 };
 
@@ -123,39 +118,66 @@ var postImageToPod = function(sketch, req) {
   .catch(Rx.Observable.return(sketch));
 };
 
+var parseSketchStream = function(req) {
+  var passthrough = false;
+  var accumulation = '';
+  var stream = req
+    .pipe(through(function (chunk, enc, callback) {
+      if (!passthrough) {
+        accumulation += chunk;
+        var test = 'image/png;base64,';
+        var index = accumulation.indexOf(test);
+        if (index > - 1) {
+          passthrough = true;
+          chunk = accumulation.substr(index + test.length);
+        }
+      }
+      if (passthrough) {
+        this.push(chunk);
+      }
+      callback();
+    }))
+    .pipe(base64.decode());
+  return stream;
+}
+
+var parseSketch = function(req) {
+  var sketch = {
+    name: req.query.name
+  , cuid: req.query.cuid
+  , submissionId: req.query.submission_id
+  };
+  var stream = parseSketchStream(req);
+  hexboard.claimHexagon(sketch);
+  if (sketch.pod && sketch.pod.url) {  // config.get('PROXY') == ''
+    console.log(tag, 'pod.url', sketch.pod.url);
+    if (sketch.pod.url.indexOf('/') === 0) {
+      sketch.externalUrl = 'http://' + req.get('Host') + sketch.pod.url;
+      sketch.podUrl = 'http://' + sketch.pod.ip + ':' + sketch.pod.port;
+    } else {
+      sketch.externalUrl = sketch.pod.url;
+      sketch.podUrl = sketch.pod.url;
+    }
+    console.log(tag, 'sketch.podUrl', sketch.pod.url);
+    sketch.url = sketch.externalUrl;
+  };
+  sketch.uiUrl = '/api/sketch/' + sketch.containerId + '/image.png?ts=' + new Date().getTime();
+  sketch.pageUrl = 'http://' + req.get('Host') + '/api/sketch/' + sketch.containerId + '/page.html';
+  return Rx.Observable.return(sketch)
+  .flatMap(function(sketch) {
+    return Rx.Observable.forkJoin(
+      saveImageToFile(sketch, stream)
+    , saveIndexFile(sketch)
+    , postImageToPod(sketch, stream)
+    ).map(function(arr) {
+      return arr[0]
+    })
+  });
+};
+
 module.exports = exports = {
   receiveImage: function(req, res, next) {
-    var sketch = {
-      name: req.query.name
-    , cuid: req.query.cuid
-    , submissionId: req.query.submission_id
-    };
-    hexboard.claimHexagon(sketch);
-    if (sketch.pod && sketch.pod.url) {  // config.get('PROXY') == ''
-      console.log(tag, 'pod.url', sketch.pod.url);
-      if (sketch.pod.url.indexOf('/') === 0) {
-        sketch.externalUrl = 'http://' + req.get('Host') + sketch.pod.url;
-        sketch.podUrl = 'http://' + sketch.pod.ip + ':' + sketch.pod.port;
-      } else {
-        sketch.externalUrl = sketch.pod.url;
-        sketch.podUrl = sketch.pod.url;
-      }
-      console.log(tag, 'sketch.podUrl', sketch.pod.url);
-      sketch.url = sketch.externalUrl;
-    };
-    sketch.uiUrl = '/api/sketch/' + sketch.containerId + '/image.png?ts=' + new Date().getTime();
-    sketch.pageUrl = 'http://' + req.get('Host') + '/api/sketch/' + sketch.containerId + '/page.html';
-    Rx.Observable.return(sketch)
-    .flatMap(function(sketch) {
-      return Rx.Observable.forkJoin(
-        saveImageToFile(sketch, req)
-      , saveIndexFile(sketch)
-      , postImageToPod(sketch, req)
-      ).map(function(arr) {
-        return arr[0]
-      })
-    })
-    .subscribe(function(sketch) {
+    parseSketch(req).subscribe(function(sketch) {
       thousandEmitter.emit('new-sketch', sketch);
       res.json(sketch);
     }, function(err) {

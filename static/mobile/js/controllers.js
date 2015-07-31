@@ -33,63 +33,54 @@ angular.module('starter.controllers', [])
 })
 
 .controller('DrawCtrl', function ($scope, $state, $http) {
-$scope.$on('$ionicView.enter', function(e) {
-  if ('ontouchstart' in window) {
-  /* browser with Touch Events
-     running on touch-capable device */
-     $scope.super_awesome_multitouch_drawing_canvas_thingy = new CanvasDrawr({id:"example", size: 15 });
-  } else {
-    $scope.super_awesome_multitouch_drawing_canvas_thingy = new CanvasDrawrMouse({id:"example", size: 15 });
-  }
-  var canvas = document.querySelector('canvas'),
-    ctx = canvas.getContext("2d");
+  $scope.$on('$ionicView.enter', function(e) {
+    if ('ontouchstart' in window) {
+    /* browser with Touch Events
+       running on touch-capable device */
+       $scope.super_awesome_multitouch_drawing_canvas_thingy = new CanvasDrawr({id:"example", size: 15 });
+    } else {
+      $scope.super_awesome_multitouch_drawing_canvas_thingy = new CanvasDrawrMouse({id:"example", size: 15 });
+    }
+    var canvas = document.querySelector('canvas'),
+      ctx = canvas.getContext("2d");
 
-  $scope.backAndClear = function () {
-    ctx.clearRect(0,0, document.width, document.height);
-  };
+    $scope.backAndClear = function () {
+      ctx.clearRect(0,0, document.width, document.height);
+    };
 
-  $scope.submitToContainer = function () {
-    // Submit to container then on success go to the List Page
-    canvas.toBlob(function (blob) {
+    $scope.submitToContainer = function () {
+      // Submit to container then on success go to the List Page
+      $http({
+        method: 'POST'
+      , url: '/api/sketch/1'
+      , headers: {'Content-Type': 'image/png'}
+      , transformRequest: angular.identity
+      , data: canvas.toDataURL()
+      }).success(function () {
+        console.log('success', arguments);
+        // Need the container link
+        var items = localStorage.getItem('keynote2015-mobile-app');
 
-      var formData = new FormData();
-      formData.append('sketch', blob, 'image.png');
-      $http
-        .post('/api/sketch/1', formData, {
-            transformRequest: angular.identity,
-            headers: {'Content-Type': undefined}
-        })
-        .success(function () {
-          console.log('success', arguments);
-          // Need the container link
-          var items = localStorage.getItem('keynote2015-mobile-app');
+        if (!items) {
+          items = {containers: []};
+        }
 
-          if (!items) {
-            items = {containers: []};
-          }
+        try {
+          items = JSON.parse(items);
+        } catch (err) {
+          items = {containers: []};
+        }
 
-          try {
-            items = JSON.parse(items);
-          } catch (err) {
-            items = {containers: []};
-          }
-
-          items.containers.push({
-            img: canvas.toDataURL()
-          });
-
-          items = JSON.stringify(items);
-
-          // Save to the local storage
-          localStorage.setItem('keynote2015-mobile-app', items);
-          $state.go('list');
-        })
-        .error(function () {
-          console.log('err', arguments);
+        items.containers.push({
+          img: canvas.toDataURL()
         });
-    });
+
+        items = JSON.stringify(items);
+
+        // Save to the local storage
+        localStorage.setItem('keynote2015-mobile-app', items);
+        $state.go('list');
+      });
     };
   });
 });
-
-
