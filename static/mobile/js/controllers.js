@@ -34,7 +34,13 @@ angular.module('starter.controllers', [])
 
 .controller('DrawCtrl', function ($scope, $state, $http) {
 $scope.$on('$ionicView.enter', function(e) {
-  $scope.super_awesome_multitouch_drawing_canvas_thingy = new CanvasDrawr({id:"example", size: 15 });
+  if ('ontouchstart' in window) {
+  /* browser with Touch Events
+     running on touch-capable device */
+     $scope.super_awesome_multitouch_drawing_canvas_thingy = new CanvasDrawr({id:"example", size: 15 });
+  } else {
+    $scope.super_awesome_multitouch_drawing_canvas_thingy = new CanvasDrawrMouse({id:"example", size: 15 });
+  }
   var canvas = document.querySelector('canvas'),
     ctx = canvas.getContext("2d");
 
