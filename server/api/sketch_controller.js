@@ -12,6 +12,7 @@ var fs = require('fs')
   , sketcher = require('../hexboard/sketch')
   , base64 = require('base64-stream')
   , through = require('through2')
+  , uuid = require('uuid-js');
   ;
 
 var tag = 'API/THOUSAND';
@@ -142,10 +143,11 @@ var parseSketchStream = function(req) {
 }
 
 var parseSketch = function(req) {
+  var uid = uuid.create().toString();
   var sketch = {
     name: req.query.name
-  , cuid: req.query.cuid
-  , submissionId: req.query.submission_id
+  , cuid: uid
+  , submissionId: uid
   };
   var stream = parseSketchStream(req);
   hexboard.claimHexagon(sketch);

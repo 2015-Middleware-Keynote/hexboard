@@ -11,9 +11,7 @@ angular.module('starter.controllers', [])
 
   $scope.goToDraw = function (name) {
 
-    $rootScope = {
-      name: name
-    };
+    $rootScope.name = name;
 
     // Go To the Draw Page
     $state.go('draw');
@@ -32,7 +30,7 @@ angular.module('starter.controllers', [])
   });
 })
 
-.controller('DrawCtrl', function ($scope, $state, $http) {
+.controller('DrawCtrl', function ($scope, $rootScope, $state, $http) {
   $scope.$on('$ionicView.enter', function(e) {
     if ('ontouchstart' in window) {
     /* browser with Touch Events
@@ -52,7 +50,7 @@ angular.module('starter.controllers', [])
       // Submit to container then on success go to the List Page
       $http({
         method: 'POST'
-      , url: '/api/sketch/1'
+      , url: '/api/sketch/1?name=' + $rootScope.name
       , headers: {'Content-Type': 'image/png'}
       , transformRequest: angular.identity
       , data: canvas.toDataURL()

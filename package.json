@@ -56,6 +56,7 @@
     "stream-filter": "^1.0.0",
     "through2": "^0.6.5",
     "underscore": "^1.8.3",
+    "uuid-js": "^0.7.5",
     "ws": "^0.7.1"
   }
 }
