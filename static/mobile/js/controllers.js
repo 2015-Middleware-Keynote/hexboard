@@ -54,8 +54,8 @@ angular.module('starter.controllers', [])
       , headers: {'Content-Type': 'image/png'}
       , transformRequest: angular.identity
       , data: canvas.toDataURL()
-      }).success(function () {
-        console.log('success', arguments);
+      }).success(function (data) {
+        console.log('success. data:', data);
         // Need the container link
         var items = localStorage.getItem('keynote2015-mobile-app');
 
@@ -71,6 +71,7 @@ angular.module('starter.controllers', [])
 
         items.containers.push({
           img: canvas.toDataURL()
+        , sketch: data
         });
 
         items = JSON.stringify(items);
