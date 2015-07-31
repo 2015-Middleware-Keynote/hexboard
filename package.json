@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "basic-auth": "^1.0.1",
+    "blueimp-canvas-to-blob": "^2.2.0",
     "body-parser": "^1.12.2",
     "bootstrap": "^3.3.5",
     "config-multipaas": "https://registry.npmjs.org/config-multipaas/-/config-multipaas-0.1.0.tgz",
