@@ -24,7 +24,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(middle.cors);
 app.use(express.static(__dirname + '/../static'));
 // For the Mobile App
-app.use('/mobile-app', express.static(__dirname + '/../mobile-app/www'));
+app.use('/mobile', express.static(__dirname + '/../mobile'));
 app.use('/node_modules', express.static(__dirname + '/../node_modules'));
 app.use('/api', router);
 app.use(middle.logError);
