@@ -18,7 +18,7 @@ require('./tasks/debug.js')(gulp, opts);
 require('./tasks/test-backend.js')(gulp, opts);
 require('./tasks/watch.js')(gulp, opts);
 
-gulp.task('build', ['less']);
+gulp.task('build', ['less', 'sass']);
 gulp.task('serve', ['node-start', 'build']);
 gulp.task('debug', ['node-inspector', 'build']);
 
