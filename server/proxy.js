@@ -34,7 +34,7 @@ var path = function(req, res, next) {
   req.headers.authorization = 'Bearer ' + config.get('OAUTH_TOKEN');
   //console.log("namespace, podid, filepath: " + namespace +" "+podId+" "+filePath)
   proxy.web(req, res, { target: pod_host });
-  console.log('PROXY req.url', pod_host+req.url);
+  console.log('PROXY req.url', pod_host+'/'+req.url);
 };
 
 var directPath  = function(req, res, next){
@@ -50,10 +50,10 @@ var directPath  = function(req, res, next){
   if(config.get('ALLOWED_SUBNET')){
     var block = new Netmask(config.get('ALLOWED_SUBNET'));
     if( !block.contains(podIp) ){
-      console.log('PROXY request FILTERED - req.url', pod_host+req.url);
+      console.log('PROXY request FILTERED - req.url', pod_host+'/'+req.url);
     }
   }
-  console.log('PROXY req.url', pod_host+req.url);
+  console.log('PROXY req.url', pod_host+'/'+req.url);
   proxy.web(req, res, { target: pod_host });
 };
 
