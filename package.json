@@ -4,7 +4,7 @@
   "description": "A hexboard for visualizing Kubernetes pod status",
   "repository": "https://github.com/bleathem/hexboard",
   "scripts": {
-    "start": "./node_modules/forever/bin/forever --minUptime 1000 --spinSleepTime 1000 server/server.js",
+    "start": "node server/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "main": "server/server.js",
