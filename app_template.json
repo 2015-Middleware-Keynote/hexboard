@@ -54,7 +54,7 @@
                 "source": {
                     "type": "Git",
                     "git": {
-                        "uri": "http://github.com/bleathem/sketchpod"
+                        "uri": "http://github.com/2015-Middleware-Keynote/sketchpod"
                     }
                 },
                 "strategy": {
@@ -221,7 +221,7 @@
                 "source": {
                     "type": "Git",
                     "git": {
-                        "uri": "http://github.com/ryanj/hexboard"
+                        "uri": "http://github.com/2015-Middleware-Keynote/hexboard"
                     }
                 },
                 "strategy": {

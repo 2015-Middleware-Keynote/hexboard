@@ -26,8 +26,8 @@ Create services individually:
 
 [source, bash]
 ----
-> oc new-app openshift/nodejs-010-centos7~http://github.com/bleathem/sketchpod
-> oc new-app openshift/nodejs-010-centos7~http://github.com/bleathem/keynote2015-hexboard --name=hexboard
+> oc new-app openshift/nodejs-010-centos7~http://github.com/2015-Middleware-Keynote/sketchpod
+> oc new-app openshift/nodejs-010-centos7~http://github.com/2015-Middleware-Keynote/hexboard
 ----
 
 Or, create the entire project from a template:
