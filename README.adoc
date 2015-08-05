@@ -7,7 +7,7 @@ toc::[]
 
 = Run the project on an OpenShift cluster
 
-== Login to the cluster
+== Authentication
 [source, bash]
 ----
 > oc login <openshift-cluster-ip>
@@ -44,7 +44,7 @@ Or, create each service individually:
 [source, bash]
 ----
 > oc new-app openshift/nodejs-010-centos7~http://github.com/2015-Middleware-Keynote/sketchpod
-> oc new-app openshift/nodejs-010-centos7~http://github.com/2015-Middleware-Keynote/hexboard
+> oc new-app -e "HEXBOARD_HOST=${HEXBOARD_HOST},ACCESS_TOKEN=${ACCESS_TOKEN}" openshift/nodejs-010-centos7~http://github.com/2015-Middleware-Keynote/hexboard
 ----
 
 Then, check the results:
@@ -54,7 +54,7 @@ Then, check the results:
 > oc get builds -w
 ----
 
-wait for the _sketchpod_ and _hexboard_ builds to complete.  Or, start the builds as needed:
+Wait for the _sketchpod_ and _hexboard_ builds to complete.  Or, start the builds as needed:
 
 [source, bash]
 ----
@@ -69,31 +69,47 @@ Watch the progress:
 > oc get pods -w
 ----
 
-= Expose the Hexboard Service with a Route
-The optional `--hostname` flag allows you to create custom routes:
+= Routing
+In order to view the hexboard, you'll need to expose your service by setting up a Route.
+The optional `--hostname` flag allows you to create a custom route to an existing `service`:
 
 [source, bash]
 ----
-> oc expose service hexboard --hostname=<hexboard-host-url>
+> oc expose se/hexboard --hostname=$HEXBOARD_HOST
+----
+
+This creates an external route for the service.  Make sure this route is addressable from wherever you are running your browser (an `/etc/hosts` entry in your client _may_ be required).
+
+Excluding the `--hostname` flag should generate a default route that automatically takes advantage of your cluster's wildcard DNS (if available):
+
+[source, bash]
+----
+> oc expose se/hexboard
+----
+
+Now, try listing your existing routes:
+
+[source, bash]
+----
 > oc get route
 ----
 
-this creates an external route for the service.  Make sure this route is addressable from wherever you are running your browser (an `/etc/hosts` entry in your client _may_ be required).
+NOTE: To run this application in a VM, try exposing the hexboard service at `localhost`, while setting your `HEXBOARD_HOST` config to `localhost:1080`.
 
-To run this service in a VM, try exposing the hexboard service at `localhost`, while setting your `HEXBOARD_HOST` config to `localhost:1080`.
+== Configuration
 
-== Configure with environment variables
+The service configuration is provided via environment variables. These configs can be set while loading a project from a template via the web console or via the `oc process` command.  
 
-These configs can also be set while loading a project from a template via the web console, or via the `oc process` command.  
+You can also add environment keys to an existing deployment config using the `oc env` command.  Setting new configuration details will trigger a deployment to distribute your changes (if needed).
 
-To reconfigure a running hexboard service, run the following to share your `oc` cli tool's current oauth token:
+To set the **required** `ACCESS_TOKEN` config, follow the instructions in the above link:#authentication[Authentication] section, using your own `ACCESS_TOKEN` value in the following example:
 
 [source, bash]
 ----
 > oc env dc/hexboard ACCESS_TOKEN="${ACCESS_TOKEN}"
 ----
 
-Update your proxy host URL info.  This example issues the `oc get route` command to use any routes that you've established in previous steps.
+This example uses the results of the `oc get route` command to update your proxy host URL info with any route info that you've established in previous `oc expose` steps.
 
 [source, bash]
 ----
@@ -120,7 +136,7 @@ The number of pods in the hexboard can be controlled by setting the `HEXBOARD_SI
 
 NOTE: setting an environment variable triggers a new deployment, so watch the `oc get pods -w` output to see when the deployment is complete.
 
-= Scaling the number of Pods
+= Scaling
 Animations of falling hexagons are triggered as the number of pods is scaled.
 To scale the number of hexagons (either up or down) run the command:
 
@@ -129,14 +145,16 @@ To scale the number of hexagons (either up or down) run the command:
 > oc scale rc/sketchpod --replicas=<number>
 ----
 
-= Run the hexboard locally (for UI development)
+After scaling up, try submitting sketches by visiting the hexboard's bundled mobile web submission form, available at: `http://${HEXBOARD_HOST}/mobile/`
 
-== Pre-requisutes:
+= Local Development
+
+== Pre-Requisutes
 
 * node.js (installed globally)
 * gulp.js (installed globally)
 
-== To install the project locally
+== Installation
 
 Execute the following commands in your local clone of this repository:
 [source, bash]
@@ -144,9 +162,10 @@ Execute the following commands in your local clone of this repository:
 > npm install
 ----
 
-== To run the hexboard locally:
+== Run the hexboard locally
 
-run `gulp` in it's own terminal:
+Run `gulp` in it's own terminal, providing environment variables that reference an available OpenShift cluster where your `sketchpod` service back-ends will be hosted and scaled:
+
 [source, bash]
 ----
 > PORT=8081 HEXBOARD_HOST="localhost:8081" ACCESS_TOKEN="${ACCESS_TOKEN}" OPENSHIFT_SERVER="localhost:8443" NAMESPACE=hexboard gulp
