@@ -20,8 +20,28 @@ Take note of the OAUTH token in the `config view` for your openshift cluster.
 [source, bash]
 ----
 > oc new-project <project-name>
+----
+
+Create services individually:
+
+[source, bash]
+----
 > oc new-app openshift/nodejs-010-centos7~http://github.com/bleathem/sketchpod
-> oc new-app openshift/nodejs-010-centos7~http://github.com/bleathem/keynote2015-hexboard
+> oc new-app openshift/nodejs-010-centos7~http://github.com/bleathem/keynote2015-hexboard --name=hexboard
+----
+
+Or, create the entire project from a template:
+
+[source, bash]
+----
+> oc create -f app_template.json
+> oc process -v="HEXBOARD_HOST=${HEXBOARD_HOST},ACCESS_TOKEN=${ACCESS_TOKEN}" hexboard | oc create -f -
+----
+
+Then, check the results:
+
+[source, bash]
+----
 > oc get builds -w
 ----
 
@@ -30,7 +50,8 @@ wait for the _sketchpod_ and _hexboard_ builds to complete
 == Set the environment variables
 [source, bash]
 ----
-> oc env dc/keynote2015-hexboard ACCESS_TOKEN=<access-token>
+> oc env dc/hexboard ACCESS_TOKEN=<access-token>
+> oc env dc/hexboard HEXBOARD_HOST=<hexboard-host-url>
 > oc get pods -w
 ----
 
@@ -39,7 +60,7 @@ wait for the deployment to complete.
 == Create the route to expose the service
 [source, bash]
 ----
-> oc expose service keynote2015-hexboard
+> oc expose service hexboard --hostname=<hexboard-host-url>
 > oc get route
 ----
 
@@ -65,7 +86,7 @@ Execute the following commands in your local clone of this repository:
 run `gulp` in it's own terminal:
 [source, bash]
 ----
-> PROXY="http://localhost:8080" OPENSHIFT_MASTER="localhost:8443" gulp
+> PORT=8081 HEXBOARD_HOST="localhost:8081" ACCESS_TOKEN="YOUR_ACCESS_TOKEN" gulp
 ----
 
 = Scaling the number of Pods
