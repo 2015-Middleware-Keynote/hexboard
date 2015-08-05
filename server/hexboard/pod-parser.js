@@ -76,7 +76,7 @@ var PodParser = function() {
       } else if (update.object.status.phase === 'Running' && update.object.status.Condition[0].type == 'Ready' && update.object.status.Condition[0].status === 'True') {
         update.data.ip = update.object.status.podIP;
         update.data.port = 8080;
-        update.data.url = config.get('HEXBOARD_HOST') + '/direct/' + update.data.ip + '/';
+        update.data.url = config.get('PROXY') + '/direct/' + update.data.ip + '/';
         console.log(update.data.url)
         update.data.stage = 4;
       } else {

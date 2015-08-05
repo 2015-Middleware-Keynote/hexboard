@@ -151,7 +151,7 @@ var parseSketch = function(req) {
   };
   var stream = parseSketchStream(req);
   hexboard.claimHexagon(sketch);
-  if (sketch.pod && sketch.pod.url) {  // config.get('HEXBOARD_HOST') == ''
+  if (sketch.pod && sketch.pod.url) {  // config.get('PROXY') == ''
     console.log(tag, 'pod.url', sketch.pod.url);
     if (sketch.pod.url.indexOf('/') === 0) {
       sketch.externalUrl = 'http://' + req.get('Host') + sketch.pod.url;

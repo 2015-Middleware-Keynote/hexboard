@@ -306,10 +306,6 @@
                                         "value": "${HEXBOARD_SIZE}"
                                     },
                                     {
-                                        "name": "HEXBOARD_HOST",
-                                        "value": "${HEXBOARD_HOST}"
-                                    },
-                                    {
                                         "name": "ACCESS_TOKEN",
                                         "value": "${ACCESS_TOKEN}"
                                     }
@@ -364,19 +360,14 @@
     ],
     "parameters": [
         {
-            "description": "The host URL for the app (port included)",
-            "value": "localhost:1080",
-            "name": "HEXBOARD_HOST"
+            "description": "OpenShift OAuth token (REQUIRED)",
+            "value": "Missing!",
+            "name": "ACCESS_TOKEN"
         },
         {
             "description": "The total number of hexagons (containers) to display in the UI",
-            "value": "xsmall",
+            "value": "small",
             "name": "HEXBOARD_SIZE"
-        },
-        {
-            "description": "OpenShift OAuth token",
-            "value": "Missing (and Required!)",
-            "name": "ACCESS_TOKEN"
         },
         {
             "description": "Generic webhook secret",

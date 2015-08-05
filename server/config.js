@@ -8,7 +8,7 @@ var autoconfig = function (config_overrides){
   , BASIC_AUTH_USER: process.env.BASIC_AUTH_USER || ''
   , BASIC_AUTH_PASSWORD: process.env.BASIC_AUTH_PASSWORD || ''
   , HEXBOARD_SIZE: process.env.HEXBOARD_SIZE || 'small' // xsmall, small, medium, large, xlarge
-  , HEXBOARD_HOST: process.env.HEXBOARD_HOST || '/'
+  , PROXY: process.env.PROXY || ''
   })
   return config;
 }

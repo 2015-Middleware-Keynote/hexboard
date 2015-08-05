@@ -10,8 +10,8 @@ toc::[]
 == Authentication
 [source, bash]
 ----
-> oc login <openshift-cluster-ip>
-> oc config view
+oc login <openshift-cluster-ip>
+oc config view
 ----
 
 Take note of the OAUTH token in the `config view` for your openshift cluster and include it as needed in example commands.
@@ -20,7 +20,7 @@ Export this configuration detail to use it in the following examples as `${ACCES
 
 [source, bash]
 ----
-> export ACCESS_TOKEN="YOUR_ACCESS_TOKEN_FROM_OC_CONFIG_VIEW"
+export ACCESS_TOKEN="YOUR_ACCESS_TOKEN_FROM_OC_CONFIG_VIEW"
 ----
 
 == Create a project
@@ -28,45 +28,45 @@ Create a project to house this application:
 
 [source, bash]
 ----
-> oc new-project <project-name>
+oc new-project <project-name>
 ----
 
 Load the project from a template:
 
 [source, bash]
 ----
-> oc create -f https://raw.githubusercontent.com/2015-Middleware-Keynote/hexboard/master/app_template.json
-> oc process -v="HEXBOARD_HOST=${HEXBOARD_HOST},ACCESS_TOKEN=${ACCESS_TOKEN}" hexboard | oc create -f -
+oc create -f https://raw.githubusercontent.com/2015-Middleware-Keynote/hexboard/master/app_template.json
+oc process -v="ACCESS_TOKEN=${ACCESS_TOKEN}" hexboard | oc create -f -
 ----
 
 Or, create each service individually:
 
 [source, bash]
 ----
-> oc new-app openshift/nodejs-010-centos7~http://github.com/2015-Middleware-Keynote/sketchpod
-> oc new-app -e "HEXBOARD_HOST=${HEXBOARD_HOST},ACCESS_TOKEN=${ACCESS_TOKEN}" openshift/nodejs-010-centos7~http://github.com/2015-Middleware-Keynote/hexboard
+oc new-app openshift/nodejs-010-centos7~http://github.com/2015-Middleware-Keynote/sketchpod
+oc new-app -e "ACCESS_TOKEN=${ACCESS_TOKEN}" openshift/nodejs-010-centos7~http://github.com/2015-Middleware-Keynote/hexboard
 ----
 
 Then, check the results:
 
 [source, bash]
 ----
-> oc get builds -w
+oc get builds -w
 ----
 
 Wait for the _sketchpod_ and _hexboard_ builds to complete.  Or, start the builds as needed:
 
 [source, bash]
 ----
-> oc start-build hexboard
-> oc start-build sketchpod
+oc start-build hexboard
+oc start-build sketchpod
 ----
 
 Watch the progress:
 
 [source, bash]
 ----
-> oc get pods -w
+oc get pods -w
 ----
 
 = Routing
@@ -75,7 +75,7 @@ The optional `--hostname` flag allows you to create a custom route to an existin
 
 [source, bash]
 ----
-> oc expose se/hexboard --hostname=$HEXBOARD_HOST
+oc expose se/hexboard --hostname=<your-hexboard-hostname>
 ----
 
 This creates an external route for the service.  Make sure this route is addressable from wherever you are running your browser (an `/etc/hosts` entry in your client _may_ be required).
@@ -84,19 +84,17 @@ Excluding the `--hostname` flag should generate a default route that automatical
 
 [source, bash]
 ----
-> oc expose se/hexboard
+oc expose se/hexboard
 ----
 
 Now, try listing your existing routes:
 
 [source, bash]
 ----
-> oc get route
+oc get route
 ----
 
-NOTE: To run this application in a VM, try exposing the hexboard service at `localhost`, while setting your `HEXBOARD_HOST` config to `localhost:1080`.
-
-== Configuration
+= Configuration
 
 The service configuration is provided via environment variables. These configs can be set while loading a project from a template via the web console or via the `oc process` command.  
 
@@ -106,15 +104,7 @@ To set the **required** `ACCESS_TOKEN` config, follow the instructions in the ab
 
 [source, bash]
 ----
-> oc env dc/hexboard ACCESS_TOKEN="${ACCESS_TOKEN}"
-----
-
-This example uses the results of the `oc get route` command to update your proxy host URL info with any route info that you've established in previous `oc expose` steps.
-
-[source, bash]
-----
-> export HEXBOARD_HOST=$(oc get routes -o template -t '''{{with index .items 0}}{{.spec.host}}{{end}}''')
-> oc env dc/hexboard HEXBOARD_HOST="${HEXBOARD_HOST}"
+oc env dc/hexboard ACCESS_TOKEN="${ACCESS_TOKEN}"
 ----
 
 The number of pods in the hexboard can be controlled by setting the `HEXBOARD_SIZE` environment variable:
@@ -130,8 +120,8 @@ The number of pods in the hexboard can be controlled by setting the `HEXBOARD_SI
 
 [source, bash]
 ----
-> oc env dc/hexboard HEXBOARD_SIZE=<hexboard-size>
-> oc get pods -w
+oc env dc/hexboard HEXBOARD_SIZE=<hexboard-size>
+oc get pods -w
 ----
 
 NOTE: setting an environment variable triggers a new deployment, so watch the `oc get pods -w` output to see when the deployment is complete.
@@ -142,10 +132,10 @@ To scale the number of hexagons (either up or down) run the command:
 
 [source, bash]
 ----
-> oc scale rc/sketchpod --replicas=<number>
+oc scale rc/sketchpod --replicas=<number>
 ----
 
-After scaling up, try submitting sketches by visiting the hexboard's bundled mobile web submission form, available at: `http://${HEXBOARD_HOST}/mobile/`
+After scaling up, try submitting sketches by visiting the hexboard's bundled mobile web submission form, at `http://your-hexboard-hostname/mobile/`.
 
 = Local Development
 
@@ -159,7 +149,7 @@ After scaling up, try submitting sketches by visiting the hexboard's bundled mob
 Execute the following commands in your local clone of this repository:
 [source, bash]
 ----
-> npm install
+npm install
 ----
 
 == Run the hexboard locally
@@ -168,5 +158,5 @@ Run `gulp` in it's own terminal, providing environment variables that reference 
 
 [source, bash]
 ----
-> PORT=8081 HEXBOARD_HOST="localhost:8081" ACCESS_TOKEN="${ACCESS_TOKEN}" OPENSHIFT_SERVER="localhost:8443" NAMESPACE=hexboard gulp
+PORT=8081 PROXY="localhost:1080" ACCESS_TOKEN="${ACCESS_TOKEN}" OPENSHIFT_SERVER="localhost:8443" NAMESPACE=hexboard gulp
 ----
