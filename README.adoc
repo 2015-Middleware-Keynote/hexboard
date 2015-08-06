@@ -1,11 +1,13 @@
 :toc: macro
 = Hexboard UI
 
-A hexboard for visualizing Kubernetes pod status
+Container vizualization for link:OpenShift platformV3[http://openshift.com/]. As featured in the link:Red Hat Summit 2015 - JBoss Keynote demo[https://www.youtube.com/watch?v=wWNVpFibayA&t=26m48s]
 
 toc::[]
 
-= Run the project on an OpenShift cluster
+= Basic Setup
+
+To use a VM, follow the setup instructions from link:http://bit.ly/v3devs[this workshop]
 
 == Authentication
 [source, bash]
@@ -31,7 +33,7 @@ Create a project to house this application:
 oc new-project <project-name>
 ----
 
-Load the project from a template:
+Install and launch the project from a template:
 
 [source, bash]
 ----
@@ -54,7 +56,11 @@ Then, check the results:
 oc get builds -w
 ----
 
-Wait for the _sketchpod_ and _hexboard_ builds to complete.  Or, start the builds as needed:
+= Builds
+
+Docker image builds can be initiated by navigating to the "Builds" tab in the V3 web console. Click on the **Start Build** button for each service.
+
+You can also initiate the builds from the command line:
 
 [source, bash]
 ----
@@ -70,6 +76,7 @@ oc get pods -w
 ----
 
 = Routing
+
 In order to view the hexboard, you'll need to expose your service by setting up a Route.
 The optional `--hostname` flag allows you to create a custom route to an existing `service`:
 
@@ -132,7 +139,7 @@ To scale the number of hexagons (either up or down) run the command:
 
 [source, bash]
 ----
-oc scale rc/sketchpod --replicas=<number>
+oc scale rc/sketchpod-1 --replicas=<number>
 ----
 
 After scaling up, try submitting sketches by visiting the hexboard's bundled mobile web submission form, at `http://your-hexboard-hostname/mobile/`.
@@ -160,3 +167,14 @@ Run `gulp` in it's own terminal, providing environment variables that reference 
 ----
 PORT=8081 PROXY="localhost:1080" ACCESS_TOKEN="${ACCESS_TOKEN}" OPENSHIFT_SERVER="localhost:8443" NAMESPACE=hexboard gulp
 ----
+
+= Cleanup
+
+You can clear out everything in your existing project by running the following:
+
+[source, bash]
+----
+oc delete all --all
+----
+
+TIP: Be careful to verify that you're logged into the correct server and project before running this command!
