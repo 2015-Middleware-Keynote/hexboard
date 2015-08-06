@@ -1,7 +1,7 @@
 :toc: macro
 = Hexboard UI
 
-Container vizualization for link:OpenShift platformV3[http://openshift.com/]. As featured in the link:Red Hat Summit 2015 - JBoss Keynote demo[https://www.youtube.com/watch?v=wWNVpFibayA&t=26m48s]
+Container vizualization for link:http://openshift.com/[OpenShift platformV3]. As featured in the link:https://www.youtube.com/watch?v=wWNVpFibayA&t=26m48s[Red Hat Summit 2015 - JBoss Keynote demo]
 
 toc::[]
 
