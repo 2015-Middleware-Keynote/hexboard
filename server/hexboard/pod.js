@@ -54,8 +54,7 @@ var environment = {
 function verifyPodAvailable(parsed, timeout) {
   var pod = parsed.data;
   return Rx.Observable.create(function(observer) {
-    //var url = config.get('HEXBOARD_HOST') ? pod.url : 'http://' + pod.ip + ':' + pod.port + '/';
-    var url = pod.url;
+    var url = config.get('PROXY') ? pod.url : 'http://' + pod.ip + ':' + pod.port + '/';
     var options = {
       url: url + 'status'
     , method: 'get'
