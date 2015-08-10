@@ -85,7 +85,7 @@ The optional `--hostname` flag allows you to create a custom route to an existin
 oc expose se/hexboard --hostname=<your-hexboard-hostname>
 ----
 
-This creates an external route for the service.  Make sure this route is addressable from wherever you are running your browser (an `/etc/hosts` entry in your client _may_ be required).
+Make sure this route is addressable from wherever you are running your browser (an `/etc/hosts` entry in your client _may_ be required).
 
 Excluding the `--hostname` flag should generate a default route that automatically takes advantage of your cluster's wildcard DNS (if available):
 
@@ -118,11 +118,14 @@ The number of pods in the hexboard can be controlled by setting the `HEXBOARD_SI
 [options="header"]
 |===
 | HEXBOARD_SIZE | # of pods |
-| xsmall | 12 | _when running on a laptop_
-| small | 108 | _minimum size when on ec2_
-| medium | 266 |
-| large _(default)_ | 513 |
-| xlarge | 1,026 | _the "keynote" size_
+| xlarge | 1026 | _"keynote" sized_
+| large | 513 | _major league_
+| medium | 266 | _cluster pro_
+| small | 108 | _multi machine party_
+| xsmall | 63 | _fun sized_ 
+| tiny | 32 | _large laptop allocation_
+| micro | 24 | _medium laptop allocation_
+| nano | 12 | _small laptop allocation_
 |===
 
 [source, bash]

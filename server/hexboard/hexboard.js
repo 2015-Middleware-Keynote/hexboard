@@ -25,10 +25,21 @@ var HexBoard = function() {
       rows: 9
     },
     xsmall: {
+      cols: 9,
+      rows: 7
+    },
+    tiny: {
+      cols: 8,
+      rows: 4
+    },
+    micro: {
+      cols: 6,
+      rows: 4
+    },
+    nano: {
       cols: 4,
       rows: 3
     }
-
   };
 
   var layout = layouts[config.get('HEXBOARD_SIZE')];
