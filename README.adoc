@@ -7,7 +7,11 @@ toc::[]
 
 = Basic Setup
 
-To use a VM, follow the setup instructions from link:http://bit.ly/v3devs[this workshop]
+To get started, you'll need an OpenShiftV3 environment with a valid user account.
+
+You can create your own environment in Amazon EC2 using the link:https://github.com/2015-Middleware-Keynote/demo-ansible[demo-ansible] playbook.
+
+To use a local VM with vagrant, follow the setup instructions from link:http://bit.ly/v3devs[this workshop]
 
 == Authentication
 [source, bash]
@@ -16,13 +20,13 @@ oc login <openshift-cluster-ip>
 oc config view
 ----
 
-Take note of the OAUTH token in the `config view` for your openshift cluster and include it as needed in example commands.
+After logging in, you'll be able to fetch your cli tool's `ACCESS_TOKEN` by running `oc whoami -t` for your openshift cluster and include it as needed in example commands.
 
 Export this configuration detail to use it in the following examples as `${ACCESS_TOKEN}`:
 
 [source, bash]
 ----
-export ACCESS_TOKEN="YOUR_ACCESS_TOKEN_FROM_OC_CONFIG_VIEW"
+export ACCESS_TOKEN=$(oc whoami -t)
 ----
 
 == Create a project
