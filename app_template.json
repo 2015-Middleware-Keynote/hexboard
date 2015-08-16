@@ -62,7 +62,7 @@
                     "sourceStrategy": {
                         "from": {
                             "kind": "DockerImage",
-                            "name": "openshift/nodejs-010-centos7:latest"
+                            "name": "${BUILDER_IMAGE}:latest"
                         },
                         "incremental": true
                     }
@@ -229,7 +229,7 @@
                     "sourceStrategy": {
                         "from": {
                             "kind": "DockerImage",
-                            "name": "openshift/nodejs-010-centos7:latest"
+                            "name": "${BUILDER_IMAGE}:latest"
                         },
                         "incremental": true
                     }
@@ -356,6 +356,22 @@
                 "portalIP": "",
                 "type": "ClusterIP"
             }
+        },
+        {
+            "kind": "Route",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "hexboard",
+                "creationTimestamp": null
+            },
+            "spec": {
+                "host": "",
+                "to": {
+                    "kind": "Service",
+                    "name": "hexboard"
+                }
+            },
+            "status": {}
         }
     ],
     "parameters": [
@@ -363,6 +379,11 @@
             "description": "OpenShift OAuth token (REQUIRED)",
             "value": "Missing!",
             "name": "ACCESS_TOKEN"
+        },
+        {
+            "description": "builder image",
+            "value": "openshift/nodejs-010-centos7",
+            "name": "BUILDER_IMAGE"
         },
         {
             "description": "The total number of hexagons (containers) to display in the UI",
