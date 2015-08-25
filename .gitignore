@@ -1,6 +1,3 @@
-**/lib
-www/
 .sass-cache
 .DS_Store
-data/
 npm-debug.log
