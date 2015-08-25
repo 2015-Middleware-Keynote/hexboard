@@ -38,7 +38,7 @@
     "config-multipaas": "https://registry.npmjs.org/config-multipaas/-/config-multipaas-0.1.0.tgz",
     "d3": "^3.5.6",
     "debuglog": "^1.0.1",
-    "express": "^4.12.3",
+    "express": "https://registry.npmjs.org/express/-/express-4.12.4.tgz",
     "http-proxy": "^1.11.1",
     "jquery": "^2.1.4",
     "morgan": "^1.5.2",
