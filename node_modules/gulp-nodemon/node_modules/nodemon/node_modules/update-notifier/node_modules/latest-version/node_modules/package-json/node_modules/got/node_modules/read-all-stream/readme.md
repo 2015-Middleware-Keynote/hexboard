@@ -14,6 +14,10 @@ $ npm install --save read-all-stream
 var read = require('read-all-stream');
 var stream = fs.createReadStream('index.js');
 
+read(stream).then(function (data) {
+	console.log(data.length);
+});
+
 read(stream, 'utf8', function (err, data) {
 	console.log(data.length);
 	//=> 42
@@ -23,7 +27,9 @@ read(stream, 'utf8', function (err, data) {
 
 ### API
 
-#### read(stream, [options], callback)
+#### read(stream, [options], [callback])
+
+If callback is omitted, Promise will be returned.
 
 ##### stream
 
@@ -47,6 +53,8 @@ Default: `'utf8'`
 Encoding to be used on `toString` of the data. If null, the body is returned as a Buffer.
 
 ##### callback(err, data)
+
+Will be called after stream is read.
 
 ###### err
 
