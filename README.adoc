@@ -151,6 +151,16 @@ oc scale rc/sketchpod-1 --replicas=<number>
 
 After scaling up, try submitting sketches by visiting the hexboard's bundled mobile web submission form, at `http://your-hexboard-hostname/mobile/`.
 
+= Auto-Recovery
+After scaling up, the hexboard provides a nice way to visualize Kubernetes' support for auto-healing the containerized environments.
+
+You can show this functionality by deleting a group of pods.  This example makes it easy find and delete five pods:
+
+[source, bash]
+----
+oc delete pod $(oc get pods | grep ^sketchpod | grep -v build | sed -e "s/^\(sketchpod-[0-9]*-[a-z0-9]*\)[ \t].*/\1 /" | head -n 5 | tr -d "\n" )
+----
+
 = Local Development
 
 == Pre-Requisutes
@@ -177,11 +187,19 @@ PORT=8081 PROXY="localhost:1080" ACCESS_TOKEN="${ACCESS_TOKEN}" OPENSHIFT_SERVER
 
 = Cleanup
 
-You can clear out everything in your existing project by running the following:
+You can clean out the entire contents of the `hexboard` project by running the following:
 
 [source, bash]
 ----
-oc delete all --all
+oc delete all --all -n hexboard
 ----
 
-TIP: Be careful to verify that you're logged into the correct server and project before running this command!
+TIP: Be careful to verify that you have logged into the correct server, and have selected the correct project before running this command!
+
+Or, delete the entire project and the included resources:
+
+[source, bash]
+----
+oc delete project hexboard
+----
+
