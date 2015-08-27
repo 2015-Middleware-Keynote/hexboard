@@ -49,7 +49,7 @@ Or, create each service individually:
 
 [source, bash]
 ----
-oc new-app openshift/nodejs-010-centos7~http://github.com/2015-Middleware-Keynote/sketchpod
+oc new-app -l servicegroup=sketchpod openshift/nodejs-010-centos7~http://github.com/2015-Middleware-Keynote/sketchpod
 oc new-app -e "ACCESS_TOKEN=${ACCESS_TOKEN}" openshift/nodejs-010-centos7~http://github.com/2015-Middleware-Keynote/hexboard
 ----
 
@@ -187,6 +187,13 @@ PORT=8081 PROXY="localhost:1080" ACCESS_TOKEN="${ACCESS_TOKEN}" OPENSHIFT_SERVER
 
 = Cleanup
 
+To delete all sketchpods using a labelselector, try this:
+
+[source, bash]
+----
+oc delete all -l servicegroup=sketchpod
+----
+
 You can clean out the entire contents of the `hexboard` project by running the following:
 
 [source, bash]
@@ -196,7 +203,7 @@ oc delete all --all -n hexboard
 
 TIP: Be careful to verify that you have logged into the correct server, and have selected the correct project before running this command!
 
-Or, delete the entire project and the included resources:
+Or, delete the entire project and any included resources:
 
 [source, bash]
 ----
