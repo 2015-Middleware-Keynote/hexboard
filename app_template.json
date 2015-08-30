@@ -318,6 +318,10 @@
                                         "value": "${HEXBOARD_SIZE}"
                                     },
                                     {
+                                        "name": "ADMIN_TOKEN",
+                                        "value": "${ADMIN_TOKEN}"
+                                    },
+                                    {
                                         "name": "ACCESS_TOKEN",
                                         "value": "${ACCESS_TOKEN}"
                                     }
@@ -399,8 +403,14 @@
         },
         {
             "description": "The total number of hexagons (containers) to display in the UI",
-            "value": "small",
+            "value": "xsmall",
             "name": "HEXBOARD_SIZE"
+        },
+        {
+            "description": "Admin Secret",
+            "from": "[a-zA-Z0-9]{8}",
+            "generate": "expression",
+            "name": "ADMIN_TOKEN"
         },
         {
             "description": "Generic webhook secret",
