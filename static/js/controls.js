@@ -11,16 +11,33 @@ hex.controls = (function dataSimulator(d3, Rx) {
     return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
   };
 
-  var adminEnabled = getParameterByName('admin') === 'true';
+  // Admin token management
+  if(getParameterByName('logout') == 'true'){
+    localStorage.clear();
+    document.location.assign('?');
+  }
+  var adminToken = false;
+  var auth = '';
+  if(getParameterByName('admin') !== ''){
+    localStorage.adminToken = getParameterByName('admin');
+    document.location.assign('?');
+  }
+  if( typeof localStorage.adminToken !== 'undefined' ){
+    adminToken = localStorage.adminToken;
+    document.getElementById('navbar-admin-controls').style = "display:block;"
+  }
+  if(adminToken){
+    auth = "?token=" + adminToken;
+  }
 
   Rx.Observable.fromEvent(d3.select('#push-sketches').node(), 'click').subscribe(function() {
-    var xhr = d3.xhr('/api/sketch/random/10', function(err, res) {
+    var xhr = d3.xhr('/api/sketch/random/10' + auth, function(err, res) {
       console.log(err || res);
     });
   });
 
   Rx.Observable.fromEvent(d3.select('#remove-sketches').node(), 'click').subscribe(function() {
-    var xhr = d3.xhr('/api/sketch/all');
+    var xhr = d3.xhr('/api/sketch/all' + auth);
     xhr.send('DELETE', function(err, res) {
       console.log('removing all sketches');
       console.log(err || res);
@@ -130,7 +147,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
         return;
       };
       var newId = p.id;
-      if (adminEnabled) {
+      if (adminToken) {
         hex.inspect.highlight(newId);
       } else {
         hex.highlight.highlight(newId);
@@ -150,9 +167,9 @@ hex.controls = (function dataSimulator(d3, Rx) {
     var p = d3.select(event.target).datum();
     if ((event.metaKey || event.ctrlKey) && p.sketch) {
       winnerSocket.onNext(JSON.stringify({key: 'test', msg: {action: 'pick', value: p.id}}));
-    } else if (event.target.classList.contains('inspect') && adminEnabled) {
+    } else if (event.target.classList.contains('inspect') && adminToken) {
       var index = p.id;
-      var xhr = d3.xhr('/api/sketch/' + p.id);
+      var xhr = d3.xhr('/api/sketch/' + p.id + auth);
       xhr.send('DELETE', function(err, res) {
         console.log('removing ', index);
         console.log(err || res);
@@ -173,7 +190,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
     dispose: dispose,
     websocketStream: websocketStream,
     winnerSocket: winnerSocket,
-    adminEnabled: adminEnabled
+    adminEnabled: adminToken
   }
 
 })(d3, Rx);

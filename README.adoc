@@ -42,7 +42,7 @@ Install and launch the project from a template:
 [source, bash]
 ----
 oc create -f https://raw.githubusercontent.com/2015-Middleware-Keynote/hexboard/master/app_template.json
-oc process -v="ACCESS_TOKEN=${ACCESS_TOKEN}" hexboard | oc create -f -
+oc process -v="ACCESS_TOKEN=${ACCESS_TOKEN},ADMIN_TOKEN=12345" hexboard | oc create -f -
 ----
 
 Or, create each service individually:
@@ -111,12 +111,29 @@ The service configuration is provided via environment variables. These configs c
 
 You can also add environment keys to an existing deployment config using the `oc env` command.  Setting new configuration details will trigger a deployment to distribute your changes (if needed).
 
+#### API Access Token
+
 To set the **required** `ACCESS_TOKEN` config, follow the instructions in the above link:#authentication[Authentication] section, using your own `ACCESS_TOKEN` value in the following example:
 
 [source, bash]
 ----
 oc env dc/hexboard ACCESS_TOKEN="${ACCESS_TOKEN}"
 ----
+
+#### Admin Controls
+
+For access to to the hexboard's Admin UI controls ('push random sketches', 'clear sketches', and 'pick random winners' features), you'll need to supply matching `ADMIN_TOKEN`s on the server, and on your client device.
+
+Set a server-side `ADMIN_TOKEN`:
+
+[source, bash]
+----
+oc env dc/hexboard ADMIN_TOKEN="${ADMIN_TOKEN}"
+----
+
+You'll need to set the same token in your browser to reveal the Admin UI controls.  Visit "http://YOUR_HEXBOARD/?admin=YOUR_ADMIN_TOKEN" to add administrative UI controls to your browser.
+
+#### Hexboard Size
 
 The number of pods in the hexboard can be controlled by setting the `HEXBOARD_SIZE` environment variable:
 [options="header"]
