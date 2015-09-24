@@ -133,6 +133,16 @@ oc env dc/hexboard ADMIN_TOKEN="${ADMIN_TOKEN}"
 
 You'll need to set the same token in your browser to reveal the Admin UI controls.  Visit "http://YOUR_HEXBOARD/?admin=YOUR_ADMIN_TOKEN" to add administrative UI controls to your browser.
 
+#### Winner Count
+The number of winning sketches is now adjustable via the `WINNER_COUNT` environment variable.  The default value is ten winners.
+
+You can set the number of winning sketch submissions to three by running the following:
+
+[source, bash]
+----
+oc env dc/hexboard WINNER_COUNT=3
+----
+
 #### Hexboard Size
 
 The number of pods in the hexboard can be controlled by setting the `HEXBOARD_SIZE` environment variable:

@@ -24,6 +24,11 @@
             "name": "BUILDER_IMAGE"
         },
         {
+            "description": "Number of winners",
+            "value": "10",
+            "name": "WINNER_COUNT"
+        },
+        {
             "description": "The total number of hexagons (containers) to display in the UI",
             "value": "xsmall",
             "name": "HEXBOARD_SIZE"
@@ -268,7 +273,8 @@
                 "source": {
                     "type": "Git",
                     "git": {
-                        "uri": "http://github.com/2015-Middleware-Keynote/hexboard"
+                        "uri": "http://github.com/2015-Middleware-Keynote/hexboard",
+                        "ref": "master"
                     }
                 },
                 "strategy": {
@@ -351,6 +357,10 @@
                                     {
                                         "name": "HEXBOARD_SIZE",
                                         "value": "${HEXBOARD_SIZE}"
+                                    },
+                                    {
+                                        "name": "WINNER_COUNT",
+                                        "value": "${WINNER_COUNT}"
                                     },
                                     {
                                         "name": "ADMIN_TOKEN",

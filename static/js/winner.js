@@ -13,6 +13,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
     return Math.floor(Math.random() * (max - min) + min);
   };
 
+  var numWinners = hex.config.winner_count;
   var winners = [];
 
   var isAllowedToWin = function(point, exclusions) {
@@ -46,7 +47,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
       }
       else index = highlightedHexagon.datum().id;
     }
-    if (winners.length >= 10) {
+    if (winners.length >= numWinners) {
       return;
     }
     if (winners.some(function(point) { return point.id === index })) {
@@ -63,7 +64,6 @@ hex.winner = (function dataSimulator(d3, Rx) {
   };
 
   var pickWinners = function() {
-    var numWinners = 10;
     var candidates = hex.board.hexboard.points.filter(function(point) {
       return point.sketch;
     });
@@ -88,7 +88,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
   var init = function() {
     zoom.stage = (hex.board.hexboard.content.y / 5) / (2 * hex.board.hexboard.honeycomb.size);
     zoom.winner = (hex.board.hexboard.content.y / 3) / (2 * hex.board.hexboard.honeycomb.size);
-    stageSpots = d3.range(10).map(function(spot, index) {
+    stageSpots = d3.range(numWinners).map(function(spot, index) {
       if (hex.board.hexboard.content.aspect === 'wide') {
         var offsetMultiplier = Math.floor(index / 5) === 0 ? 1/4 : 1/2;
         var offset = (offsetMultiplier + (zoom.stage - 1) / 2) * hex.board.hexboard.honeycomb.spacing.x;
@@ -104,7 +104,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
       }
     });
 
-    winnerSpots = d3.range(10).map(function(spot, index) {
+    winnerSpots = d3.range(numWinners).map(function(spot, index) {
       var c = {x: hex.board.hexboard.content.x / 2, y: hex.board.hexboard.content.y / 2}
         , delta = {x: hex.board.hexboard.honeycomb.dimensions.x/4, y: hex.board.hexboard.honeycomb.dimensions.y/3.5}
         , offset = {x: 0, y: 0}  // an adjustment to make room for the names
@@ -161,7 +161,7 @@ hex.winner = (function dataSimulator(d3, Rx) {
 
   var stageWinner = function(p, index) {
     animateWinner(p, p, stageSpots[index], 1, zoom.stage, false, function() {
-      if (winners.length === 10 && index === 9) {
+      if (winners.length === numWinners && index === (numWinners - 1)) {
         hex.feed.dispose();
         hex.controls.dispose();
         hex.highlight.unhighlight();
