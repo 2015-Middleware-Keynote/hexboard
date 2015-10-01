@@ -24,7 +24,7 @@ hex.controls = (function dataSimulator(d3, Rx) {
   }
   if( typeof localStorage.adminToken !== 'undefined' ){
     adminToken = localStorage.adminToken;
-    document.getElementById('navbar-admin-controls').style = "display:block;"
+    document.getElementById('navbar-admin-controls').style.display = "block";
   }
   if(adminToken){
     auth = "?token=" + adminToken;
