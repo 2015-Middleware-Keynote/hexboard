@@ -90,7 +90,7 @@ var postImageToPod = function(sketch, req) {
     }));
   })
   .retryWhen(function(errors) {
-    var maxRetries = 3;
+    var maxRetries = 30;
     return errors.scan(0, function(errorCount, err) {
       if (errorCount === 0) {
         console.log(tag, err.msg);
