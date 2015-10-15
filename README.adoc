@@ -86,7 +86,7 @@ The optional `--hostname` flag allows you to create a custom route to an existin
 
 [source, bash]
 ----
-oc expose se/hexboard --hostname=<your-hexboard-hostname>
+oc expose svc/hexboard --hostname=<your-hexboard-hostname>
 ----
 
 Make sure this route is addressable from wherever you are running your browser (an `/etc/hosts` entry in your client _may_ be required).
@@ -95,7 +95,7 @@ Excluding the `--hostname` flag should generate a default route that automatical
 
 [source, bash]
 ----
-oc expose se/hexboard
+oc expose svc/hexboard
 ----
 
 Now, try listing your existing routes:
