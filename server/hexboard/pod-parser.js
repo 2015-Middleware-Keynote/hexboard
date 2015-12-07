@@ -49,8 +49,12 @@ var PodParser = function() {
       return update;
     };
     var podName = update.object.spec.containers[0].name;
-    if (podName.indexOf('hexboard') == 0 || !update.object.status || !update.object.status.phase) {
-      // console.log(tag, 'Ignoring update for container name:', update.object.spec.containers[0].name);
+    if (podName.indexOf('hexboard') == 0
+	|| podName.search('build') !== -1
+	|| !update.object.status
+	|| !update.object.status.phase)
+    {
+      //console.log(tag, 'Ignoring update for container name:', update.object.spec.containers[0].name);
     } else {
       var replicaName = update.object.metadata.name;
       //bundle the pod data
