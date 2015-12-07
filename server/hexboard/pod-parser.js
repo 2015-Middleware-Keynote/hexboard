@@ -49,7 +49,7 @@ var PodParser = function() {
       return update;
     };
     var podName = update.object.spec.containers[0].name;
-    if (podName.indexOf('sketchpod') !== 0 || !update.object.status || !update.object.status.phase) {
+    if (podName.indexOf('hexboard') == 0 || !update.object.status || !update.object.status.phase) {
       // console.log(tag, 'Ignoring update for container name:', update.object.spec.containers[0].name);
     } else {
       var replicaName = update.object.metadata.name;
@@ -67,13 +67,13 @@ var PodParser = function() {
       if (update.type === 'DELETED') {
         returnIdToPool(update);
         update.data.stage = 0;
-      } else if (update.object.status.phase === 'Pending' && ! update.object.spec.host) {
+      } else if (update.object.status.phase === 'Pending' && ! update.object.spec.nodeName ) {
         update.data.stage = 1;
-      } else if (update.object.status.phase === 'Pending' && update.object.spec.host) {
+      } else if (update.object.status.phase === 'Pending' && update.object.spec.nodeName ) {
         update.data.stage = 2;
-      } else if (update.object.status.phase === 'Running' && update.object.status.Condition[0].type == 'Ready' && update.object.status.Condition[0].status === 'False') {
+      } else if (update.object.status.phase === 'Running' && update.object.status.conditions[0].type == 'Ready' && update.object.status.conditions[0].status === 'False') {
         update.data.stage = 3;
-      } else if (update.object.status.phase === 'Running' && update.object.status.Condition[0].type == 'Ready' && update.object.status.Condition[0].status === 'True') {
+      } else if (update.object.status.phase === 'Running' && update.object.status.conditions[0].type == 'Ready' && update.object.status.conditions[0].status === 'True') {
         update.data.ip = update.object.status.podIP;
         update.data.port = 8080;
         // Construct a route to the back-end service

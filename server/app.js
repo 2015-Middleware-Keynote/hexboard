@@ -52,8 +52,8 @@ app.post(new RegExp("/("+config.get('NAMESPACE')+")\/([-a-zA-Z0-9_]+)\/(.*)"), p
 app.get( new RegExp("/("+config.get('NAMESPACE')+")\/([-a-zA-Z0-9_]+)"), proxy.path);
 app.put( new RegExp("/("+config.get('NAMESPACE')+")\/([-a-zA-Z0-9_]+)"), proxy.path);
 app.post(new RegExp("/("+config.get('NAMESPACE')+")\/([-a-zA-Z0-9_]+)"), proxy.path);
-app.get( /^\/api\/v1beta3\/NAMESPACEs\/(\w)\/pods\/(\w)\/proxy\/(.*)/, proxy.path);
-app.get( /^\/api\/v1beta3\/NAMESPACEs\/(\w)\/pods\/(\w)\/proxy/, proxy.path);
+app.get( /^\/api\/v1\/NAMESPACEs\/(\w)\/pods\/(\w)\/proxy\/(.*)/, proxy.path);
+app.get( /^\/api\/v1\/NAMESPACEs\/(\w)\/pods\/(\w)\/proxy/, proxy.path);
 
 app.get('/status', function (req, res, next) { res.send("{status: 'ok'}"); return next() });
 router.route('/sketch/:containerId').get(sketchController.getImage);
