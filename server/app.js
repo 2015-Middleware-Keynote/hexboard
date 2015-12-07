@@ -27,8 +27,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(middle.cors);
 app.get( '/js/config.js', function (req, res, next) {
   console.log('Fetching client configs...');
-  res.send(client_configs.replace(/winner_count: 10/, "winner_count: " + config.get("WINNER_COUNT"))); 
-  return next();
+  return res.send(client_configs.replace(/winner_count: 10/, "winner_count: " + config.get("WINNER_COUNT"))); 
 });
 app.get( new RegExp("/direct\/([.0-9]+)\/(.*)"), proxy.directPath);
 app.use(express.static(path.join(__dirname, '..', 'static')));
