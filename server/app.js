@@ -27,8 +27,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(middle.cors);
 app.get( '/js/config.js', function (req, res, next) {
   console.log('Fetching client configs...');
-  res.send(client_configs.replace(/winner_count: 10/, "winner_count: " + config.get("WINNER_COUNT"))); 
-  return next();
+  return res.send(client_configs.replace(/winner_count: 10/, "winner_count: " + config.get("WINNER_COUNT"))); 
 });
 app.get( new RegExp("/direct\/([.0-9]+)\/(.*)"), proxy.directPath);
 app.use(express.static(path.join(__dirname, '..', 'static')));
@@ -52,8 +51,8 @@ app.post(new RegExp("/("+config.get('NAMESPACE')+")\/([-a-zA-Z0-9_]+)\/(.*)"), p
 app.get( new RegExp("/("+config.get('NAMESPACE')+")\/([-a-zA-Z0-9_]+)"), proxy.path);
 app.put( new RegExp("/("+config.get('NAMESPACE')+")\/([-a-zA-Z0-9_]+)"), proxy.path);
 app.post(new RegExp("/("+config.get('NAMESPACE')+")\/([-a-zA-Z0-9_]+)"), proxy.path);
-app.get( /^\/api\/v1beta3\/NAMESPACEs\/(\w)\/pods\/(\w)\/proxy\/(.*)/, proxy.path);
-app.get( /^\/api\/v1beta3\/NAMESPACEs\/(\w)\/pods\/(\w)\/proxy/, proxy.path);
+app.get( /^\/api\/v1\/NAMESPACEs\/(\w)\/pods\/(\w)\/proxy\/(.*)/, proxy.path);
+app.get( /^\/api\/v1\/NAMESPACEs\/(\w)\/pods\/(\w)\/proxy/, proxy.path);
 
 app.get('/status', function (req, res, next) { res.send("{status: 'ok'}"); return next() });
 router.route('/sketch/:containerId').get(sketchController.getImage);

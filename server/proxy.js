@@ -27,7 +27,7 @@ var path = function(req, res, next) {
   var filePath  = req.params[2] || '';
   var pod_host  = "https://"+config.get('OPENSHIFT_SERVER');
   var qs        = url.parse(req.url).search
-  req.url = '/api/v1beta3/namespaces/'+namespace+'/pods/'+ podId +'/proxy/'+filePath
+  req.url = '/api/v1/namespaces/'+namespace+'/pods/'+ podId +'/proxy/'+filePath
   if( qs && qs !== ''){
     req.url += qs;
   }
