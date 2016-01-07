@@ -38,21 +38,19 @@ app.use(middle.logError);
 app.use(middle.handleError);
 
 // routes
-app.get( new RegExp("/direct\/([.0-9]+)"), proxy.directPath);
-app.put( new RegExp("/direct\/([.0-9]+)\/(.*)"), proxy.directPath);
-app.put( new RegExp("/direct\/([.0-9]+)"), proxy.directPath);
-app.post(new RegExp("/direct\/([.0-9]+)\/(.*)"), proxy.directPath);
-app.post(new RegExp("/direct\/([.0-9]+)"), proxy.directPath);
-app.get( new RegExp("/("+config.get('NAMESPACE')+")\/pods\/([-a-zA-Z0-9_]+)\/proxy\/(.*)"), proxy.path);
-app.get( new RegExp("/("+config.get('NAMESPACE')+")\/pods\/([-a-zA-Z0-9_]+)\/(.*)"), proxy.path);
-app.get( new RegExp("/("+config.get('NAMESPACE')+")\/([-a-zA-Z0-9_]+)\/(.*)"), proxy.path);
-app.put( new RegExp("/("+config.get('NAMESPACE')+")\/([-a-zA-Z0-9_]+)\/(.*)"), proxy.path);
-app.post(new RegExp("/("+config.get('NAMESPACE')+")\/([-a-zA-Z0-9_]+)\/(.*)"), proxy.path);
-app.get( new RegExp("/("+config.get('NAMESPACE')+")\/([-a-zA-Z0-9_]+)"), proxy.path);
-app.put( new RegExp("/("+config.get('NAMESPACE')+")\/([-a-zA-Z0-9_]+)"), proxy.path);
-app.post(new RegExp("/("+config.get('NAMESPACE')+")\/([-a-zA-Z0-9_]+)"), proxy.path);
-app.get( /^\/api\/v1\/NAMESPACEs\/(\w)\/pods\/(\w)\/proxy\/(.*)/, proxy.path);
-app.get( /^\/api\/v1\/NAMESPACEs\/(\w)\/pods\/(\w)\/proxy/, proxy.path);
+app.get( /^\/direct\/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/, proxy.directPath);
+app.get( /^\/direct\/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\/(.*)/, proxy.directPath);
+app.put( /^\/direct\/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/, proxy.directPath);
+app.put( /^\/direct\/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\/(.*)/, proxy.directPath);
+app.post( /^\/direct\/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/, proxy.directPath);
+app.post( /^\/direct\/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\/(.*)/, proxy.directPath);
+
+app.get( /^\/api\/v1\/namespaces\/(\w)\/pods\/(\w)\/proxy\/(.*)/, proxy.path);
+app.get( /^\/api\/v1\/namespaces\/(\w)\/pods\/(\w)\/proxy/, proxy.path);
+app.put( /^\/api\/v1\/namespaces\/(\w)\/pods\/(\w)\/proxy\/(.*)/, proxy.path);
+app.put( /^\/api\/v1\/namespaces\/(\w)\/pods\/(\w)\/proxy/, proxy.path);
+app.post( /^\/api\/v1\/namespaces\/(\w)\/pods\/(\w)\/proxy\/(.*)/, proxy.path);
+app.post( /^\/api\/v1\/namespaces\/(\w)\/pods\/(\w)\/proxy/, proxy.path);
 
 app.get('/status', function (req, res, next) { res.send("{status: 'ok'}"); return next() });
 router.route('/sketch/:containerId').get(sketchController.getImage);
