@@ -38,7 +38,7 @@ Launch this project in a single step by running:
 
 [source, bash]
 ----
-oc new-app https://raw.githubusercontent.com/2015-Middleware-Keynote/hexboard/master/app_template.json -p ACCESS_TOKEN=$(oc whoami -t)
+oc new-app -f https://raw.githubusercontent.com/2015-Middleware-Keynote/hexboard/master/app_template.json -p ACCESS_TOKEN=$(oc whoami -t)
 ----
 
 You can also install the template into your current project, which will make it easier to launch using the web console:
