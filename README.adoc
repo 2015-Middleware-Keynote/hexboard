@@ -17,16 +17,13 @@ To use a local VM with vagrant, follow the setup instructions from link:http://b
 [source, bash]
 ----
 oc login <openshift-cluster-ip>
-oc config view
 ----
 
-After logging in, you'll be able to fetch your cli tool's `ACCESS_TOKEN` by running `oc whoami -t` for your openshift cluster and include it as needed in example commands.
-
-Export this configuration detail to use it in the following examples as `${ACCESS_TOKEN}`:
+After logging in, run `oc whoami` using the `-t` flag to fetch your cli tool's oauth access_token.  You will need this token to give the hexboard access to the kubernetes core services API:
 
 [source, bash]
 ----
-export ACCESS_TOKEN=$(oc whoami -t)
+oc whoami -t
 ----
 
 == Create a project
@@ -37,20 +34,26 @@ Create a project to house this application:
 oc new-project <project-name>
 ----
 
-Install and launch the project from a template:
+Launch this project in a single step by running:
+
+[source, bash]
+----
+oc new-app https://raw.githubusercontent.com/2015-Middleware-Keynote/hexboard/master/app_template.json -p ACCESS_TOKEN=$(oc whoami -t)
+----
+
+You can also install the template into your current project, which will make it easier to launch using the web console:
 
 [source, bash]
 ----
 oc create -f https://raw.githubusercontent.com/2015-Middleware-Keynote/hexboard/master/app_template.json
-oc process -v="ACCESS_TOKEN=${ACCESS_TOKEN},ADMIN_TOKEN=12345" hexboard | oc create -f -
 ----
 
 Or, create each service individually:
 
 [source, bash]
 ----
-oc new-app -l servicegroup=sketchpod openshift/nodejs-010-centos7~http://github.com/2015-Middleware-Keynote/sketchpod
-oc new-app -e "ACCESS_TOKEN=${ACCESS_TOKEN}" openshift/nodejs-010-centos7~http://github.com/2015-Middleware-Keynote/hexboard
+oc new-app -l servicegroup=sketchpod openshift/nodejs~http://github.com/2015-Middleware-Keynote/sketchpod
+oc new-app -e "ACCESS_TOKEN=${ACCESS_TOKEN}" openshift/nodejs~http://github.com/2015-Middleware-Keynote/hexboard
 ----
 
 Then, check the results:
@@ -117,7 +120,7 @@ To set the **required** `ACCESS_TOKEN` config, follow the instructions in the ab
 
 [source, bash]
 ----
-oc env dc/hexboard ACCESS_TOKEN="${ACCESS_TOKEN}"
+oc env dc/hexboard ACCESS_TOKEN=$(oc whoami -t)
 ----
 
 #### Admin Controls

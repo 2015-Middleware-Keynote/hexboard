@@ -20,7 +20,7 @@
         },
         {
             "description": "builder image",
-            "value": "openshift/nodejs-010-centos7",
+            "value": "nodejs:latest",
             "name": "BUILDER_IMAGE"
         },
         {
@@ -30,7 +30,7 @@
         },
         {
             "description": "The total number of hexagons (containers) to display in the UI",
-            "value": "xsmall",
+            "value": "micro",
             "name": "HEXBOARD_SIZE"
         },
         {
@@ -107,10 +107,10 @@
                     "type": "Source",
                     "sourceStrategy": {
                         "from": {
-                            "kind": "DockerImage",
-                            "name": "${BUILDER_IMAGE}:latest"
-                        },
-                        "incremental": true
+                            "kind": "ImageStreamTag",
+                            "namespace": "openshift",
+                            "name": "${BUILDER_IMAGE}"
+                        }
                     }
                 },
                 "output": {
@@ -281,10 +281,10 @@
                     "type": "Source",
                     "sourceStrategy": {
                         "from": {
-                            "kind": "DockerImage",
-                            "name": "${BUILDER_IMAGE}:latest"
-                        },
-                        "incremental": true
+                            "kind": "ImageStreamTag",
+                            "namespace": "openshift",
+                            "name": "${BUILDER_IMAGE}"
+                        }
                     }
                 },
                 "output": {
