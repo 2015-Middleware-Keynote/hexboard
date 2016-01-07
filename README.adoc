@@ -7,11 +7,11 @@ toc::[]
 
 = Basic Setup
 
-To get started, you'll need an OpenShiftV3 environment with a valid user account.
+To get started, you'll need an OpenShiftV3 environment with a valid user account. This project also expects the link:https://github.com/openshift/origin/tree/master/examples/image-streams[basic set of openshift builder images] to have been installed under the openshift namespace.
 
-You can create your own environment in Amazon EC2 using the link:https://github.com/2015-Middleware-Keynote/demo-ansible[demo-ansible] playbook.
+You can create your own OpenShiftV3 environment in Amazon EC2 using the link:https://github.com/2015-Middleware-Keynote/demo-ansible[demo-ansible] playbook.
 
-To use a local VM with vagrant, follow the setup instructions from link:http://bit.ly/v3devs[this workshop]
+To create your own local OpenShift VM with Vagrant, see link:https://www.openshift.org/vm/[openshift.org/vm/].
 
 == Authentication
 [source, bash]
@@ -31,7 +31,7 @@ Create a project to house this application:
 
 [source, bash]
 ----
-oc new-project <project-name>
+oc new-project hexboard
 ----
 
 Launch this project in a single step by running:
