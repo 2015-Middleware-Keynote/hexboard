@@ -176,7 +176,7 @@ To scale the number of hexagons (either up or down) run the command:
 
 [source, bash]
 ----
-oc scale rc/sketchpod-1 --replicas=<number>
+oc scale dc/sketchpod-1 --replicas=<number>
 ----
 
 After scaling up, try submitting sketches by visiting the hexboard's bundled mobile web submission form, at `http://your-hexboard-hostname/mobile/`.
