@@ -50,12 +50,12 @@ var PodParser = function() {
     };
     var podName = update.object.spec.containers[0].name;
     if (   podName.search('hexboard') !== -1
-	|| podName.search('build')    !== -1
-	|| podName.search('deploy')   !== -1
-	|| !update.object.status
-	|| !update.object.status.phase)
+       || podName.search('build')    !== -1
+       || podName.search('deploy')   !== -1
+       || !update.object.status
+       || !update.object.status.phase )
     {
-      //console.log(tag, 'Ignoring update for container name:', update.object.spec.containers[0].name);
+      console.log(tag, 'Ignoring update for container name:', update.object.spec.containers[0].name);
     } else {
       var replicaName = update.object.metadata.name;
       //bundle the pod data
@@ -70,6 +70,9 @@ var PodParser = function() {
         creationTimestamp: new Date(update.object.metadata.creationTimestamp)
       }
       if (update.type === 'DELETED') {
+        returnIdToPool(update);
+        update.data.stage = 0;
+      } else if (update.object.status.phase === 'Failed' ) {
         returnIdToPool(update);
         update.data.stage = 0;
       } else if (update.object.status.phase === 'Pending' && ! update.object.spec.nodeName ) {
