@@ -42,7 +42,7 @@ var environment = {
     url: 'https://' + config.get('OPENSHIFT_SERVER') + '/api/v1/namespaces/' + config.get('NAMESPACE') + '/pods'
   , auth: {bearer:  config.get('OAUTH_TOKEN')}
   , pool: listWatchAgent
-  , qs: "watch=true"
+  , qs: {watch: true}
   }, optionsBase)
 , state: {first  : true, pods: {}}
 , subjects: _.range(hexboard.layout.count).map(function(index) {
