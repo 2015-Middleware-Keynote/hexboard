@@ -24,12 +24,12 @@ var optionsBase = {
 
 var listWatchAgent = new http.Agent({
   keepAlive: true,
-  maxSockets: 8
+  maxSockets: 80
 });
 
 var verifyAgent = new http.Agent({
   keepAlive: true,
-  maxSockets: 5
+  maxSockets: 500
 });
 
 var environment = {
@@ -194,15 +194,35 @@ var watch = function(env) {
     try {
       var pod = JSON.parse(data);
       pod.timestamp = new Date();
-      var name = pod.object.metadata.name;
-      var oldPod = env.state.pods[pod.object.metadata.name];
-      if (!oldPod || oldPod.object.metadata.resourceVersion != pod.object.metadata.resourceVersion) {
-        env.state.pods[name] = pod;
-        return [pod];
+      if( pod.kind && pod.kind == 'PodList'){
+        console.log("PodList found:");
+        var list = [];
+        var item = {};
+        var oldPod = {};
+        env.watchOptions.qs.latestResourceVersion = pod.metadata.resourceVersion;
+        for (var i = 0; i < pod.items.length; i++) {
+          item = { type: 'List Result', object: pod.items[i] };
+          oldPod = env.state.pods[item.object.metadata.name];
+          if (!oldPod || oldPod.object.metadata.resourceVersion != item.object.metadata.resourceVersion) {
+            env.state.pods[item.object.metadata.name] = item;
+            list.push( item );
+          }
+        }
+        return list;
       }
-      else {
-        return [];
+      if( pod.object && pod.object.metadata && pod.object.metadata.name ){
+        console.log("Single Pod found:");
+        var name = pod.object.metadata.name;
+        var oldPod = env.state.pods[pod.object.metadata.name];
+        env.watchOptions.qs.latestResourceVersion = pod.object.metadata.resourceVersion;
+        if (!oldPod || oldPod.object.metadata.resourceVersion != pod.object.metadata.resourceVersion) {
+          env.state.pods[name] = pod;
+          return [pod];
+        }
       }
+      console.log("unhandled watch pod response:")
+      console.log(pod);
+      return [];
     } catch(e) {
       console.log(tag, 'JSON parsing error:', e);
       console.log(data);
