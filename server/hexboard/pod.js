@@ -24,7 +24,7 @@ var optionsBase = {
 
 var listWatchAgent = new http.Agent({
   keepAlive: true,
-  maxSockets: 80
+  maxSockets: 3
 });
 
 var verifyAgent = new http.Agent({
