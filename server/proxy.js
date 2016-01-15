@@ -39,8 +39,8 @@ var path = function(req, res, next) {
 
 var directPath  = function(req, res, next){
   var namespace = config.get('NAMESPACE');
-  var podIp     = req.params[0]+'.'+req.params[1]+'.'+req.params[2]+'.'+req.params[3] ;
-  var filePath  = req.params[4] || '';
+  var podIp     = req.params[0];
+  var filePath  = req.params[1] || '';
   var pod_host  = "http://"+podIp+":8080";
   var qs        = url.parse(req.url).search
   req.url = filePath;
