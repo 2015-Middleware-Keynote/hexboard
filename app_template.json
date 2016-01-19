@@ -41,14 +41,14 @@
         },
         {
             "description": "Generic webhook secret",
-            "from": "[a-zA-Z0-9_]{16}",
             "generate": "expression",
+            "from": "[a-zA-Z0-9]{40}",
             "name": "GENERIC_WEBHOOK_SECRET"
         },
         {
             "description": "GitHub webhook secret",
-            "from": "[a-zA-Z0-9_]{16}",
             "generate": "expression",
+            "from": "[a-zA-Z0-9]{40}",
             "name": "GITHUB_WEBHOOK_SECRET"
         }
     ],
@@ -273,7 +273,7 @@
                 "source": {
                     "type": "Git",
                     "git": {
-                        "uri": "http://github.com/2015-Middleware-Keynote/hexboard",
+                        "uri": "http://github.com/ryanj/hexboard",
                         "ref": "master"
                     }
                 },
