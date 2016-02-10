@@ -275,7 +275,7 @@ var verifyStream = function(env) {
       return Rx.Observable.merge(
         Rx.Observable.just(parsed)
       , verifyPodAvailable(parsed, 20000)
-        .retryWhen(retryVerification(5))
+        .retryWhen(retryVerification(500))
         .catch(Rx.Observable.empty())
         .filter(function(parsed) {
           return parsed;
@@ -342,7 +342,7 @@ var watchStream = function(env, stream) {
           }
         })
       })
-      .retryWhen(retryVerification(10))
+      .retryWhen(retryVerification(100))
       .catch(Rx.Observable.return(pod));
     })
     // .subscribeOnError(function(err) {
