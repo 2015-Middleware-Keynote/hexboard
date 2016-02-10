@@ -4,6 +4,7 @@ var autoconfig = function (config_overrides){
     OAUTH_TOKEN: process.env.ACCESS_TOKEN || false
   , ADMIN_TOKEN: process.env.ADMIN_TOKEN || false
   , ALLOWED_SUBNET: process.env.ALLOWED_SUBNET || false
+  , SKIP_HEALTH_CHECK: process.env.SKIP_HEALTH_CHECK || false
   , MOBILE_ENABLED: process.env.MOBILE_ENABLED || false
   , WINNER_COUNT: process.env.WINNER_COUNT || 10
   , NAMESPACE  : process.env.NAMESPACE || process.env.OPENSHIFT_BUILD_NAMESPACE || 'hexboard'
