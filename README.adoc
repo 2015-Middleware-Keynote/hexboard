@@ -188,7 +188,7 @@ You can show this functionality by deleting a group of pods.  This example makes
 
 [source, bash]
 ----
-oc delete pod $(oc get pods | grep ^sketchpod | grep -v build | sed -e "s/^\(sketchpod-[0-9]*-[a-z0-9]*\)[ \t].*/\1 /" | head -n 5 | tr -d "\n" )
+oc delete pod $(oc get pods | grep ^sketchpod | grep -v build | sed -e "s/^\(sketchpod-[0-9]*-[a-z0-9]*\)[ \t].*/\1 /" | sort -R | head -n 5 | tr -d "\n" )
 ----
 
 = Local Development
