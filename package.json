@@ -25,7 +25,7 @@
     "gulp-plumber": "^0.6.6",
     "gulp-rename": "https://registry.npmjs.org/gulp-rename/-/gulp-rename-1.2.2.tgz",
     "gulp-sass": "^2.0.4",
-    "gulp-template": "^3.0.0",
+    "gulp-template": "^4.0.0",
     "gulp-util": "^3.0.4",
     "node-env-file": "^0.1.7",
     "open": "0.0.5"
