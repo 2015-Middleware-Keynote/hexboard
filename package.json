@@ -44,7 +44,7 @@
     "morgan": "^1.7.0",
     "netmask": "^1.0.5",
     "numeral": "^1.5.3",
-    "patternfly": "^3.3.3",
+    "patternfly": "^3.3.4",
     "q": "^2.0.3",
     "request": "^2.71.0",
     "rx": "^4.0.8",
