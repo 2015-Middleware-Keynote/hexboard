@@ -44,6 +44,10 @@ var PodParser = function() {
     return idMap[stringId];
   };
 
+  function readyPodConditionFilter(status) {
+      return status.type == "Ready"
+  }
+
   var parseData = function(update) {
     if (! (update && update.object && update.object.spec && update.object.spec.containers && update.object.spec.containers.length > 0)) {
       return update;
@@ -79,9 +83,9 @@ var PodParser = function() {
         update.data.stage = 1;
       } else if (update.object.status.phase === 'Pending' && update.object.spec.nodeName ) {
         update.data.stage = 2;
-      } else if (update.object.status.phase === 'Running' && update.object.status.conditions[0].type == 'Ready' && update.object.status.conditions[0].status === 'False') {
+      } else if (update.object.status.phase === 'Running' && update.object.status.conditions.find(readyPodConditionFilter) && update.object.status.conditions.find(readyPodConditionFilter).status === 'False') {
         update.data.stage = 3;
-      } else if (update.object.status.phase === 'Running' && update.object.status.conditions[0].type == 'Ready' && update.object.status.conditions[0].status === 'True') {
+      } else if (update.object.status.phase === 'Running' && update.object.status.conditions.find(readyPodConditionFilter) && update.object.status.conditions.find(readyPodConditionFilter).status === 'True') {
         update.data.ip = update.object.status.podIP;
         update.data.port = 8080;
         // Construct a route to the back-end service
